@@ -59,7 +59,7 @@ namespace pr_sensors_actuators
           exit(2);
         }
 
-        timer_ = this->create_wall_timer(10ms, std::bind(&ForceSensor::timer_callback, this));
+        timer_ = this->create_wall_timer(5ms, std::bind(&ForceSensor::timer_callback, this));
         
         publisher_ = this->create_publisher<geometry_msgs::msg::AccelStamped>("force_state", 1);
         RCLCPP_INFO(this->get_logger(), "Sensor configurado");
