@@ -14,7 +14,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "pr_msgs/msg/pr_array.hpp"
-#include "pr_msgs/msg/pr_force_state.hpp"
+#include "geometry_msgs/msg/accel_stamped.hpp"
 
 #define PORT 49152 /* Port the Net F/T always uses */
 #define COMMAND 2 /* Command code 2 starts streaming */
@@ -42,7 +42,7 @@ namespace pr_sensors_actuators
 	            int32_t FTData[6];
             } RESPONSE;
 
-            rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_;
+            rclcpp::Publisher<geometry_msgs::msg::AccelStamped>::SharedPtr publisher_;
             rclcpp::TimerBase::SharedPtr timer_;
             int socketHandle;
             uint8_t request[8];	/* The request data sent to the Net F/T. */

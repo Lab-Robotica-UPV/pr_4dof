@@ -193,7 +193,7 @@ def generate_launch_description():
                     node_plugin='pr_modelling::ForwardJacobian',
                     node_name='for_jac',
                     remappings=[
-                        ("x_coord", "x_coord"),
+                        ("x_coord", "x_mocap_sync"),
                         ("for_jac_det", "for_jac_det"),
                     ],
                     parameters=[
@@ -206,7 +206,7 @@ def generate_launch_description():
                     node_plugin='pr_modelling::AngOTS',
                     node_name='ang_ots',
                     remappings=[
-                        ("x_coord_cams", "x_coord"),
+                        ("x_coord_cams", "x_mocap_sync"),
                         ("ang_ots", "ang_ots"),
                     ],
                     parameters=[
@@ -223,7 +223,7 @@ def generate_launch_description():
                     node_name='sing_evader',
                     remappings=[
                         ("ref_pose", "ref_pose"),
-                        ("x_coord", "x_coord"),
+                        ("x_coord", "x_mocap_sync"),
                         ("ang_ots", "ang_ots"),
                         ("for_jac_det", "for_jac_det"),
                         ("ref_mod", "ref_mod")

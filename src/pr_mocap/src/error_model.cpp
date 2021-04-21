@@ -19,7 +19,9 @@ namespace pr_mocap
     {
         //Parameter declaration
         this->declare_parameter<double>("tol", 0.01);
+
         this->get_parameter("tol", tol);
+
         
         publisher_info_ = this->create_publisher<pr_msgs::msg::PRMocap>(
 			"x_mocap_error", 
@@ -40,6 +42,8 @@ namespace pr_mocap
             "x_coord",
             1,
             std::bind(&ErrorModel::model_callback, this, _1));
+
+        is_connected = false;
     }
 
     void ErrorModel::mocap_callback(const pr_msgs::msg::PRMocap::SharedPtr x_mocap_msg)
