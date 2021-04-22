@@ -1,4 +1,4 @@
-#include "pr_ref_gen/sing_evader.hpp"
+#include "pr_sing/sing_releaser.hpp"
 
 #include <chrono>
 #include <memory>
@@ -14,11 +14,11 @@
 #include "pr_lib/pr_limits.hpp"
 
 
-namespace pr_ref_gen
+namespace pr_sing
 {
     /**** Singularity CONTROLLER COMPONENT ****/
-    SingEvader::SingEvader(const rclcpp::NodeOptions & options)
-    : Node("sin_evader", options)
+    SingReleaser::SingReleaser(const rclcpp::NodeOptions & options)
+    : Node("sing_releaser", options)
     {
         //Parameter declaration
         this->declare_parameter<std::vector<double>>(
@@ -63,7 +63,7 @@ namespace pr_ref_gen
         sub_det.subscribe(this, "for_jac_det");
 
         sync_.reset(new Synchronizer(SyncPolicy(1), sub_ref, sub_x, sub_ots, sub_det));
-        sync_->registerCallback(std::bind(&SingEvader::topic_callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+        sync_->registerCallback(std::bind(&SingReleaser::topic_callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("ref_pose_mod", 1);
 
@@ -72,7 +72,7 @@ namespace pr_ref_gen
 
     }
 
-    void SingEvader::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& ref_msg,
+    void SingReleaser::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& ref_msg,
                                     const pr_msgs::msg::PRArrayH::ConstPtr& x_msg,
                                     const pr_msgs::msg::PROTS::ConstPtr& ots_msg,
                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det)
@@ -142,4 +142,4 @@ namespace pr_ref_gen
 // Register the component with class_loader.
 // This acts as a sort of entry point, allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pr_ref_gen::SingEvader)
+RCLCPP_COMPONENTS_REGISTER_NODE(pr_sing::SingReleaser)

@@ -24,7 +24,7 @@ def generate_launch_description():
     controller_params_file = os.path.join(
         get_package_share_directory('pr_bringup'),
         'config',
-        'pr_gus_sing_evader.yaml'
+        'pr_gus_sing_releaser.yaml'
     )
 
     mocap_config = os.path.join(
@@ -219,8 +219,8 @@ def generate_launch_description():
 
                 ComposableNode(
                     package='pr_ref_gen',
-                    node_plugin='pr_ref_gen::SingEvader',
-                    node_name='sing_evader',
+                    node_plugin='pr_ref_gen::SingReleaser',
+                    node_name='sing_releaser',
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("x_coord", "x_mocap_sync"),
@@ -230,14 +230,14 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
-                        {"lmin_Ang_OTS": controller_params['sing_evader']['lmin_Ang_OTS']},
-                        {"lmin_FJac": controller_params['sing_evader']['lmin_FJac']},
-                        {"ncomb": controller_params['sing_evader']['ncomb']},
-                        {"iter_fk": controller_params['sing_evader']['fk']['iter']},
-                        {"tol_fk": controller_params['sing_evader']['fk']['tol']},
-                        {"iter_OTS": controller_params['sing_evader']['ots']['iter']},
-                        {"tol_OTS": controller_params['sing_evader']['ots']['tol']},
-                        {"t_activation": controller_params['sing_evader']['t_activation']},
+                        {"lmin_Ang_OTS": controller_params['sing_releaser']['lmin_Ang_OTS']},
+                        {"lmin_FJac": controller_params['sing_releaser']['lmin_FJac']},
+                        {"ncomb": controller_params['sing_releaser']['ncomb']},
+                        {"iter_fk": controller_params['sing_releaser']['fk']['iter']},
+                        {"tol_fk": controller_params['sing_releaser']['fk']['tol']},
+                        {"iter_OTS": controller_params['sing_releaser']['ots']['iter']},
+                        {"tol_OTS": controller_params['sing_releaser']['ots']['tol']},
+                        {"t_activation": controller_params['sing_releaser']['t_activation']},
                         {"ts": controller_params['ts']}
                     ]
                 ),

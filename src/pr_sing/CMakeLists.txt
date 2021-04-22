@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(pr_ref_gen)
+project(pr_sing)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -33,6 +33,7 @@ include_directories(include)
 
 set(node_plugins "")
 
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -44,54 +45,32 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+### Sing Releaser node ###
 
-### Pose Ref Generator node ###
+add_library(sing_releaser SHARED
+  src/sing_releaser.cpp)
 
-add_library(ref_pose SHARED
-  src/ref_pose.cpp)
-
-target_compile_definitions(ref_pose
+target_compile_definitions(sing_releaser
   PRIVATE "COMPOSITION_BUILDING_DLL")
 
-ament_target_dependencies(ref_pose
+ament_target_dependencies(sing_releaser
   "rclcpp"
   "rclcpp_components"
   "pr_msgs"
   "std_msgs"
   "pr_lib"
-  "Eigen3")
+  "Eigen3"
+  "message_filters")
 
-rclcpp_components_register_nodes(ref_pose "pr_ref_gen::RefPose")
-set(node_plugins "${node_plugins}pr_ref_gen::RefPose;$<TARGET_FILE:ref_pose>\n")
-
-### Ref Server node ###
-
-add_library(ref_server SHARED
-  src/ref_server.cpp)
-
-target_compile_definitions(ref_server
-  PRIVATE "COMPOSITION_BUILDING_DLL")
-
-ament_target_dependencies(ref_server
-  "rclcpp"
-  "rclcpp_components"
-  "pr_msgs"
-  "std_msgs"
-  "pr_lib"
-  "Eigen3")
-
-rclcpp_components_register_nodes(ref_server "pr_ref_gen::RefServer")
-set(node_plugins "${node_plugins}pr_ref_gen::RefServer;$<TARGET_FILE:ref_server>\n")
-
+rclcpp_components_register_nodes(sing_releaser "pr_sing::SingReleaser")
+set(node_plugins "${node_plugins}pr_sing::SingReleaser;$<TARGET_FILE:sing_releaser>\n")
 
 ### Installation ###
 
 install(TARGETS
-  ref_pose
-  ref_server
+  sing_releaser
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
-
 
 ament_package()

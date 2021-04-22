@@ -1,5 +1,5 @@
-#ifndef PR_REF_GEN__SING_EVADER_HPP_
-#define PR_REF_GEN__SING_EVADER_HPP_
+#ifndef PR_SING__SING_RELEASER_HPP_
+#define PR_SING__SING_RELEASER_HPP_
 
 #include <vector>
 #include <cmath>
@@ -18,13 +18,13 @@
 #include "pr_lib/pr_singularity.hpp"
 
 
-namespace pr_ref_gen
+namespace pr_sing
 {
-    class SingEvader : public rclcpp::Node
+    class SingReleaser : public rclcpp::Node
     {
         public:
-            //PR_REF_GEN_PUBLIC
-            explicit SingEvader(const rclcpp::NodeOptions & options);
+            //PR_SING_PUBLIC
+            explicit SingReleaser(const rclcpp::NodeOptions & options);
 
         protected:
 
@@ -67,4 +67,4 @@ namespace pr_ref_gen
     };
 }
 
-#endif // PR_REF_GEN__SING_EVADER_HPP_
+#endif // PR_SING__SING_RELEASER_HPP_
