@@ -1,5 +1,5 @@
-#ifndef PR_SING__SING_RELEASER_HPP_
-#define PR_SING__SING_RELEASER_HPP_
+#ifndef PR_SING__SING_EVADER_HPP_
+#define PR_SING__SING_EVADER_HPP_
 
 #include <vector>
 #include <cmath>
@@ -20,28 +20,33 @@
 
 namespace pr_sing
 {
-    class SingReleaser : public rclcpp::Node
+    class SingEvader : public rclcpp::Node
     {
         public:
             //PR_SING_PUBLIC
-            explicit SingReleaser(const rclcpp::NodeOptions & options);
+            explicit SingEvader(const rclcpp::NodeOptions & options);
 
         protected:
 
             void topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& ref_msg,
                                      const pr_msgs::msg::PRArrayH::ConstPtr& x_msg,
-                                     const pr_msgs::msg::PROTS::ConstPtr& ots_msg,
-                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det);
+                                     const pr_msgs::msg::PROTS::ConstPtr& ots_ref_msg,
+                                     const pr_msgs::msg::PROTS::ConstPtr& ots_med_msg,
+                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det_ref,
+                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det_med);
 
         private:
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_ref;
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_x;
-            message_filters::Subscriber<pr_msgs::msg::PROTS> sub_ots;
-            message_filters::Subscriber<pr_msgs::msg::PRFloatH> sub_det;
+            message_filters::Subscriber<pr_msgs::msg::PROTS> sub_ots_ref;
+            message_filters::Subscriber<pr_msgs::msg::PROTS> sub_ots_med;
+            message_filters::Subscriber<pr_msgs::msg::PRFloatH> sub_det_ref;
+            message_filters::Subscriber<pr_msgs::msg::PRFloatH> sub_det_med;
 
             typedef message_filters::sync_policies::ExactTime
                     <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
-                     pr_msgs::msg::PROTS, pr_msgs::msg::PRFloatH> SyncPolicy;
+                     pr_msgs::msg::PROTS, pr_msgs::msg::PROTS,
+                     pr_msgs::msg::PRFloatH, pr_msgs::msg::PRFloatH> SyncPolicy;
 
             typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
             std::shared_ptr<Synchronizer> sync_;
@@ -49,8 +54,9 @@ namespace pr_sing
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_;
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_vc_;
 
-            Eigen::Matrix<double,6,4> OTS = Eigen::Matrix<double,6,4>::Zero();
-            Eigen::Matrix<double,6,1> angOTS = Eigen::Matrix<double,6,1>::Zero();
+            Eigen::Matrix<double,6,4> OTS_med = Eigen::Matrix<double,6,4>::Zero();
+            Eigen::Matrix<double,6,1> angOTS_ref = Eigen::Matrix<double,6,1>::Zero();
+            Eigen::Matrix<double,6,1> angOTS_med = Eigen::Matrix<double,6,1>::Zero();
             Eigen::MatrixXi minc_des;
             Eigen::Vector4i vc_des = Eigen::Vector4i::Zero();
             Eigen::Vector4d q_ind_mod = Eigen::Vector4d::Zero();
@@ -61,9 +67,9 @@ namespace pr_sing
             
             std::vector<double> robot_params;
             int iterations=0, iter_max=30, ncomb, iter_OTS;
-            double tol, tol_OTS, t_activation, ts, des_qind, lmin_Ang_OTS, lmin_FJac;
+            double tol, tol_OTS, ts, des_qind, lmin_Ang_OTS, lmin_FJac;
 
     };
 }
 
-#endif // PR_SING__SING_RELEASER_HPP_
+#endif // PR_SING__SING_EVADER_HPP_

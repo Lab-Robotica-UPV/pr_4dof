@@ -65,10 +65,31 @@ ament_target_dependencies(sing_releaser
 rclcpp_components_register_nodes(sing_releaser "pr_sing::SingReleaser")
 set(node_plugins "${node_plugins}pr_sing::SingReleaser;$<TARGET_FILE:sing_releaser>\n")
 
+### Sing Evader node ###
+
+add_library(sing_evader SHARED
+  src/sing_evader.cpp)
+
+target_compile_definitions(sing_evader
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(sing_evader
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "std_msgs"
+  "pr_lib"
+  "Eigen3"
+  "message_filters")
+
+rclcpp_components_register_nodes(sing_evader "pr_sing::SingEvader")
+set(node_plugins "${node_plugins}pr_sing::SingEvader;$<TARGET_FILE:sing_evader>\n")
+
 ### Installation ###
 
 install(TARGETS
   sing_releaser
+  sing_evader
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

@@ -47,27 +47,65 @@ namespace PRSingularity
        const double &betaMD, const double &betaMI
     );
 
-    Eigen::Vector4d CalculateQindMod(
+    Eigen::VectorXd PosiblesAngOTS(
+        const Eigen::Vector4d &q_ind_mod,
+        const Eigen::Vector4d &X_cart,
+        const Eigen::Matrix<double,6,4> &OTS_med,
+        const double &des_qind,
+        const Eigen::Vector2i i_qind,
+        const Eigen::MatrixXi &minc_des,
+        const int &ncomb,
+		const double &tol_FK,
+		const int &iter_FK,
+        const int &iter_OTS,
+		const double &tol_OTS,
+        const std::vector<double> &RParam,
+        const Eigen::Matrix<double,4,2> &Mlim_q_ind,
+		const Eigen::Vector4d &Vlim_angp
+    );
+
+
+    Eigen::Vector4d CalculateQindModReleaser(
         const Eigen::Vector4d &X_cart, 
         const Eigen::Vector4d &q_ref, 
         const Eigen::Matrix<double,6,1> &angOTS, 
         const Eigen::Matrix<double,6,4> &solOTS,
-		const Eigen::Matrix<double,2,8> &minc_des,
+		const Eigen::MatrixXi &minc_des,
 		const double &fj_det,
 		const std::vector<double> &RParam,
-		Eigen::Vector4d &vc_des,
-		Eigen::Matrix<double,4,-1> &mq_ind_mod,
+		Eigen::Vector4i &vc_des,
 		const Eigen::Matrix<double,4,2> &Mlim_q_ind,
 		const Eigen::Vector4d &Vlim_angp,
-		double des_qind,
-		const double lmin_Ang_OTS,
-		const double lmin_FJac,
-		const double tol,
-		const int iter_max,
-		const double tol_OTS,
-		const double iter_OTS,
-		int ncomb,
-		bool enable
+		const double &des_qind,
+		const double &lmin_Ang_OTS,
+		const double &lmin_FJac,
+		const double &tol_FK,
+		const int &iter_FK,
+		const double &tol_OTS,
+		const double &iter_OTS,
+		const bool &enable
+    );
+
+    Eigen::Vector4d CalculateQindModEvader(
+        const Eigen::Vector4d &X_cart, 
+        const Eigen::Vector4d &q_ref, 
+        const Eigen::Matrix<double,6,1> &angOTS_ref, 
+		const Eigen::Matrix<double,6,1> &angOTS_med,
+        const Eigen::Matrix<double,6,4> &solOTS_med,
+		const Eigen::MatrixXi &minc_des,
+		const double &det_JDir_med,
+		const double &det_JDir_ref,
+		const std::vector<double> &RParam,
+		Eigen::Vector4i &vc_des,
+		const Eigen::Matrix<double,4,2> &Mlim_q_ind,
+		const Eigen::Vector4d &Vlim_angp,
+		const double &des_qind,
+		const double &lmin_Ang_OTS,
+		const double &lmin_JDir,
+		const double &tol_FK,
+		const int &iter_FK,
+		const double &tol_OTS,
+		const double &iter_OTS
     );
 
 }

@@ -20,8 +20,7 @@ ots:
   tol: 0.0000001
   iter: 30
 
-sing_releaser:
-  ncomb: 8
+sing_releaser_evader:
   lmin_Ang_OTS: 2.0
   lmin_FJac: 0.015
   fk:

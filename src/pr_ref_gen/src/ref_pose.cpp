@@ -37,12 +37,14 @@ namespace pr_ref_gen
         this->get_parameter("robot_config_params", robot_params);
 
         //Read file
-        if(PRUtils::read_file(ref_matrix, ref_path)==-1){
+        if(PRUtils::read_file(ref_matrix_x, ref_path)==-1){
             RCLCPP_ERROR(this->get_logger(), "Could not open file");
             return;
         }
         RCLCPP_INFO(this->get_logger(), "Pose references file opened");
-        n_ref = ref_matrix.rows();
+        n_ref = ref_matrix_x.rows();
+
+        ref_matrix_q = Eigen::MatrixXd::Zero(n_ref, 4);
 
         if(is_cart)
         {
@@ -50,15 +52,20 @@ namespace pr_ref_gen
             for(int i=0; i<n_ref; i++)
             {
                 Eigen::RowVector4d q_row;
-                Eigen::RowVector4d x_row = ref_matrix.row(i);
+                Eigen::RowVector4d x_row = ref_matrix_x.row(i);
                 PRModel::InverseKinematicsPrism(q_row, x_row, robot_params);
-                ref_matrix.row(i) = q_row; 
+                ref_matrix_q.row(i) = q_row; 
             }
         }
 
         //Create communication
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
             "ref_pose",
+            1
+        );
+
+        publisher_x_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
+            "ref_pose_x",
             1
         );
 
@@ -80,15 +87,22 @@ namespace pr_ref_gen
     {
         if(idx<n_ref)
         {
-            auto ref_msg = pr_msgs::msg::PRArrayH();
+            auto ref_msg_q = pr_msgs::msg::PRArrayH();
+            auto ref_msg_x = pr_msgs::msg::PRArrayH();
             //CONVERTIR A FUNCIÓN
-            for(int i=0; i<4; i++)
-                ref_msg.data[i] = ref_matrix(idx, i);
+            for(int i=0; i<4; i++){
+                ref_msg_q.data[i] = ref_matrix_q(idx, i);
+                ref_msg_x.data[i] = ref_matrix_x(idx, i);
+            }
 
-            ref_msg.current_time = this->get_clock()->now();
-            ref_msg.header.stamp = q_msg->header.stamp;
-            ref_msg.header.frame_id = q_msg->header.frame_id;
-            publisher_->publish(ref_msg); 
+            ref_msg_q.current_time = this->get_clock()->now();
+            ref_msg_q.header.stamp = q_msg->header.stamp;
+            ref_msg_q.header.frame_id = q_msg->header.frame_id;
+            ref_msg_x.current_time = this->get_clock()->now();
+            ref_msg_x.header.stamp = q_msg->header.stamp;
+            ref_msg_x.header.frame_id = q_msg->header.frame_id;
+            publisher_->publish(ref_msg_q); 
+            publisher_x_->publish(ref_msg_x);
         }
         else
         {
