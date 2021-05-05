@@ -36,18 +36,19 @@ namespace pr_ref_gen
         this->get_parameter("is_cart", is_cart);
         this->get_parameter("robot_config_params", robot_params);
 
-        //Read file
-        if(PRUtils::read_file(ref_matrix_x, ref_path)==-1){
-            RCLCPP_ERROR(this->get_logger(), "Could not open file");
-            return;
-        }
-        RCLCPP_INFO(this->get_logger(), "Pose references file opened");
-        n_ref = ref_matrix_x.rows();
-
-        ref_matrix_q = Eigen::MatrixXd::Zero(n_ref, 4);
-
         if(is_cart)
         {
+
+            //Read file
+            if(PRUtils::read_file(ref_matrix_x, ref_path)==-1){
+                RCLCPP_ERROR(this->get_logger(), "Could not open file");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "Pose references file opened");
+            n_ref = ref_matrix_x.rows();
+
+            ref_matrix_q = Eigen::MatrixXd::Zero(n_ref, 4);
+            
             //Cartesian to joint conversion (Inverse kinematics)
             for(int i=0; i<n_ref; i++)
             {
@@ -56,6 +57,19 @@ namespace pr_ref_gen
                 PRModel::InverseKinematicsPrism(q_row, x_row, robot_params);
                 ref_matrix_q.row(i) = q_row; 
             }
+        }
+
+        else{
+            //Read file
+            if(PRUtils::read_file(ref_matrix_q, ref_path)==-1){
+                RCLCPP_ERROR(this->get_logger(), "Could not open file");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "Pose references file opened");
+            n_ref = ref_matrix_q.rows();
+
+            //In this case, ref_matrix_x have zeros and should not be used
+            ref_matrix_x = Eigen::MatrixXd::Zero(n_ref, 4);
         }
 
         //Create communication

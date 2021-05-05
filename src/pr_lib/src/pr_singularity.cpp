@@ -406,18 +406,26 @@ Eigen::Vector4d PRSingularity::CalculateQindModReleaser(
 )
 {
 	Eigen::Vector4d q_ind_mod = q_ref+des_qind*vc_des.cast<double>();
+	//std:: cout << q_ind_mod.transpose() << std::endl;
+	std:: cout << X_cart.transpose() << std::endl;
 	
 	// Activacio0n de las modificaciones de las referencias
 	if (enable){
+
+		std::cout << "Holasing 0" << std::endl;
 
 		double minAng_OTS, maxAng_OTS_mod;
 		Eigen::Vector2i i_qind = Eigen::Vector2i::Zero();
 
 		// Minimo angulo entre un par de ejes instantaneos de los OTS medidos
 		minAng_OTS = angOTS.minCoeff();
+		std::cout << minAng_OTS;
+		std::cout << abs(fj_det) << std::endl;
 
 		// Condicion para modificar la referencia
 		if (minAng_OTS<lmin_Ang_OTS || abs(fj_det) < lmin_FJac){
+
+			std::cout << "Holasing 1" << std::endl;
 			
 			// Identifico las patas que causan el minimo angulo de OTS
 			// OJO! Se les resta una unidad (un 0 es la pata 1 y un 3 es la pata 4)
@@ -444,6 +452,7 @@ Eigen::Vector4d PRSingularity::CalculateQindModReleaser(
 					if (solAngOTS_mod(i) == maxAng_OTS_mod){
 						vc_des(i_qind(0)) += minc_des(0,i);
 						vc_des(i_qind(1)) += minc_des(1,i);
+						std::cout << "Holasing 2" << std::endl;
 						break;
 					}
 				}

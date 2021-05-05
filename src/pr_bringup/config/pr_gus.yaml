@@ -12,4 +12,4 @@ controller:
   k1: 0.75
   k2: 0.5
 
-ref_path: "/home/paralelo4dofnew/ros2_eloquent_ws/parallel_robot/references/referencia_manual.txt"
+ref_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/referencia_manual.txt"

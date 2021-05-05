@@ -29,8 +29,8 @@ sing_releaser_evader:
   ots:
     tol: 0.0000001
     iter: 30
-  t_activation: 44.59
+  t_activation: 29.0 #44.59
 
 ref_path:
-  q: "/home/paralelo4dofnew/ros2_eloquent_ws/parallel_robot/references/ref_qinde_TR15_CF1_V1.txt"
-  x: "/home/paralelo4dofnew/ros2_eloquent_ws/parallel_robot/references/ref_cart_TR15_CF1_V1.txt"
+  q: "/home/rafa/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_TR15_CF1_V1.txt"
+  x: "/home/rafa/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_TR15_CF1_V1.txt"
