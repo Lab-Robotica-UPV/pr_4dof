@@ -152,12 +152,13 @@ def generate_launch_description():
                     node_name='ref_pose_gen',
                     remappings=[
                         ("ref_pose", "ref_pose"),
+                        ("ref_pose_x", "ref_pose_x"),
                         ("end_flag", "end_flag"),
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file_q},
-                        {"is_cart": False},
+                        {"ref_path": ref_file_x},
+                        {"is_cart": True},
                         {"robot_config_params": pr_config_params}
                     ]
                 ),
@@ -171,14 +172,14 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"ts_ms": controller_params['ts']*1000},
-                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/replay/CF1_V1/med_qind_TR15_CF1_V1_releaser.txt"}
+                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/replay/CF1_V1/med_qind_TR15_CF1_V1_evader.txt"}
                     ]
                 ),
 
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::ForwardKinematics',
-                    node_name='for_kin',
+                    node_name='for_kin_med',
                     remappings=[
                         ("joint_position", "joint_position"),
                         ("x_coord", "x_coord"),
@@ -194,10 +195,23 @@ def generate_launch_description():
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::ForwardJacobian',
-                    node_name='for_jac',
+                    node_name='for_jac_med',
                     remappings=[
                         ("x_coord", "x_coord"),
-                        ("for_jac_det", "for_jac_det"),
+                        ("for_jac_det", "for_jac_det_med"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": pr_config_params},
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::ForwardJacobian',
+                    node_name='for_jac_ref',
+                    remappings=[
+                        ("x_coord", "ref_pose_x"),
+                        ("for_jac_det", "for_jac_det_ref"),
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
@@ -207,10 +221,26 @@ def generate_launch_description():
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::AngOTS',
-                    node_name='ang_ots',
+                    node_name='ang_ots_med',
                     remappings=[
                         ("x_coord_cams", "x_coord"),
-                        ("ang_ots", "ang_ots"),
+                        ("ang_ots", "ang_ots_med"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": pr_config_params},
+                        {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
+                        {"iter_max_ots": controller_params['ots']['iter']},
+                        {"tol_ots": controller_params['ots']['tol']},
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::AngOTS',
+                    node_name='ang_ots_ref',
+                    remappings=[
+                        ("x_coord_cams", "ref_pose_x"),
+                        ("ang_ots", "ang_ots_ref"),
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
@@ -222,23 +252,25 @@ def generate_launch_description():
 
                 ComposableNode(
                     package='pr_sing',
-                    node_plugin='pr_sing::SingReleaser',
-                    node_name='sing_releaser',
+                    node_plugin='pr_sing::SingEvader',
+                    node_name='sing_evader',
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("x_coord", "x_coord"),
-                        ("ang_ots", "ang_ots"),
-                        ("for_jac_det", "for_jac_det"),
+                        ("ang_ots_ref", "ang_ots_ref"),
+                        ("ang_ots_med", "ang_ots_med"),
+                        ("for_jac_det_ref", "for_jac_det_ref"),
+                        ("for_jac_det_med", "for_jac_det_med"),
                         ("ref_mod", "ref_mod")
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
                         {"lmin_Ang_OTS": controller_params['sing_releaser_evader']['lmin_Ang_OTS']},
+                        {"lmin_FJac": controller_params['sing_releaser_evader']['lmin_FJac']},
                         {"iter_fk": controller_params['sing_releaser_evader']['fk']['iter']},
                         {"tol_fk": controller_params['sing_releaser_evader']['fk']['tol']},
                         {"iter_OTS": controller_params['sing_releaser_evader']['ots']['iter']},
                         {"tol_OTS": controller_params['sing_releaser_evader']['ots']['tol']},
-                        {"t_activation": controller_params['sing_releaser_evader']['t_activation']},
                         {"ts": controller_params['ts']}
                     ]
                 ),

@@ -41,9 +41,10 @@ namespace pr_sing
         this->get_parameter("ts", ts);
         this->get_parameter("lmin_FJac", lmin_FJac);
 
+        minc_des.resize(2,8);
         minc_des << 1, -1, 1, -1, 1, -1, 0, 0,
 		            1, -1, -1, 1, 0,  0, 1, -1;
-                
+
         des_qind = 0.02*ts;
 
         Mlim_q_ind = PRLimits::LimActuators();
@@ -104,6 +105,7 @@ namespace pr_sing
         );
 
         iterations++;
+        //std::cout << iterations << " " << vc_des.transpose() << std::endl;
 
         auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
 

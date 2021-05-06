@@ -281,8 +281,8 @@ Eigen::VectorXd PRSingularity::PosiblesAngOTS(
 		qa = q_ind_mod;
 
 		//Añado los incrementos para la combinacion selecionada por c_comb, solo para las patas involucradas en la singularidad 
-		qa(i_qind(0)) += des_qind*minc_des(i_qind(0),c_comb);
-		qa(i_qind(1)) += des_qind*minc_des(i_qind(1),c_comb);
+		qa(i_qind(0)) += des_qind*minc_des(0,c_comb);
+		qa(i_qind(1)) += des_qind*minc_des(1,c_comb);
 
 		if ((qa(0)>Mlim_q_ind(0,0) && qa(0)<Mlim_q_ind(0,1)) && (qa(1)>Mlim_q_ind(1,0) && qa(1)<Mlim_q_ind(1,1)) && 
 			(qa(2)>Mlim_q_ind(2,0) && qa(2)<Mlim_q_ind(2,1)) && (qa(3)>Mlim_q_ind(3,0) && qa(3)<Mlim_q_ind(3,1))) {
@@ -317,7 +317,7 @@ Eigen::VectorXd PRSingularity::PosiblesAngOTS(
 			solAngP(1) = acos(cos(q(3)) * sin(q(4)) * sin(theta) + sin(q(3)) * sin(q(4)) * cos(theta));
 			solAngP(2) = acos(cos(q(6)) * sin(q(7)) * sin(theta) + sin(q(6)) * sin(q(7)) * cos(theta));
 			solAngP(3) = acos(-sin(q(9)) * sin(theta) + cos(q(9)) * cos(theta));
-				
+			
 			if ((q(0,2)>Mlim_q_ind(0,0) && q(0,2)<Mlim_q_ind(0,1)) && (q(1,2)>Mlim_q_ind(1,0) && q(1,2)<Mlim_q_ind(1,1)) && 
 				(q(2,2)>Mlim_q_ind(2,0) && q(2,2)<Mlim_q_ind(2,1)) && (q(3,1)>Mlim_q_ind(3,0) && q(3,1)<Mlim_q_ind(3,1)) && 
 				solAngP(0)<Vlim_angp(0) && solAngP(1)<Vlim_angp(1) && solAngP(2)<Vlim_angp(2) && solAngP(3)<Vlim_angp(3)) {
@@ -406,13 +406,9 @@ Eigen::Vector4d PRSingularity::CalculateQindModReleaser(
 )
 {
 	Eigen::Vector4d q_ind_mod = q_ref+des_qind*vc_des.cast<double>();
-	//std:: cout << q_ind_mod.transpose() << std::endl;
-	std:: cout << X_cart.transpose() << std::endl;
 	
 	// Activacio0n de las modificaciones de las referencias
 	if (enable){
-
-		std::cout << "Holasing 0" << std::endl;
 
 		double minAng_OTS, maxAng_OTS_mod;
 		Eigen::Vector2i i_qind = Eigen::Vector2i::Zero();
@@ -420,12 +416,9 @@ Eigen::Vector4d PRSingularity::CalculateQindModReleaser(
 		// Minimo angulo entre un par de ejes instantaneos de los OTS medidos
 		minAng_OTS = angOTS.minCoeff();
 		std::cout << minAng_OTS;
-		std::cout << abs(fj_det) << std::endl;
 
 		// Condicion para modificar la referencia
 		if (minAng_OTS<lmin_Ang_OTS || abs(fj_det) < lmin_FJac){
-
-			std::cout << "Holasing 1" << std::endl;
 			
 			// Identifico las patas que causan el minimo angulo de OTS
 			// OJO! Se les resta una unidad (un 0 es la pata 1 y un 3 es la pata 4)
@@ -491,12 +484,12 @@ Eigen::Vector4d PRSingularity::CalculateQindModEvader(
 
 	// Matriz que identifica las patas involucradas en el angulo OMEGA
 	Eigen::Matrix<int,6,2> mi_qind_des;
-	mi_qind_des << 1, 2,
+	mi_qind_des << 0, 1,
+				   0, 2,
+				   0, 3,
+				   1, 2,
 				   1, 3,
-				   1, 4,
-				   2, 3,
-				   2, 4,
-				   3, 4;
+				   2, 3;
 	
 	//Numero de posibles modificaciones
 	int ncomb = minc_des.cols();
