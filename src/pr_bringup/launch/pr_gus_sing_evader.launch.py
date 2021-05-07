@@ -155,8 +155,8 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file_q},
-                        {"is_cart": False},
+                        {"ref_path": ref_file_x},
+                        {"is_cart": True},
                         {"robot_config_params": pr_config_params}
                     ]
                 ),

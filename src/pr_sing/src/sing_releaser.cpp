@@ -47,7 +47,7 @@ namespace pr_sing
         minc_des << 1, -1, 1, -1, 1, -1, 0, 0,
 		            1, -1, -1, 1, 0,  0, 1, -1;
                 
-        des_qind = 0.02*ts;
+        des_qind = 0.01*ts;
 
         Mlim_q_ind = PRLimits::LimActuators();
         Vlim_angp = PRLimits::LimAngles();
@@ -92,7 +92,7 @@ namespace pr_sing
         //Wait for beginning of experiment        
         bool enable = false;
 
-        std::cout << t_activation/ts << ", " << iterations << std::endl;
+        std::cout << t_activation/ts << ", " << iterations << ", " << vc_des.transpose() << std::endl;
 
         if (t_activation/ts <= iterations)
             enable = true;

@@ -45,7 +45,7 @@ namespace pr_sing
         minc_des << 1, -1, 1, -1, 1, -1, 0, 0,
 		            1, -1, -1, 1, 0,  0, 1, -1;
 
-        des_qind = 0.02*ts;
+        des_qind = 0.01*ts;
 
         Mlim_q_ind = PRLimits::LimActuators();
         Vlim_angp = PRLimits::LimAngles();
@@ -97,7 +97,7 @@ namespace pr_sing
 
         q_ind_mod = PRSingularity::CalculateQindModEvader(
             x_coord, q_ref, angOTS_ref, angOTS_med, OTS_med,
-            minc_des, for_jac_det_ref->data, for_jac_det_med->data, robot_params, vc_des,
+            minc_des, for_jac_det_med->data, for_jac_det_ref->data, robot_params, vc_des,
             Mlim_q_ind, Vlim_angp, des_qind, lmin_Ang_OTS,
             lmin_FJac,
             tol, iter_max,
@@ -105,7 +105,7 @@ namespace pr_sing
         );
 
         iterations++;
-        //std::cout << iterations << " " << vc_des.transpose() << std::endl;
+        std::cout << iterations << " " << vc_des.transpose() << std::endl;
 
         auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
 

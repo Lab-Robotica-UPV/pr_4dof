@@ -415,7 +415,6 @@ Eigen::Vector4d PRSingularity::CalculateQindModReleaser(
 
 		// Minimo angulo entre un par de ejes instantaneos de los OTS medidos
 		minAng_OTS = angOTS.minCoeff();
-		std::cout << minAng_OTS;
 
 		// Condicion para modificar la referencia
 		if (minAng_OTS<lmin_Ang_OTS || abs(fj_det) < lmin_FJac){
@@ -445,7 +444,6 @@ Eigen::Vector4d PRSingularity::CalculateQindModReleaser(
 					if (solAngOTS_mod(i) == maxAng_OTS_mod){
 						vc_des(i_qind(0)) += minc_des(0,i);
 						vc_des(i_qind(1)) += minc_des(1,i);
-						std::cout << "Holasing 2" << std::endl;
 						break;
 					}
 				}
