@@ -47,8 +47,8 @@ def generate_launch_description():
 
     pr_config_params = pr_params[robot]['config'][robot_config]
         
-    ref_file_q = controller_params['ref_path']['q']
-    ref_file_x = controller_params['ref_path']['x']
+    ref_file_q = controller_params['ref_path']['evader']['q']
+    ref_file_x = controller_params['ref_path']['evader']['x']
 
     with open(ref_file_q, 'r') as f:
         first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -162,19 +162,6 @@ def generate_launch_description():
                         {"robot_config_params": pr_config_params}
                     ]
                 ),
-                ComposableNode(
-                    package='pr_aux',
-                    node_plugin='pr_aux::Replayer',
-                    node_name='position_sensors_replayed',
-                    remappings=[
-                        ("data", "joint_position"),
-                        ("end_flag", "end_flag")
-                    ],
-                    parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/replay/CF1_V1/med_qind_TR15_CF1_V1_evader.txt"}
-                    ]
-                ),
 
                 ComposableNode(
                     package='pr_modelling',
@@ -223,7 +210,7 @@ def generate_launch_description():
                     node_plugin='pr_modelling::AngOTS',
                     node_name='ang_ots_med',
                     remappings=[
-                        ("x_coord_cams", "x_coord"),
+                        ("x_coord", "x_coord"),
                         ("ang_ots", "ang_ots_med"),
                     ],
                     parameters=[
@@ -239,7 +226,7 @@ def generate_launch_description():
                     node_plugin='pr_modelling::AngOTS',
                     node_name='ang_ots_ref',
                     remappings=[
-                        ("x_coord_cams", "ref_pose_x"),
+                        ("x_coord", "ref_pose_x"),
                         ("ang_ots", "ang_ots_ref"),
                     ],
                     parameters=[
@@ -272,6 +259,20 @@ def generate_launch_description():
                         {"iter_OTS": controller_params['sing_releaser_evader']['ots']['iter']},
                         {"tol_OTS": controller_params['sing_releaser_evader']['ots']['tol']},
                         {"ts": controller_params['ts']}
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_aux',
+                    node_plugin='pr_aux::Replayer',
+                    node_name='position_sensors_replayed',
+                    remappings=[
+                        ("data", "joint_position"),
+                        ("end_flag", "end_flag")
+                    ],
+                    parameters=[
+                        {"ts_ms": controller_params['ts']*1000},
+                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/replay/CF1_V1/med_qind_TRR15_CF1_V1.txt"}
                     ]
                 ),
             ],

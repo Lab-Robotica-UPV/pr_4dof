@@ -92,7 +92,7 @@ namespace pr_sing
         //Wait for beginning of experiment        
         bool enable = false;
 
-        std::cout << t_activation/ts << ", " << iterations << ", " << vc_des.transpose() << std::endl;
+        //std::cout << t_activation/ts << ", " << iterations << ", " << vc_des.transpose() << std::endl;
 
         if (t_activation/ts <= iterations)
             enable = true;

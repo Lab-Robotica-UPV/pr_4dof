@@ -45,7 +45,7 @@ namespace pr_sing
         minc_des << 1, -1, 1, -1, 1, -1, 0, 0,
 		            1, -1, -1, 1, 0,  0, 1, -1;
 
-        des_qind = 0.01*ts;
+        des_qind = 0.02*ts;
 
         Mlim_q_ind = PRLimits::LimActuators();
         Vlim_angp = PRLimits::LimAngles();
@@ -105,7 +105,7 @@ namespace pr_sing
         );
 
         iterations++;
-        std::cout << iterations << " " << vc_des.transpose() << std::endl;
+        //std::cout << iterations << " " << vc_des.transpose() << std::endl;
 
         auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
 

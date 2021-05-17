@@ -54,6 +54,9 @@ namespace pr_aux
             1,
             std::bind(&Replayer::end_callback, this, _1));
 
+        // Pause before start
+		std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+
         //Create timer
         timer_ = this->create_wall_timer(
             std::chrono::duration<float, std::milli>(ts_ms), 

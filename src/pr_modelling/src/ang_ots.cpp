@@ -41,7 +41,7 @@ namespace pr_modelling
             1);
 
         subscription_ = this->create_subscription<pr_msgs::msg::PRArrayH>(
-            "x_coord_cams", 
+            "x_coord", 
             1, 
             std::bind(&AngOTS::topic_callback, this, _1));
     }

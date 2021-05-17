@@ -47,8 +47,8 @@ def generate_launch_description():
 
     pr_config_params = pr_params[robot]['config'][robot_config]
         
-    ref_file_q = controller_params['ref_path']['q']
-    ref_file_x = controller_params['ref_path']['x']
+    ref_file_q = controller_params['ref_path']['evader']['q']
+    ref_file_x = controller_params['ref_path']['evader']['x']
 
     with open(ref_file_q, 'r') as f:
         first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -160,34 +160,22 @@ def generate_launch_description():
                         {"robot_config_params": pr_config_params}
                     ]
                 ),
-                ComposableNode(
-                    package='pr_sensors_actuators',
-                    node_plugin='pr_sensors_actuators::Encoders',
-                    node_name='position_sensors',
-                    remappings=[
-                        ("joint_position", "joint_position")
-                    ],
-                    parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"initial_position": first_reference_q}
-                    ]
-                ),
 
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::ForwardKinematics',
-                    node_name='for_kin',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("x_coord", "x_coord"),
-                    ],
-                    parameters=[
-                        {"robot_config_params": pr_config_params},
-                        {"initial_position": first_reference_x},
-                        {"tol": controller_params['dir_kin']['tol']},
-                        {"iter": controller_params['dir_kin']['iter']},
-                    ]
-                ),
+                # ComposableNode(
+                #     package='pr_modelling',
+                #     node_plugin='pr_modelling::ForwardKinematics',
+                #     node_name='for_kin',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("x_coord", "x_coord"),
+                #     ],
+                #     parameters=[
+                #         {"robot_config_params": pr_config_params},
+                #         {"initial_position": first_reference_x},
+                #         {"tol": controller_params['dir_kin']['tol']},
+                #         {"iter": controller_params['dir_kin']['iter']},
+                #     ]
+                # ),
 
                 ComposableNode(
                     package='pr_modelling',
@@ -220,7 +208,7 @@ def generate_launch_description():
                     node_plugin='pr_modelling::AngOTS',
                     node_name='ang_ots_med',
                     remappings=[
-                        ("x_coord_cams", "x_mocap_sync"),
+                        ("x_coord", "x_mocap_sync"),
                         ("ang_ots", "ang_ots_med"),
                     ],
                     parameters=[
@@ -236,7 +224,7 @@ def generate_launch_description():
                     node_plugin='pr_modelling::AngOTS',
                     node_name='ang_ots_ref',
                     remappings=[
-                        ("x_coord_cams", "ref_pose_x"),
+                        ("x_coord", "ref_pose_x"),
                         ("ang_ots", "ang_ots_ref"),
                     ],
                     parameters=[
@@ -258,7 +246,7 @@ def generate_launch_description():
                         ("ang_ots_med", "ang_ots_med"),
                         ("for_jac_det_ref", "for_jac_det_ref"),
                         ("for_jac_det_med", "for_jac_det_med"),
-                        ("ref_mod", "ref_mod")
+                        ("ref_pose_mod", "ref_pose_mod")
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
@@ -290,14 +278,27 @@ def generate_launch_description():
 
                 ComposableNode(
                     package='pr_mocap',
-                    node_plugin='pr_mocap::ErrorModel',
-                    node_name='model_error',
+                    node_plugin='pr_mocap::PRXMocapSynchronizer',
+                    node_name='mocap_synchronizer',
                     remappings=[
-                        ("x_mocap_error", "x_mocap_error"),
+                        ("joint_position", "joint_position"),
                         ("x_mocap_sync", "x_mocap_sync")
                     ],
                     parameters=[
                         {"tol": 0.01}
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Encoders',
+                    node_name='position_sensors',
+                    remappings=[
+                        ("joint_position", "joint_position")
+                    ],
+                    parameters=[
+                        {"ts_ms": controller_params['ts']*1000},
+                        {"initial_position": first_reference_q}
                     ]
                 ),
             ],
