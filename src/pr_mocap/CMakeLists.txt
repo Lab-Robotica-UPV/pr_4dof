@@ -68,24 +68,24 @@ set(node_plugins "${node_plugins}pr_mocap::PRXMocap;$<TARGET_FILE:pr_x_mocap>\n"
 
 ### Mocap error node ###
 
-add_library(error_model SHARED
-  src/error_model.cpp)
+add_library(pr_x_mocap_synchronizer SHARED
+  src/pr_x_mocap_synchronizer.cpp)
 
-target_compile_definitions(error_model
+target_compile_definitions(pr_x_mocap_synchronizer
   PRIVATE "COMPOSITION_BUILDING_DLL")
 
-ament_target_dependencies(error_model
+ament_target_dependencies(pr_x_mocap_synchronizer
   "rclcpp"
   "rclcpp_components"
   "pr_msgs"
 )
 
-rclcpp_components_register_nodes(error_model "pr_mocap::ErrorModel")
-set(node_plugins "${node_plugins}pr_mocap::ErrorModel;$<TARGET_FILE:error_model>\n")
+rclcpp_components_register_nodes(pr_x_mocap_synchronizer "pr_mocap::PRXMocapSynchronizer")
+set(node_plugins "${node_plugins}pr_mocap::PRXMocapSynchronizer;$<TARGET_FILE:pr_x_mocap_synchronizer>\n")
 
 install(TARGETS
   pr_x_mocap
-  error_model
+  pr_x_mocap_synchronizer
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

@@ -126,6 +126,7 @@ namespace pr_ref_gen
         }
 
         idx++;
+        std::cout << idx << std::endl;
     }
 
 }

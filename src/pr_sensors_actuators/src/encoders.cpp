@@ -41,11 +41,6 @@ namespace pr_sensors_actuators
             1,
             std::bind(&Encoders::end_callback, this, _1));
 
-        //Create timer
-        timer_ = this->create_wall_timer(
-            std::chrono::duration<float, std::milli>(ts), 
-            std::bind(&Encoders::on_timer, this));
-
         //Encoder channels initialization
 		DeviceInformation devInfo(deviceDescription);
 			
@@ -91,9 +86,18 @@ namespace pr_sensors_actuators
 
 			//std::cout << DOut[0] << std::endl;
 
-			ret = instantDoCtrl->Write(0,1,DOut);
 
-			RCLCPP_INFO(this->get_logger(), "Configuration completed, brake disabled");
+		// Pause before start
+		std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+
+		// Brake deactivation
+		ret = instantDoCtrl->Write(0,1,DOut);
+		RCLCPP_INFO(this->get_logger(), "Configuration completed, brake disabled");
+
+		//Create timer
+        timer_ = this->create_wall_timer(
+            std::chrono::duration<float, std::milli>(ts), 
+            std::bind(&Encoders::on_timer, this));
     }
 
     Encoders::~Encoders()

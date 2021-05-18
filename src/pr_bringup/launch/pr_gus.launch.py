@@ -162,4 +162,9 @@ def generate_launch_description():
             output='screen',
     )
 
+    # ros2_bag = launch.actions.ExecuteProcess(
+    #     cmd=['ros2', 'bag', 'record', '-a'],
+    #     output = 'screen'
+    # )
+
     return launch.LaunchDescription([pr_gus])

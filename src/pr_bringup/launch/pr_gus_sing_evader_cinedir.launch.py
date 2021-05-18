@@ -47,8 +47,8 @@ def generate_launch_description():
 
     pr_config_params = pr_params[robot]['config'][robot_config]
         
-    ref_file_q = controller_params['ref_path']['releaser']['q']
-    ref_file_x = controller_params['ref_path']['releaser']['x']
+    ref_file_q = controller_params['ref_path']['evader']['q']
+    ref_file_x = controller_params['ref_path']['evader']['x']
 
     with open(ref_file_q, 'r') as f:
         first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -62,60 +62,58 @@ def generate_launch_description():
             package='rclcpp_components',
             node_executable='component_container',
             composable_node_descriptions=[
-                
-                # ComposableNode(
-                #     package='pr_sensors_actuators',
-                #     node_plugin='pr_sensors_actuators::Motor',
-                #     node_name='motor_0',
-                #     remappings=[
-                #         ("control_action", "control_action"),
-                #         ("end_flag", "end_flag")
-                #     ],
-                #     parameters=[
-                #         {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                #         {"max_v": controller_params['actuators']['v_sat']}
-                #     ]
-                # ),
-                # ComposableNode(
-                #     package='pr_sensors_actuators',
-                #     node_plugin='pr_sensors_actuators::Motor',
-                #     node_name='motor_1',
-                #     remappings=[
-                #         ("control_action", "control_action"),
-                #         ("end_flag", "end_flag")
-                #     ],
-                #     parameters=[
-                #         {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                #         {"max_v": controller_params['actuators']['v_sat']}
-                #     ]
-                # ),
-                # ComposableNode(
-                #     package='pr_sensors_actuators',
-                #     node_plugin='pr_sensors_actuators::Motor',
-                #     node_name='motor_2',
-                #     remappings=[
-                #         ("control_action", "control_action"),
-                #         ("end_flag", "end_flag")
-                #     ],
-                #     parameters=[
-                #         {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                #         {"max_v": controller_params['actuators']['v_sat']}
-                #     ]
-                # ),
-                # ComposableNode(
-                #     package='pr_sensors_actuators',
-                #     node_plugin='pr_sensors_actuators::Motor',
-                #     node_name='motor_3',
-                #     remappings=[
-                #         ("control_action", "control_action"),
-                #         ("end_flag", "end_flag")
-                #     ],
-                #     parameters=[
-                #         {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                #         {"max_v": controller_params['actuators']['v_sat']}
-                #     ]
-                # ),
-                
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Motor',
+                    node_name='motor_0',
+                    remappings=[
+                        ("control_action", "control_action"),
+                        ("end_flag", "end_flag")
+                    ],
+                    parameters=[
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"max_v": controller_params['actuators']['v_sat']}
+                    ]
+                ),
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Motor',
+                    node_name='motor_1',
+                    remappings=[
+                        ("control_action", "control_action"),
+                        ("end_flag", "end_flag")
+                    ],
+                    parameters=[
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"max_v": controller_params['actuators']['v_sat']}
+                    ]
+                ),
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Motor',
+                    node_name='motor_2',
+                    remappings=[
+                        ("control_action", "control_action"),
+                        ("end_flag", "end_flag")
+                    ],
+                    parameters=[
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"max_v": controller_params['actuators']['v_sat']}
+                    ]
+                ),
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Motor',
+                    node_name='motor_3',
+                    remappings=[
+                        ("control_action", "control_action"),
+                        ("end_flag", "end_flag")
+                    ],
+                    parameters=[
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"max_v": controller_params['actuators']['v_sat']}
+                    ]
+                ),
                 ComposableNode(
                     package='pr_controllers',
                     node_plugin='pr_controllers::GusController',
@@ -152,12 +150,13 @@ def generate_launch_description():
                     node_name='ref_pose_gen',
                     remappings=[
                         ("ref_pose", "ref_pose"),
+                        ("ref_pose_x", "ref_pose_x"),
                         ("end_flag", "end_flag"),
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file_q},
-                        {"is_cart": False},
+                        {"ref_path": ref_file_x},
+                        {"is_cart": True},
                         {"robot_config_params": pr_config_params}
                     ]
                 ),
@@ -181,10 +180,23 @@ def generate_launch_description():
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::ForwardJacobian',
-                    node_name='for_jac',
+                    node_name='for_jac_med',
                     remappings=[
                         ("x_coord", "x_coord"),
-                        ("for_jac_det", "for_jac_det"),
+                        ("for_jac_det", "for_jac_det_med"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": pr_config_params},
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::ForwardJacobian',
+                    node_name='for_jac_ref',
+                    remappings=[
+                        ("x_coord", "ref_pose_x"),
+                        ("for_jac_det", "for_jac_det_ref"),
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
@@ -194,10 +206,26 @@ def generate_launch_description():
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::AngOTS',
-                    node_name='ang_ots',
+                    node_name='ang_ots_med',
                     remappings=[
                         ("x_coord", "x_coord"),
-                        ("ang_ots", "ang_ots"),
+                        ("ang_ots", "ang_ots_med"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": pr_config_params},
+                        {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
+                        {"iter_max_ots": controller_params['ots']['iter']},
+                        {"tol_ots": controller_params['ots']['tol']},
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::AngOTS',
+                    node_name='ang_ots_ref',
+                    remappings=[
+                        ("x_coord", "ref_pose_x"),
+                        ("ang_ots", "ang_ots_ref"),
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
@@ -209,38 +237,68 @@ def generate_launch_description():
 
                 ComposableNode(
                     package='pr_sing',
-                    node_plugin='pr_sing::SingReleaser',
-                    node_name='sing_releaser',
+                    node_plugin='pr_sing::SingEvader',
+                    node_name='sing_evader',
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("x_coord", "x_coord"),
-                        ("ang_ots", "ang_ots"),
-                        ("for_jac_det", "for_jac_det"),
-                        ("ref_mod", "ref_mod")
+                        ("ang_ots_ref", "ang_ots_ref"),
+                        ("ang_ots_med", "ang_ots_med"),
+                        ("for_jac_det_ref", "for_jac_det_ref"),
+                        ("for_jac_det_med", "for_jac_det_med"),
+                        ("ref_pose_mod", "ref_pose_mod")
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
                         {"lmin_Ang_OTS": controller_params['sing_releaser_evader']['lmin_Ang_OTS']},
+                        {"lmin_FJac": controller_params['sing_releaser_evader']['lmin_FJac']},
                         {"iter_fk": controller_params['sing_releaser_evader']['fk']['iter']},
                         {"tol_fk": controller_params['sing_releaser_evader']['fk']['tol']},
                         {"iter_OTS": controller_params['sing_releaser_evader']['ots']['iter']},
                         {"tol_OTS": controller_params['sing_releaser_evader']['ots']['tol']},
-                        {"t_activation": controller_params['sing_releaser_evader']['t_activation']},
                         {"ts": controller_params['ts']}
                     ]
                 ),
 
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocap',
+                #     node_name='mocap',
+                #     remappings=[
+                #         ("x_coord_mocap", "x_coord_mocap")
+                #     ],
+                #     parameters=[
+                #         {"server_address": mocap_params["server_address"]},
+                #         {"server_command_port": mocap_params["server_command_port"]},
+                #         {"server_data_port": mocap_params["server_data_port"]},
+                #         {"marker_names":  mocap_params["marker_names"][robot]},
+                #         {"robot_5p": robot=="robot_5p"},
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapSynchronizer',
+                #     node_name='mocap_synchronizer',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("x_mocap_sync", "x_mocap_sync")
+                #     ],
+                #     parameters=[
+                #         {"tol": 0.01}
+                #     ]
+                # ),
+
                 ComposableNode(
-                    package='pr_aux',
-                    node_plugin='pr_aux::Replayer',
-                    node_name='position_sensors_replayed',
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Encoders',
+                    node_name='position_sensors',
                     remappings=[
-                        ("data", "joint_position"),
-                        ("end_flag", "end_flag")
+                        ("joint_position", "joint_position")
                     ],
                     parameters=[
                         {"ts_ms": controller_params['ts']*1000},
-                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/replay/CF1_V1/med_qind_TR15_CF1_V1.txt"}
+                        {"initial_position": first_reference_q}
                     ]
                 ),
             ],

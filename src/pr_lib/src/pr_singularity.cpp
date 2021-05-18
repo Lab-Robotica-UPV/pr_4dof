@@ -519,12 +519,14 @@ Eigen::Vector4d PRSingularity::CalculateQindModEvader(
 		// Calculo los angulos para todas las posibles modificaciones
 		solAngOTS_mod = PosiblesAngOTS(q_ind_mod, X_cart, solOTS_med, des_qind, i_qind, minc_des, 
 				ncomb, tol_FK, iter_FK, iter_OTS, tol_OTS, RParam, Mlim_q_ind, Vlim_angp);
-
+		
 		// REFERENCIA MODIFICADA QUE PRODUCIRA EL MAXIMO ANGULO OMEGA
 		// Determino el maximo angulo OMEGA
 		maxAng_OTS_mod = solAngOTS_mod.maxCoeff();
+
 		// Cargo la mejor modificacion
-		if (maxAng_OTS_mod > minAng_OTS_med){
+		
+		//if (maxAng_OTS_mod > minAng_OTS_med){
 			for (int i=0; i<ncomb; i++){
 				if (solAngOTS_mod(i) == maxAng_OTS_mod){
 					vc_des(i_qind(0)) += minc_des(0,i);
@@ -534,7 +536,8 @@ Eigen::Vector4d PRSingularity::CalculateQindModEvader(
 			}
 			// Actualizo la referencia modificada
 			q_ind_mod = q_ref + des_qind*vc_des.cast<double>();
-		}
+		//}
+		
 	}
 
 	else{ // Condicion para retornar a la referencia

@@ -246,19 +246,7 @@ def generate_launch_description():
                         {"kv_gain": controller_params['controller']['kv']},
                     ]
                 ),
-                
-                ComposableNode(
-                    package='pr_sensors_actuators',
-                    node_plugin='pr_sensors_actuators::Encoders',
-                    node_name='position_sensors',
-                    remappings=[
-                        ("joint_position", "joint_position")
-                    ],
-                    parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"initial_position": first_reference_q}
-                    ]
-                ),       
+                       
                 ComposableNode(
                     package='pr_mocap',
                     node_plugin='pr_mocap::PRXMocap',
@@ -284,7 +272,20 @@ def generate_launch_description():
                     parameters=[
                         {"tol": 0.01}
                     ]
-                ),             
+                ), 
+
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::Encoders',
+                    node_name='position_sensors',
+                    remappings=[
+                        ("joint_position", "joint_position")
+                    ],
+                    parameters=[
+                        {"ts_ms": controller_params['ts']*1000},
+                        {"initial_position": first_reference_q}
+                    ]
+                ),            
             ],
             output='screen',
     )
