@@ -74,6 +74,13 @@ namespace pr_sing
                                     const pr_msgs::msg::PROTS::ConstPtr& ots_msg,
                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det)
     {
+        //Ref Mod message and init time
+        auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
+        q_ref_mod_msg.init_time = this->get_clock()->now();
+        //Publish also vc_des data
+        auto vc_des_msg = pr_msgs::msg::PRArrayH();
+        vc_des_msg.init_time = this->get_clock()->now();
+
         //Convert to Eigen
         for(int i=0;i<(int)x_msg->data.size();i++) {
             x_coord(i) = x_msg->data[i];
@@ -109,27 +116,23 @@ namespace pr_sing
 
         iterations++;
 
-        auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
-
         for(int i=0;i<4;i++)
             q_ref_mod_msg.data[i] = q_ind_mod(i);
 
         q_ref_mod_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_msg->header.frame_id;
         q_ref_mod_msg.header.stamp = ref_msg->header.stamp;
-        q_ref_mod_msg.current_time = this->get_clock()->now();
 
-        publisher_->publish(q_ref_mod_msg);
-
-        //Publish also vc_des data
-        auto vc_des_msg = pr_msgs::msg::PRArrayH();
 
         for(int i=0;i<4;i++)
             vc_des_msg.data[i] = vc_des(i);
 
         vc_des_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_msg->header.frame_id;
         vc_des_msg.header.stamp = ref_msg->header.stamp;
-        vc_des_msg.current_time = this->get_clock()->now();
 
+        q_ref_mod_msg.current_time = this->get_clock()->now();
+        publisher_->publish(q_ref_mod_msg);
+
+        vc_des_msg.current_time = this->get_clock()->now();
         publisher_vc_->publish(vc_des_msg);
     }
 }

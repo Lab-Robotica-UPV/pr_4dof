@@ -66,7 +66,9 @@ namespace pr_controllers
                                             const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
                                             const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg)
     {
+        // Control action message and init time
         auto control_action_msg = pr_msgs::msg::PRArrayH();
+        control_action_msg.init_time = this->get_clock()->now();
         //Conversión, crear función para esto:
 
         PRUtils::ArRMsg2Eigen(ref_msg, ref);
@@ -85,10 +87,10 @@ namespace pr_controllers
 
         PRUtils::Eigen2ArMsg(ca, control_action_msg);
 
-        control_action_msg.current_time = this->get_clock()->now();
         control_action_msg.header.stamp = ref_msg->header.stamp;
         control_action_msg.header.frame_id = pos_msg->header.frame_id + ", " + ref_msg->header.frame_id + ", " + vel_msg->header.frame_id;
 
+        control_action_msg.current_time = this->get_clock()->now();
         publisher_->publish(control_action_msg);
 
         /*RCLCPP_INFO(this->get_logger(), "I heard: %f, %f, %f, %f", control_action_msg.data[0],

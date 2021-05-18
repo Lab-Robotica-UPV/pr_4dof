@@ -42,15 +42,17 @@ namespace pr_modelling
 
     void InverseKinematics::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr x_msg)
     {
+        // Inverse kinematics message and init time
         auto q_sol_msg = pr_msgs::msg::PRMatH();
+        q_sol_msg.init_time = this->get_clock()->now();
         
         PRModel::InverseKinematics(q_sol, x_msg->data, robot_params);
 
         PRUtils::Eigen2MatMsg(q_sol, q_sol_msg);
 
-        q_sol_msg.current_time = this->get_clock()->now();
         q_sol_msg.header.stamp = x_msg->header.stamp;
         q_sol_msg.header.frame_id = x_msg->header.frame_id;
+        q_sol_msg.current_time = this->get_clock()->now();
         
         publisher_->publish(q_sol_msg);
     }

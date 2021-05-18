@@ -48,6 +48,11 @@ namespace pr_modelling
 
     void AngOTS::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr x_msg)
     {
+
+        //OTS msg and initial time
+        auto ots_msg = pr_msgs::msg::PROTS();
+        ots_msg.init_time = this->get_clock()->now();
+
         //Calculate inverse kinematics
         PRModel::InverseKinematics(q_sol, x_msg->data, robot_params);
 
@@ -55,11 +60,7 @@ namespace pr_modelling
         sol_OTS = PRSingularity::CalculateAngOts(x_msg->data[2], x_msg->data[3],
                                                  q_sol, OTS,
                                                  robot_params,
-                                                 iter_max_ots, tol_ots);
-
-        //Fill OTS msg and publish
-
-        auto ots_msg = pr_msgs::msg::PROTS();
+                                                 iter_max_ots, tol_ots);        
 
         ots_msg.header.stamp = x_msg->header.stamp;
 

@@ -134,7 +134,9 @@ namespace pr_ref_gen
 
     void RefServer::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg)
     {
+        //Ref message and init time
         auto ref_msg = pr_msgs::msg::PRArrayH();
+        ref_msg.init_time = this->get_clock()->now();
 
         if(is_running) {
             

@@ -35,16 +35,19 @@ namespace pr_modelling
 
     void ForwardJacobian::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr x_msg)
     {
+        // Forward Jacobian message and Init time
+        auto for_jac_det_msg = pr_msgs::msg::PRFloatH();
+        for_jac_det_msg.init_time = this->get_clock()->now();
+
         PRModel::ForwardJacobian(ForJac, x_msg->data, robot_params);
 
         double for_jac_det = ForJac.determinant();
 
-        auto for_jac_det_msg = pr_msgs::msg::PRFloatH();
-
         for_jac_det_msg.data = for_jac_det;
-        for_jac_det_msg.current_time = this->get_clock()->now();
         for_jac_det_msg.header.stamp = x_msg->header.stamp;
         for_jac_det_msg.header.frame_id = x_msg->header.frame_id;
+
+        for_jac_det_msg.current_time = this->get_clock()->now();
 
         publisher_->publish(for_jac_det_msg);
     }

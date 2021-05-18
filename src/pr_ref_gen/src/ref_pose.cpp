@@ -101,21 +101,28 @@ namespace pr_ref_gen
     {
         if(idx<n_ref)
         {
+            //Ref message and init time
             auto ref_msg_q = pr_msgs::msg::PRArrayH();
             auto ref_msg_x = pr_msgs::msg::PRArrayH();
+
+            ref_msg_q.init_time = this->get_clock()->now();
+            ref_msg_x.init_time = this->get_clock()->now();
             //CONVERTIR A FUNCIÓN
             for(int i=0; i<4; i++){
                 ref_msg_q.data[i] = ref_matrix_q(idx, i);
                 ref_msg_x.data[i] = ref_matrix_x(idx, i);
             }
 
-            ref_msg_q.current_time = this->get_clock()->now();
+            
             ref_msg_q.header.stamp = q_msg->header.stamp;
             ref_msg_q.header.frame_id = q_msg->header.frame_id;
-            ref_msg_x.current_time = this->get_clock()->now();
+            
             ref_msg_x.header.stamp = q_msg->header.stamp;
             ref_msg_x.header.frame_id = q_msg->header.frame_id;
-            publisher_->publish(ref_msg_q); 
+
+            ref_msg_q.current_time = this->get_clock()->now();
+            publisher_->publish(ref_msg_q);
+            ref_msg_x.current_time = this->get_clock()->now();
             publisher_x_->publish(ref_msg_x);
         }
         else

@@ -40,7 +40,9 @@ namespace pr_modelling
     void StatePublisher::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& q_msg,
                                            const pr_msgs::msg::PRArrayH::ConstPtr& q_vel_msg)
     {
+        // State publisher and init time
         auto state_msg = pr_msgs::msg::PRState();
+        state_msg.init_time = this->get_clock()->now();
 
         state_msg.q.data = q_msg->data;
 
@@ -51,10 +53,10 @@ namespace pr_modelling
         //Saturate velocity data
         saturate(state_msg.q_vel.data, vel_min, vel_max);
 
-        state_msg.current_time = this->get_clock()->now();
         state_msg.header.stamp = q_msg->header.stamp;
         state_msg.header.frame_id = q_msg->header.frame_id + ", " + q_vel_msg->header.frame_id;
 
+        state_msg.current_time = this->get_clock()->now();
         publisher_->publish(state_msg);
     }
 

@@ -42,7 +42,9 @@ namespace pr_modelling
     void DependentJacobian::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& x_coord_msg,
                                            const pr_msgs::msg::PRMatH::ConstPtr& q_msg)
     {
+        //Dependent acobian message and init time
         auto jac_dep_msg = pr_msgs::msg::PRMatH();
+        jac_dep_msg.init_time = this->get_clock()->now();
 
         PRUtils::MatMsgR2Eigen(q_msg, Q);
 
@@ -51,10 +53,10 @@ namespace pr_modelling
 
         PRUtils::Eigen2MatMsg(DepJ, jac_dep_msg);
 
-        jac_dep_msg.current_time = this->get_clock()->now();
         jac_dep_msg.header.stamp = x_coord_msg->header.stamp;
         jac_dep_msg.header.frame_id = x_coord_msg->header.frame_id + ", " + q_msg->header.frame_id;
 
+        jac_dep_msg.current_time = this->get_clock()->now();
         publisher_->publish(jac_dep_msg);
     }
 }

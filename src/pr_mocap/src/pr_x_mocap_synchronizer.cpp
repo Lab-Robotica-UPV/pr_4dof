@@ -52,6 +52,7 @@ namespace pr_mocap
         if(is_connected) {
             //Publish mocap coordinates syncronized with sample time
             auto x_mocap_msg = pr_msgs::msg::PRArrayH();
+            x_mocap_msg.init_time = this->get_clock()->now();
 
             x_mocap_msg.data = x_mocap.x_coord.data;
             x_mocap_msg.header.stamp = x_sampling_msg->header.stamp;

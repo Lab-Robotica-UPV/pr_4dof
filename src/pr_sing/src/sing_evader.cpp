@@ -45,7 +45,7 @@ namespace pr_sing
         minc_des << 1, -1, 1, -1, 1, -1, 0, 0,
 		            1, -1, -1, 1, 0,  0, 1, -1;
 
-        des_qind = 0.02*ts;
+        des_qind = 0.01*ts;
 
         Mlim_q_ind = PRLimits::LimActuators();
         Vlim_angp = PRLimits::LimAngles();
@@ -77,6 +77,13 @@ namespace pr_sing
                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det_ref,
                                     const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det_med)
     {
+        // Ref mod message and init time
+        auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
+        q_ref_mod_msg.init_time = this->get_clock()->now();
+        //Publish also vc_des data
+        auto vc_des_msg = pr_msgs::msg::PRArrayH();
+        vc_des_msg.init_time = this->get_clock()->now();
+
         //Convert to Eigen
         for(int i=0;i<(int)x_msg->data.size();i++) {
             x_coord(i) = x_msg->data[i];
@@ -107,27 +114,21 @@ namespace pr_sing
         iterations++;
         //std::cout << iterations << " " << vc_des.transpose() << std::endl;
 
-        auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
-
         for(int i=0;i<4;i++)
             q_ref_mod_msg.data[i] = q_ind_mod(i);
 
         q_ref_mod_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
         q_ref_mod_msg.header.stamp = ref_msg->header.stamp;
-        q_ref_mod_msg.current_time = this->get_clock()->now();
-
-        publisher_->publish(q_ref_mod_msg);
-
-        //Publish also vc_des data
-        auto vc_des_msg = pr_msgs::msg::PRArrayH();
 
         for(int i=0;i<4;i++)
             vc_des_msg.data[i] = vc_des(i);
 
         vc_des_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
         vc_des_msg.header.stamp = ref_msg->header.stamp;
-        vc_des_msg.current_time = this->get_clock()->now();
 
+        q_ref_mod_msg.current_time = this->get_clock()->now();
+        publisher_->publish(q_ref_mod_msg);
+        vc_des_msg.current_time = this->get_clock()->now();
         publisher_vc_->publish(vc_des_msg);
     }
 }

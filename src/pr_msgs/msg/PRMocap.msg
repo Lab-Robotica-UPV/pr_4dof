@@ -1,6 +1,7 @@
 #Message used for the motion capture system of the robot
 
 std_msgs/Header header
+builtin_interfaces/Time init_time
 builtin_interfaces/Time current_time
 
 pr_msgs/PRArray x_coord  #Coordinates detected by optitrack

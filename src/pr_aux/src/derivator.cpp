@@ -46,14 +46,17 @@ namespace pr_aux
 
     void Derivator::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr var_msg)
     {
+        //Derivator message and init time
         auto var_der_msg = pr_msgs::msg::PRArrayH();
+        var_der_msg.init_time = this->get_clock()->now();
 
         for(int i=0; i<4; i++)
             var_der_msg.data[i] = (var_msg->data[i] - var_ant[i])/ts;
 
-        var_der_msg.current_time = this->get_clock()->now();
         var_der_msg.header.stamp = var_msg->header.stamp;
         var_der_msg.header.frame_id = var_msg->header.frame_id;
+        
+        var_der_msg.current_time = this->get_clock()->now();
         publisher_->publish(var_der_msg);
 
         var_ant = var_msg->data;

@@ -35,7 +35,9 @@ namespace pr_modelling
     void RastT::topic_callback(const pr_msgs::msg::PRMatH::ConstPtr& jac_dep_msg,
                                const pr_msgs::msg::PRMatH::ConstPtr& jac_ind_msg)
     {
+        //RastT message and init time
         auto rast_t_msg = pr_msgs::msg::PRMatH();
+        rast_t_msg.init_time = this->get_clock()->now();
 
         //Conversion
         PRUtils::MatMsgR2Eigen(jac_dep_msg, DepJ);
@@ -46,10 +48,10 @@ namespace pr_modelling
         //Conversion y transponer
         PRUtils::Eigen2MatMsgT(Rast, rast_t_msg);
 
-        rast_t_msg.current_time = this->get_clock()->now();
         rast_t_msg.header.stamp = jac_ind_msg->header.stamp;
         rast_t_msg.header.frame_id = jac_dep_msg->header.frame_id + ", " + jac_ind_msg->header.frame_id;
 
+        rast_t_msg.current_time = this->get_clock()->now();
         publisher_->publish(rast_t_msg);
     }
 }

@@ -50,16 +50,17 @@ namespace pr_modelling
 
     void ForwardKinematics::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg)
     {
+        // Forward kinematics message and init time
         auto x_sol_msg = pr_msgs::msg::PRArrayH();
+        x_sol_msg.init_time = this->get_clock()->now();
 
         x_sol_msg.data = PRModel::ForwardKinematics(q_msg->data, x_prev, robot_params, tol, iter);
 
         PRUtils::array2vector(x_sol_msg.data, x_prev);
 
-        x_sol_msg.current_time = this->get_clock()->now();
         x_sol_msg.header.stamp = q_msg->header.stamp;
-
         x_sol_msg.header.frame_id = q_msg->header.frame_id;
+        x_sol_msg.current_time = this->get_clock()->now();
             
         publisher_->publish(x_sol_msg);
     }

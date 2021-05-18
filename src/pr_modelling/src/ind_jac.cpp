@@ -35,16 +35,18 @@ namespace pr_modelling
 
     void IndependentJacobian::topic_callback(const pr_msgs::msg::PRMatH::SharedPtr q_msg)
     {
+        // Independent jacobian message and init time
         auto ind_j_msg = pr_msgs::msg::PRMatH();
+        ind_j_msg.init_time = this->get_clock()->now();
         
         PRUtils::MatMsg2Eigen(q_msg, Q);
         PRModel::IndJacobian(IndJ, Q);        
 
         PRUtils::Eigen2MatMsg(IndJ, ind_j_msg);
 
-        ind_j_msg.current_time = this->get_clock()->now();
         ind_j_msg.header.stamp = q_msg->header.stamp;
         ind_j_msg.header.frame_id = q_msg->header.frame_id;
+        ind_j_msg.current_time = this->get_clock()->now();
         
         publisher_->publish(ind_j_msg);
     }

@@ -119,7 +119,9 @@ namespace pr_sensors_actuators
     {
 		if(!is_finished)
         {
+			// Position message and init time
 			auto position_msg = pr_msgs::msg::PRArrayH();
+			position_msg.init_time = this->get_clock()->now();
 
 			//First joint
 			pulsos[0] = udCounterCtrl0->getValue();
@@ -137,11 +139,17 @@ namespace pr_sensors_actuators
 			pulsos[3] = udCounterCtrl3->getValue();
 			position_msg.data[3] = pulsos[3]*0.000002325 + initial_position[3];
 
+
+			if(iter<10000)
+				iter++;
+			else
+				iter=0;
+
 			//Time clock
+			position_msg.header.frame_id = std::to_string(iter);
+			
 			position_msg.current_time = this->get_clock()->now();
 			position_msg.header.stamp = position_msg.current_time;
-			position_msg.header.frame_id = std::to_string(iter);   
-
 			publisher_->publish(position_msg);
             
             
@@ -151,10 +159,6 @@ namespace pr_sensors_actuators
             position_msg.data[2], 
             position_msg.data[3]);*/
 			
-			if(iter<10000)
-				iter++;
-			else
-				iter=0;
             
 		} 
         else 
