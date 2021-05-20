@@ -214,6 +214,7 @@ def generate_launch_description():
                     parameters=[
                         {"robot_config_params": pr_config_params},
                         {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
+                        {"initial_position": first_reference_x},
                         {"iter_max_ots": controller_params['ots']['iter']},
                         {"tol_ots": controller_params['ots']['tol']},
                     ]
@@ -230,6 +231,7 @@ def generate_launch_description():
                     parameters=[
                         {"robot_config_params": pr_config_params},
                         {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
+                        {"initial_position": first_reference_x},
                         {"iter_max_ots": controller_params['ots']['iter']},
                         {"tol_ots": controller_params['ots']['tol']},
                     ]

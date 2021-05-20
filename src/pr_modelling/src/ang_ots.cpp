@@ -25,16 +25,30 @@ namespace pr_modelling
         this->declare_parameter<int>("iter_max_ots", 30);
         this->declare_parameter<double>("tol_ots", 1e-7);
         this->declare_parameter<std::vector<double>>("initial_ots", {0.0, 0.0, 1.0, 0.0, 0.0, 1.0});
+        this->declare_parameter<std::vector<double>>("initial_x_coord", {0.038310, 0.640040, 0.114319, 0.063530});
 
         this->get_parameter("robot_config_params", robot_params);
         this->get_parameter("initial_ots", initial_ots);
         this->get_parameter("iter_max_ots", iter_max_ots);
         this->get_parameter("tol_ots", tol_ots);
+        this->get_parameter("initial_x_coord", initial_x_coord);
 
         for(int i=0; i<OTS.cols(); i++) {
             for(int j=0; j<OTS.rows(); j++)
                 OTS(j,i) = initial_ots[j];
         }
+
+        // std::vector to std::array
+        std::copy(initial_x_coord.begin(), initial_x_coord.begin() + 4, initial_x_coord_array.begin());
+
+        //Calculate inverse kinematics
+        PRModel::InverseKinematics(q_sol, initial_x_coord_array, robot_params);
+
+        //Calculate initial ots angles
+        sol_OTS = PRSingularity::CalculateAngOts(initial_x_coord[2], initial_x_coord[3],
+                                                 q_sol, OTS,
+                                                 robot_params,
+                                                 iter_max_ots, tol_ots);
 
         publisher_ = this->create_publisher<pr_msgs::msg::PROTS>(
             "ang_ots", 

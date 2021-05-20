@@ -32,13 +32,14 @@ namespace pr_controllers
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_vel;
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_grav;
 
-            /*typedef message_filters::sync_policies::ApproximateTime
+            typedef message_filters::sync_policies::ApproximateTime
                     <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
                      pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            */
+            /*
             typedef message_filters::sync_policies::ExactTime
                     <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
                      pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
+            */
 
             typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
             std::shared_ptr<Synchronizer> sync_;

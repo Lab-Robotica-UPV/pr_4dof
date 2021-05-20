@@ -31,11 +31,13 @@ namespace pr_modelling
             message_filters::Subscriber<pr_msgs::msg::PRMatH> sub_dep;
             message_filters::Subscriber<pr_msgs::msg::PRMatH> sub_ind;
 
-            /*typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRMatH, pr_msgs::msg::PRMatH> SyncPolicy;*/
+            typedef message_filters::sync_policies::ApproximateTime
+                    <pr_msgs::msg::PRMatH, pr_msgs::msg::PRMatH> SyncPolicy;
 
+            /*
             typedef message_filters::sync_policies::ExactTime
                     <pr_msgs::msg::PRMatH, pr_msgs::msg::PRMatH> SyncPolicy;
+            */
 
             typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
             std::shared_ptr<Synchronizer> sync_;

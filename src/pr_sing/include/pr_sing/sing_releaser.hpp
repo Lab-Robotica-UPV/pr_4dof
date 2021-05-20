@@ -39,9 +39,15 @@ namespace pr_sing
             message_filters::Subscriber<pr_msgs::msg::PROTS> sub_ots;
             message_filters::Subscriber<pr_msgs::msg::PRFloatH> sub_det;
 
+            typedef message_filters::sync_policies::ApproximateTime
+                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
+                     pr_msgs::msg::PROTS, pr_msgs::msg::PRFloatH> SyncPolicy;
+
+            /*
             typedef message_filters::sync_policies::ExactTime
                     <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
                      pr_msgs::msg::PROTS, pr_msgs::msg::PRFloatH> SyncPolicy;
+            */
 
             typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
             std::shared_ptr<Synchronizer> sync_;

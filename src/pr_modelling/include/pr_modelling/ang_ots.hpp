@@ -31,6 +31,8 @@ namespace pr_modelling
             std::vector<double> robot_params;
             Eigen::Matrix<double,4,3> q_sol = Eigen::Matrix<double,4,3>::Zero();
             std::vector<double> initial_ots;
+            std::vector<double> initial_x_coord;
+            std::array<double, 4> initial_x_coord_array;
             Eigen::Matrix<double,6,4> OTS = Eigen::Matrix<double,6,4>::Zero();
             Eigen::Matrix<double,6,1> sol_OTS = Eigen::Matrix<double,6,1>::Zero();
             int iter_max_ots;

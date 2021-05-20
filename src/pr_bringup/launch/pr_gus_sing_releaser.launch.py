@@ -130,7 +130,7 @@ def generate_launch_description():
                     node_name='for_jac',
                     remappings=[
                         ("x_coord", "x_mocap_sync"),
-                        ("for_jac_det", "for_jac_det"),
+                        ("for_jac_det", "for_jac_det_med"),
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
@@ -143,11 +143,12 @@ def generate_launch_description():
                     node_name='ang_ots',
                     remappings=[
                         ("x_coord", "x_mocap_sync"),
-                        ("ang_ots", "ang_ots"),
+                        ("ang_ots", "ang_ots_med"),
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
                         {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
+                        {"initial_position": first_reference_x},
                         {"iter_max_ots": controller_params['ots']['iter']},
                         {"tol_ots": controller_params['ots']['tol']},
                     ]
@@ -160,8 +161,8 @@ def generate_launch_description():
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("x_coord", "x_mocap_sync"),
-                        ("ang_ots", "ang_ots"),
-                        ("for_jac_det", "for_jac_det"),
+                        ("ang_ots", "ang_ots_med"),
+                        ("for_jac_det", "for_jac_det_med"),
                         ("ref_pose_mod", "ref_pose_mod")
                     ],
                     parameters=[
