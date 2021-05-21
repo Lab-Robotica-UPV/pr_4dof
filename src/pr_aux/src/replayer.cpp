@@ -77,14 +77,14 @@ namespace pr_aux
             for(int i=0; i<4; i++)
                 data_msg.data[i] = data_matrix(idx, i);
 
-            data_msg.header.stamp = data_msg.current_time;
             data_msg.header.frame_id = std::to_string(idx);
 
-            data_msg.current_time = this->get_clock()->now();
-            publisher_->publish(data_msg); 
-            
             if(idx<n_data-1)
                 idx++;
+
+            data_msg.current_time = this->get_clock()->now();
+            data_msg.header.stamp = data_msg.current_time;
+            publisher_->publish(data_msg); 
 
         } else {
             //End flag activted

@@ -218,6 +218,7 @@ def generate_launch_description():
                         {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
                         {"iter_max_ots": controller_params['ots']['iter']},
                         {"tol_ots": controller_params['ots']['tol']},
+                        {"initial_position": first_reference_x},
                     ]
                 ),
 

@@ -23,18 +23,20 @@ namespace pr_controllers
 
         protected:
 
-            void controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& ref_msg,
-                                     const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
+            void controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
                                      const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg);
 
+            void ref_callback(const pr_msgs::msg::PRArrayH::SharedPtr ref_msg);
+
         private:
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_ref;
+            
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_pos;
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_vel;
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr sub_ref;
 
             
             typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
+                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
             /*
             typedef message_filters::sync_policies::ExactTime
                     <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
@@ -48,6 +50,8 @@ namespace pr_controllers
             Eigen::Vector4d ref_ant, q_ant, up_1_ant;
             Eigen::Vector4d ref, pos, vel;
             Eigen::Vector4d up_1, up_2, ca;
+
+            bool init_ref = false;
 
     };
 }
