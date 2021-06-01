@@ -302,7 +302,8 @@ void PRModel::OptiTrack::PosOriPM(
             rdm_m << -0.320, 0.150, -0.098;
         } else {
             rdf_f << -0.276, 0.064, 0.018;
-            rdm_m << 0,0,-0.1605;
+            //rdm_m << 0,0,-0.1605;
+            rdm_m << 0,0.2,-0.1605;
         }
         
         Coordinates.col(0) = Rfl*(mm1 + Rlm*rdm_m - (mf1 + Rlf*rdf_f));

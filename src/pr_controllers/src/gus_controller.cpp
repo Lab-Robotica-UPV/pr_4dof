@@ -54,7 +54,7 @@ namespace pr_controllers
         sub_vel.subscribe(this, "joint_velocity");
 
         sub_ref = this->create_subscription<pr_msgs::msg::PRArrayH>(
-            "ref_pose_mod",
+            "ref_pose",
             1,
             std::bind(&GusController::ref_callback, this, std::placeholders::_1)
         );
