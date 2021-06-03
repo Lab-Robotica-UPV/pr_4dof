@@ -3,7 +3,7 @@ build
 install
 log
 #natnet_sdk
-#rl_env
+rl_env
 tmp
 test
 plots
