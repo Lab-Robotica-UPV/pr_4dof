@@ -113,19 +113,6 @@ def generate_launch_description():
                     ]
                 ),
                 ComposableNode(
-                    package='pr_aux',
-                    node_plugin='pr_aux::Derivator',
-                    node_name='derivator',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("joint_velocity", "joint_velocity")
-                    ],
-                    parameters=[
-                        {"initial_value": first_reference_q},
-                        {"ts": controller_params['ts']}
-                    ]
-                ),
-                ComposableNode(
                     package='pr_ref_gen',
                     node_plugin='pr_ref_gen::RefPose',
                     node_name='ref_pose_gen',
@@ -142,137 +129,19 @@ def generate_launch_description():
                 ),
 
                 ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::ForwardKinematics',
-                    node_name='for_kin',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("x_coord", "x_coord"),
-                    ],
-                    parameters=[
-                        {"robot_config_params": pr_config_params},
-                        {"initial_position": first_reference_x},
-                        {"tol": controller_params['dir_kin']['tol']},
-                        {"iter": controller_params['dir_kin']['iter']},
-                    ]
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::InverseKinematics',
-                    node_name='inv_kin',
-                    remappings=[
-                        ("x_coord", "x_coord"),
-                        ("q_sol", "q_sol"),
-                    ],
-                    parameters=[
-                        {"robot_config_params": pr_config_params},
-                    ]
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::IndependentJacobian',
-                    node_name='ind_jac',
-                    remappings=[
-                        ("q_sol", "q_sol"),
-                        ("ind_jac", "ind_jac"),
-                    ],
-                    parameters=[
-                    ]
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::DependentJacobian',
-                    node_name='dep_jac',
-                    remappings=[
-                        ("x_coord", "x_coord"),
-                        ("q_sol", "q_sol"),
-                        ("dep_jac", "dep_jac")
-                    ],
-                    parameters=[
-                        {"robot_config_params": pr_config_params}
-                    ]
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::RastT',
-                    node_name='rast_t',
-                    remappings=[
-                        ("dep_jac", "dep_jac"),
-                        ("ind_jac", "ind_jac"),
-                        ("rast_t", "rast_t")
-                    ],
-                    parameters=[
-                    ]
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::QGrav',
-                    node_name='q_grav',
-                    remappings=[
-                        ("x_coord", "x_coord"),
-                        ("q_sol", "q_sol"),
-                        ("rast_t", "rast_t")
-                    ],
-                    parameters=[
-                        {"p11": pr_physical_properties['p11']},
-                        {"p12": pr_physical_properties['p12']},
-                        {"p21": pr_physical_properties['p21']},
-                        {"p22": pr_physical_properties['p22']},
-                        {"p31": pr_physical_properties['p31']},
-                        {"p32": pr_physical_properties['p32']},
-                        {"p41": pr_physical_properties['p41']},
-                        {"p42": pr_physical_properties['p42']},
-                        {"pm":  pr_physical_properties['pm']},
-                    ]
-                ),
-
-                ComposableNode(
                     package='pr_controllers',
-                    node_plugin='pr_controllers::PDGController',
+                    node_plugin='pr_controllers::PIDController',
                     node_name='controller',
                     remappings=[
-                        ("ref_pose", "ref_pose"),
-                        ("joint_position", "joint_position"),
-                        ("joint_velocity", "joint_velocity"),
-                        ("q_grav", "q_grav")
+                        ("ref_pos", "ref_pose"),
+                        ("pos", "joint_position"),
                     ],
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
+                        {"ki_gain": controller_params['controller']['ki']},
                         {"initial_position": first_reference_q},
                         {"initial_reference": first_reference_q}
-                    ]
-                ),
-                       
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocap',
-                    node_name='mocap',
-                    remappings=[
-                        ("x_coord_mocap", "x_coord_mocap")
-                    ],
-                    parameters=[
-                        {"server_address": mocap_params["server_address"]},
-                        {"server_command_port": mocap_params["server_command_port"]},
-                        {"server_data_port": mocap_params["server_data_port"]},
-                        {"marker_names":  mocap_params["marker_names"][robot]},
-                        {"robot_5p": robot=="robot_5p"},
-                    ]
-                ),
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::ErrorModel',
-                    node_name='model_error',
-                    remappings=[
-                        ("x_mocap_error", "x_mocap_error")
-                    ],
-                    parameters=[
-                        {"tol": 0.01}
                     ]
                 ), 
 

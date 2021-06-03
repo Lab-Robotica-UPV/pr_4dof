@@ -11,11 +11,14 @@ actuators:
 controller:
   kp: [27190.0, 27190.0, 27190.0, 361023.0]
   kv: [114.27, 114.27, 114.27, 491.32]
+  #For PID
+  ki: [0.0, 0.0, 0.0, 0.0]
 
 ref_path:
   q: "/home/paralelo4dofnew/ros2_eloquent_ws/parallel_robot/references/refeprism_indep_TRR8.txt"
   x: "/home/paralelo4dofnew/ros2_eloquent_ws/parallel_robot/references/refecart_TRR8_identificar.txt"
 
+#For PDG
 dir_kin:
   tol: 0.0000001
   iter: 30

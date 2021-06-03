@@ -34,6 +34,9 @@ namespace PRUtils
 
     void ArRMsg2Eigen(const pr_msgs::msg::PRArrayH::ConstPtr& ar_msg, Eigen::Vector4d &eig_vec);
 
+    Eigen::Vector4d derivation(const Eigen::Vector4d &u, Eigen::Vector4d &u_ant, const double &ts);
+    Eigen::Vector4d integration_trapezoidal(const Eigen::Vector4d &u, Eigen::Vector4d &u_ant, Eigen::Vector4d &y_ant, const double &ts);
+    Eigen::Vector4d integration_forward_euler(const Eigen::Vector4d &u, Eigen::Vector4d &u_ant, Eigen::Vector4d &y_ant, const double &ts);
 
     template <typename DerivedA>
     void Eigen2MatMsg(

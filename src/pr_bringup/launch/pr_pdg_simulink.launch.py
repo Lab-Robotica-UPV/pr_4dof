@@ -22,7 +22,7 @@ def generate_launch_description():
         get_package_share_directory('pr_bringup'),
         'config',
         'simulated',
-        'pr_pdg_simulink.yaml'
+        'pr_pdg_pid_simulink.yaml'
     )
 
     robot_yaml_file = open(robot_parameters_file)
