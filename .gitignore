@@ -2,7 +2,7 @@
 build
 install
 log
-#natnet_sdk
+natnet_sdk
 rl_env
 tmp
 test
