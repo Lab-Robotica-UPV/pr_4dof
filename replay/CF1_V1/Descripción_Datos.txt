@@ -1,0 +1,12 @@
+ref_cart_TR15_CF1_V1			Referencia en cartesias
+ref_qinde_TR15_CF1_V1			Referencia para los actuadores
+mod_qind_TR15_CF1_V1			Referencia modificada para los actuadores
+med_qind_TR15_CF1_V1			MEdición de los encoders para los actuadores
+med_cart_TR15_CF1_V1			Medición para las coordenadas cartesianas (Caculo a partir de la cinematica directa)
+med_angOTS_TR15_CF1_V1			Angulos OTS calculados a partir de la medición de las coordenadas cartesianas
+med_Vc_des_TR15_CF1_V1			Vectores de conteo para modificar las referencias en los actuadores
+med_JDir_TR15_CF1_V1			Meidición del jacobiano directo
+
+
+
+
