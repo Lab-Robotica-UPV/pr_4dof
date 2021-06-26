@@ -112,8 +112,7 @@ target_compile_definitions(force_sensor
 ament_target_dependencies(force_sensor
   "rclcpp"
   "rclcpp_components"
-  "pr_msgs"
-  "geometry_msgs")
+  "pr_msgs")
 
 rclcpp_components_register_nodes(force_sensor "pr_sensors_actuators::ForceSensor")
 set(node_plugins "${node_plugins}pr_sensors_actuators::ForceSensor;$<TARGET_FILE:force_sensor>\n")

@@ -61,13 +61,17 @@ namespace pr_sensors_actuators
 
         timer_ = this->create_wall_timer(5ms, std::bind(&ForceSensor::timer_callback, this));
         
-        publisher_ = this->create_publisher<geometry_msgs::msg::AccelStamped>("force_state", 1);
+        publisher_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state", 1);
         RCLCPP_INFO(this->get_logger(), "Sensor configurado");
 
     }
 
     void ForceSensor::timer_callback()
     {
+      // ForceSensor message and init time
+      auto force_msg = pr_msgs::msg::PRForceState();
+      force_msg.init_time = this->get_clock()->now();
+
         RCLCPP_INFO(this->get_logger(), "Sending request");
         send(socketHandle, request, 8, 0 );
         recv(socketHandle, response, 36, 0 );
@@ -78,26 +82,25 @@ namespace pr_sensors_actuators
             resp.FTData[i_fuerza] = ntohl(*(int32_t*)&response[12 + i_fuerza * 4]);
         }
 
-        auto force_msg = geometry_msgs::msg::AccelStamped();
 
-        force_msg.accel.linear.x = 1.0*resp.FTData[0]/1000000.0;
-        force_msg.accel.linear.y = 1.0*resp.FTData[1]/1000000.0;
-        force_msg.accel.linear.z = 1.0*resp.FTData[2]/1000000.0;
-        force_msg.accel.angular.x = 1.0*resp.FTData[3]/1000000.0;
-        force_msg.accel.angular.y = 1.0*resp.FTData[4]/1000000.0;
-        force_msg.accel.angular.z = 1.0*resp.FTData[5]/1000000.0;
+        force_msg.force[0] = 1.0*resp.FTData[0]/1000000.0;
+        force_msg.force[1] = 1.0*resp.FTData[1]/1000000.0;
+        force_msg.force[2] = 1.0*resp.FTData[2]/1000000.0;
+        force_msg.momentum[0] = 1.0*resp.FTData[3]/1000000.0;
+        force_msg.momentum[1] = 1.0*resp.FTData[4]/1000000.0;
+        force_msg.momentum[2] = 1.0*resp.FTData[5]/1000000.0;
 
         force_msg.header.stamp = this->get_clock()->now();
+        force_msg.current_time = force_msg.header.stamp;
 
         publisher_->publish(force_msg);
 
-        
-        RCLCPP_INFO(this->get_logger(), "Sensor: %f %f %f %f %f %f",force_msg.accel.linear.x, 
-                                                                    force_msg.accel.linear.y, 
-                                                                    force_msg.accel.linear.z, 
-                                                                    force_msg.accel.angular.x,
-                                                                    force_msg.accel.angular.y,
-                                                                    force_msg.accel.angular.z);
+        RCLCPP_INFO(this->get_logger(), "Sensor: %f %f %f %f %f %f",force_msg.force[0], 
+                                                                    force_msg.force[1], 
+                                                                    force_msg.force[2], 
+                                                                    force_msg.momentum[0],
+                                                                    force_msg.momentum[1],
+                                                                    force_msg.momentum[2]);
     }
 
 }

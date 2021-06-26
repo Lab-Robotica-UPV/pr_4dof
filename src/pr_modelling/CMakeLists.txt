@@ -215,6 +215,41 @@ ament_target_dependencies(for_jac
 rclcpp_components_register_nodes(for_jac "pr_modelling::ForwardJacobian")
 set(node_plugins "${node_plugins}pr_modelling::ForwardJacobian;$<TARGET_FILE:for_jac>\n")
 
+### Admittance Model node ###
+
+add_library(admittance SHARED
+  src/admittance.cpp)
+
+target_compile_definitions(admittance
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(admittance
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(admittance "pr_modelling::Admittance")
+set(node_plugins "${node_plugins}pr_modelling::Admittance;$<TARGET_FILE:admittance>\n")
+
+### Inverse Differential Kinematics Model node ###
+
+add_library(inv_diff_kin SHARED
+  src/inv_diff_kin.cpp)
+
+target_compile_definitions(inv_diff_kin
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(inv_diff_kin
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(inv_diff_kin "pr_modelling::InvDiffKinematics")
+set(node_plugins "${node_plugins}pr_modelling::InvDiffKinematics;$<TARGET_FILE:inv_diff_kin>\n")
 
 
 ### Installation ###
@@ -229,6 +264,8 @@ install(TARGETS
   state_publisher
   ang_ots
   for_jac
+  admittance
+  inv_diff_kin
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

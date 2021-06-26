@@ -1,0 +1,6 @@
+admittance_params:
+  mass: [1.0, 1.0, 1.0, 1.0]
+  damping: [100.0, 100.0, 100.0, 100.0]
+  stiffness: [10.0, 10.0, 10.0, 10.0]
+
+ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_force.txt"

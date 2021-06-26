@@ -13,14 +13,13 @@
   <build_depend>rclcpp_components</build_depend>
   <build_depend>rcutils</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
   <build_depend>pr_msgs</build_depend>
 
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>rcutils</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
+
   <exec_depend>pr_msgs</exec_depend>
   <exec_depend>biodaq</exec_depend>
 
