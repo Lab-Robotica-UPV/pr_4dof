@@ -21,8 +21,10 @@ namespace pr_modelling
         private:
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Publisher<pr_msgs::msg::PRMatH>::SharedPtr publisher_;
+            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_qinde_;
             std::vector<double> robot_params;
             Eigen::Matrix<double, 4, 3> q_sol = Eigen::Matrix<double, 4, 3>::Zero();
+            Eigen::Vector4d q_inde_sol = Eigen::Vector4d::Zero();
     };
 }
 

@@ -41,10 +41,7 @@ namespace pr_modelling
             Eigen::Matrix<double,8,8> Cd;
             Eigen::Matrix<double,8,4> Dd;
 
-            Eigen::Vector<double,8> state, state_, output;
-            state = Eigen::Vector<double,8>::Zero();
-            state_ = Eigen::Vector<double,8>::Zero();
-            output = Eigen::Vector<double,8>::Zero();
+            Eigen::Matrix<double,8,1> state, state_, output;
 
             Eigen::Vector4d force_error;
 

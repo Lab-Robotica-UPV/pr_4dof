@@ -8,6 +8,9 @@ namespace pr_sensors_actuators
     ForceSensor::ForceSensor(const rclcpp::NodeOptions & options)
     : Node("force_sensor", options)
     {
+      this->declare_parameter<bool>("calibration", true);
+      this->get_parameter("calibration", calibration);
+
         //Configuración del socket
         RCLCPP_INFO(this->get_logger(), "Configurando sensor");
         socketHandle = socket(AF_INET, SOCK_DGRAM, 0);
@@ -16,28 +19,48 @@ namespace pr_sensors_actuators
 		    exit(1);
 	      }
 
+      /* Timeout configuration. */
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 1000;  //1 ms
+
+      // Initialization of std_noise
+      std_noise.resize(6);
+      std_noise[0] = 0.036;
+      std_noise[1] = 0.0675;
+      std_noise[2] = 0.9;
+      std_noise[3] = 0.0045;
+      std_noise[4] = 0.0040; //0.0030
+      std_noise[5] = 0.0183;
+
+      // Sensor calibration
+
+      if (calibration){
         *(uint16_t*)&request[0] = htons(0x1234); /* standard header. */
-	    *(uint16_t*)&request[2] = htons(0x0042); /* per table 9.1 in Net F/T user manual. Ese es el valor de reset BIAS */
-	    *(uint32_t*)&request[4] = htonl(NUM_SAMPLES); /* see section 9.1 in Net F/T user manual. */
-	    /*for (int i=0; i<8; i++){
-		    std::cout << static_cast<int>(request[i]) << " " << std::endl;
-	    }*/
+        *(uint16_t*)&request[2] = htons(0x0042); /* per table 9.1 in Net F/T user manual. Ese es el valor de reset BIAS */
+        *(uint32_t*)&request[4] = htonl(NUM_SAMPLES); /* see section 9.1 in Net F/T user manual. */
+        /*for (int i=0; i<8; i++){
+          std::cout << static_cast<int>(request[i]) << " " << std::endl;
+        }*/
 
-	    /* Sending the request. */
-        he = gethostbyname("192.168.1.1");
-        memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(PORT);
+        
+        /* Sending the request. */
+          he = gethostbyname("192.168.1.1");
+          memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
+          addr.sin_family = AF_INET;
+          addr.sin_port = htons(PORT);
 
-        err = connect( socketHandle, (struct sockaddr *)&addr, sizeof(addr) ); //Faltaba esta línea, por lo que no estaba conectado el socket
-        if (err == -1) {
-          RCLCPP_ERROR(this->get_logger(), "Error 1");
-          exit(2);
-        }
+          err = connect( socketHandle, (struct sockaddr *)&addr, sizeof(addr) ); //Faltaba esta línea, por lo que no estaba conectado el socket
+          if (err == -1) {
+            RCLCPP_ERROR(this->get_logger(), "Error 1");
+            exit(2);
+          }
 
-        send( socketHandle, request, 8, 0 );
+          send( socketHandle, request, 8, 0 );
 
-        usleep(1000000);
+          usleep(1000000);
+      }
+
 
         *(uint16_t*)&request[0] = htons(0x1234); /* standard header. */
         *(uint16_t*)&request[2] = htons(COMMAND); /* per table 9.1 in Net F/T user manual. */
@@ -59,9 +82,13 @@ namespace pr_sensors_actuators
           exit(2);
         }
 
+        setsockopt(socketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv,sizeof tv);
+
         timer_ = this->create_wall_timer(5ms, std::bind(&ForceSensor::timer_callback, this));
         
         publisher_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state", 1);
+        publisher_accelstamped_ = this->create_publisher<geometry_msgs::msg::AccelStamped>("force_state_accelstamped", 1);
+        
         RCLCPP_INFO(this->get_logger(), "Sensor configurado");
 
     }
@@ -72,9 +99,16 @@ namespace pr_sensors_actuators
       auto force_msg = pr_msgs::msg::PRForceState();
       force_msg.init_time = this->get_clock()->now();
 
-        RCLCPP_INFO(this->get_logger(), "Sending request");
-        send(socketHandle, request, 8, 0 );
-        recv(socketHandle, response, 36, 0 );
+        //RCLCPP_INFO(this->get_logger(), "Sending request");
+        if (send(socketHandle, request, 8, 0 )<0) {
+          std::cout << "Time out request!!" << std::endl;
+          return;
+        }
+
+        if (recv(socketHandle, response, 36, 0 )<0) {
+          std::cout << "Time out response!!" << std::endl;
+          return;
+        }
         resp.rdt_sequence = ntohl(*(uint32_t*)&response[0]);
         resp.ft_sequence = ntohl(*(uint32_t*)&response[4]);
         resp.status = ntohl(*(uint32_t*)&response[8]);
@@ -89,18 +123,39 @@ namespace pr_sensors_actuators
         force_msg.momentum[0] = 1.0*resp.FTData[3]/1000000.0;
         force_msg.momentum[1] = 1.0*resp.FTData[4]/1000000.0;
         force_msg.momentum[2] = 1.0*resp.FTData[5]/1000000.0;
+        // Threshold: 3 times the standard deviation
+        for (int i=0; i<3; i++){
+          if (abs(force_msg.force[i]) < 4*std_noise[i]){
+            force_msg.force[i] = 0;
+          }
+          if (abs(force_msg.momentum[i]) < 4*std_noise[i+3]){
+            force_msg.momentum[i] = 0;
+          } 
+        }
 
         force_msg.header.stamp = this->get_clock()->now();
         force_msg.current_time = force_msg.header.stamp;
 
         publisher_->publish(force_msg);
 
-        RCLCPP_INFO(this->get_logger(), "Sensor: %f %f %f %f %f %f",force_msg.force[0], 
-                                                                    force_msg.force[1], 
-                                                                    force_msg.force[2], 
-                                                                    force_msg.momentum[0],
-                                                                    force_msg.momentum[1],
-                                                                    force_msg.momentum[2]);
+        auto force_msg_as = geometry_msgs::msg::AccelStamped();
+
+        force_msg_as.accel.linear.x = 1.0*resp.FTData[0]/1000000.0;
+        force_msg_as.accel.linear.y = 1.0*resp.FTData[1]/1000000.0;
+        force_msg_as.accel.linear.z = 1.0*resp.FTData[2]/1000000.0;
+        force_msg_as.accel.angular.x = 1.0*resp.FTData[3]/1000000.0;
+        force_msg_as.accel.angular.y = 1.0*resp.FTData[4]/1000000.0;
+        force_msg_as.accel.angular.z = 1.0*resp.FTData[5]/1000000.0;
+
+        force_msg_as.header.stamp = this->get_clock()->now();
+        publisher_accelstamped_->publish(force_msg_as);
+
+        // RCLCPP_INFO(this->get_logger(), "Sensor: %f %f %f %f %f %f",force_msg.force[0], 
+        //                                                             force_msg.force[1], 
+        //                                                             force_msg.force[2], 
+        //                                                             force_msg.momentum[0],
+        //                                                             force_msg.momentum[1],
+        //                                                             force_msg.momentum[2]);
     }
 
 }

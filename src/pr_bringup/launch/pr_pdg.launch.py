@@ -249,32 +249,32 @@ def generate_launch_description():
                     ]
                 ),
                        
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocap',
-                    node_name='mocap',
-                    remappings=[
-                        ("x_coord_mocap", "x_coord_mocap")
-                    ],
-                    parameters=[
-                        {"server_address": mocap_params["server_address"]},
-                        {"server_command_port": mocap_params["server_command_port"]},
-                        {"server_data_port": mocap_params["server_data_port"]},
-                        {"marker_names":  mocap_params["marker_names"][robot]},
-                        {"robot_5p": robot=="robot_5p"},
-                    ]
-                ),
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::ErrorModel',
-                    node_name='model_error',
-                    remappings=[
-                        ("x_mocap_error", "x_mocap_error")
-                    ],
-                    parameters=[
-                        {"tol": 0.01}
-                    ]
-                ), 
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocap',
+                #     node_name='mocap',
+                #     remappings=[
+                #         ("x_coord_mocap", "x_coord_mocap")
+                #     ],
+                #     parameters=[
+                #         {"server_address": mocap_params["server_address"]},
+                #         {"server_command_port": mocap_params["server_command_port"]},
+                #         {"server_data_port": mocap_params["server_data_port"]},
+                #         {"marker_names":  mocap_params["marker_names"][robot]},
+                #         {"robot_5p": robot=="robot_5p"},
+                #     ]
+                # ),
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::ErrorModel',
+                #     node_name='model_error',
+                #     remappings=[
+                #         ("x_mocap_error", "x_mocap_error")
+                #     ],
+                #     parameters=[
+                #         {"tol": 0.01}
+                #     ]
+                # ), 
 
                 ComposableNode(
                     package='pr_sensors_actuators',

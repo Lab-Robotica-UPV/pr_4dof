@@ -21,24 +21,24 @@ namespace pr_controllers
 
         protected:
 
-            void controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& ref_msg,
-                                     const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
-                                     const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg,
-                                     const pr_msgs::msg::PRArrayH::ConstPtr& grav_msg);
+            void controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
+                                     const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg);
+            void ref_callback(const pr_msgs::msg::PRArrayH::SharedPtr ref_msg);
+            void grav_callback(const pr_msgs::msg::PRArrayH::SharedPtr grav_msg);
 
         private:
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_ref;
+
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_pos;
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_vel;
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_grav;
+
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr sub_ref;
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr sub_grav;
 
             typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
-                     pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
+                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
             /*
             typedef message_filters::sync_policies::ExactTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
-                     pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
+                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
             */
 
             typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
@@ -47,6 +47,11 @@ namespace pr_controllers
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_;
 
             std::vector<double> Kp, Kv;
+
+            pr_msgs::msg::PRArrayH ref, grav;
+
+            bool init_ref = false;
+            bool init_grav = false;
     };
 }
 

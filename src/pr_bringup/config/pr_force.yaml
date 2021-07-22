@@ -1,6 +1,17 @@
 admittance_params:
-  mass: [1.0, 1.0, 1.0, 1.0]
-  damping: [100.0, 100.0, 100.0, 100.0]
-  stiffness: [10.0, 10.0, 10.0, 10.0]
+  # Simulation
+  #mass: [1.0, 1.0, 1.0, 1.0]
+  #damping: [100.0, 100.0, 100.0, 100.0]
+  #stiffness: [10.0, 10.0, 10.0, 10.0]
 
-ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_force.txt"
+  # Real
+  # mass: [100.0, 100.0, 10.0, 10.0]
+  # damping: [447.0, 447.0, 44.7, 44.7]
+  # stiffness: [500.0, 500.0, 50.0, 50.0]
+  # Sensibilidad aumentada
+  mass: [50.0, 100.0, 5.0, 5.0]
+  damping: [223.5, 447.0, 22.35, 22.35]
+  stiffness: [250.0, 500.0, 25.0, 25.0]
+
+calibration: true
+ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_Fent_zeros.txt"

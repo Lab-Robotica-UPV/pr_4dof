@@ -24,7 +24,7 @@ def generate_launch_description():
     controller_params_file = os.path.join(
         get_package_share_directory('pr_bringup'),
         'config',
-        'pr_gus.yaml'
+        'pr_gus_sim.yaml'
     )
 
     controller_yaml_file = open(controller_params_file)

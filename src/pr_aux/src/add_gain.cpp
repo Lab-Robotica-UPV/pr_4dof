@@ -38,68 +38,50 @@ namespace pr_aux
         sub_in5.subscribe(this, "input5");
 
         num_inputs = signs.size();
-        PRUtils:vector2EigenVector(gains, gains_eigen);
+        PRUtils::vector2EigenVector(gains, gains_eigen);
 
         switch (num_inputs){
             case 1:
-                typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH> SyncPolicy;
-            
-                typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-                std::shared_ptr<Synchronizer> sync_;
-
-                sync_.reset(new Synchronizer(SyncPolicy(1), sub_in1));
-                sync_->registerCallback(std::bind(&InvDiffKinematics::topic_callback1, this, std::placeholders::_1));
+                {
+                sub_gain = this->create_subscription<pr_msgs::msg::PRArrayH>(
+                "input1", 
+                10, 
+                std::bind(&AddGain::topic_callback1, this, _1));
+                }
             break;
 
             case 2:
-                typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            
-                typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-                std::shared_ptr<Synchronizer> sync_;
-
-                sync_.reset(new Synchronizer(SyncPolicy(1), sub_in1, sub_in2));
-                sync_->registerCallback(std::bind(&InvDiffKinematics::topic_callback2, this, std::placeholders::_1, std::placeholders::_2));
+                {
+                sync2_.reset(new Synchronizer2(SyncPolicy2(1), sub_in1, sub_in2));
+                sync2_->registerCallback(std::bind(&AddGain::topic_callback2, this, std::placeholders::_1, std::placeholders::_2));
+                }
             break;
 
             case 3:
-                typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            
-                typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-                std::shared_ptr<Synchronizer> sync_;
-
-                sync_.reset(new Synchronizer(SyncPolicy(1), sub_in1, sub_in2, sub_in3));
-                sync_->registerCallback(std::bind(&InvDiffKinematics::topic_callback3, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+                {
+                sync3_.reset(new Synchronizer3(SyncPolicy3(1), sub_in1, sub_in2, sub_in3));
+                sync3_->registerCallback(std::bind(&AddGain::topic_callback3, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+                }
             break;
 
             case 4:
-                typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            
-                typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-                std::shared_ptr<Synchronizer> sync_;
-
-                sync_.reset(new Synchronizer(SyncPolicy(1), sub_in1, sub_in2, sub_in3, sub_in4));
-                sync_->registerCallback(std::bind(&InvDiffKinematics::topic_callback4, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+                {
+                sync4_.reset(new Synchronizer4(SyncPolicy4(1), sub_in1, sub_in2, sub_in3, sub_in4));
+                sync4_->registerCallback(std::bind(&AddGain::topic_callback4, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+                }
             break;
 
             case 5:
-                typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            
-                typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-                std::shared_ptr<Synchronizer> sync_;
-
-                sync_.reset(new Synchronizer(SyncPolicy(1), sub_in1, sub_in2, sub_in3, sub_in4, sub_in5));
-                sync_->registerCallback(std::bind(&InvDiffKinematics::topic_callback5, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+                {
+                sync5_.reset(new Synchronizer5(SyncPolicy5(1), sub_in1, sub_in2, sub_in3, sub_in4, sub_in5));
+                sync5_->registerCallback(std::bind(&AddGain::topic_callback5, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+                }
             break;
         }
 
     }
 
-    void AddGain::topic_callback1(const pr_msgs::msg::PRArrayH::ConstPtr& input1_msg){
+    void AddGain::topic_callback1(const pr_msgs::msg::PRArrayH::SharedPtr input1_msg){
 
         // Output message and init time
         auto out_msg = pr_msgs::msg::PRArrayH();
@@ -108,13 +90,13 @@ namespace pr_aux
         PRUtils::ArRMsg2Eigen(input1_msg, in1);
 
         // Output calculation
-        out = gains_vector.cwiseProduct(in1*signs[0]);
+        out = gains_eigen.cwiseProduct(in1*signs[0]);
 
         // Output msg
         PRUtils::Eigen2ArMsg(out, out_msg);
 
-        out_msg.header.stamp = out_msg->header.stamp;
-        out_msg.header.frame_id = out_msg->header.frame_id;
+        out_msg.header.stamp = input1_msg->header.stamp;
+        out_msg.header.frame_id = input1_msg->header.frame_id;
         
         out_msg.current_time = this->get_clock()->now();
         publisher_->publish(out_msg);
@@ -132,13 +114,13 @@ namespace pr_aux
         PRUtils::ArRMsg2Eigen(input2_msg, in2);
 
         // Output calculation
-        out = gains_vector.cwiseProduct(in1*signs[0] + in2*signs[1]);
+        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1]);
 
         // Output msg
         PRUtils::Eigen2ArMsg(out, out_msg);
 
-        out_msg.header.stamp = out_msg->header.stamp;
-        out_msg.header.frame_id = out_msg->header.frame_id;
+        out_msg.header.stamp = input1_msg->header.stamp;
+        out_msg.header.frame_id = input1_msg->header.frame_id;
         
         out_msg.current_time = this->get_clock()->now();
         publisher_->publish(out_msg);
@@ -158,13 +140,13 @@ namespace pr_aux
         PRUtils::ArRMsg2Eigen(input3_msg, in3);
 
         // Output calculation
-        out = gains_vector.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2]);
+        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2]);
 
         // Output msg
         PRUtils::Eigen2ArMsg(out, out_msg);
 
-        out_msg.header.stamp = out_msg->header.stamp;
-        out_msg.header.frame_id = out_msg->header.frame_id;
+        out_msg.header.stamp = input1_msg->header.stamp;
+        out_msg.header.frame_id = input1_msg->header.frame_id;
         
         out_msg.current_time = this->get_clock()->now();
         publisher_->publish(out_msg);
@@ -186,13 +168,13 @@ namespace pr_aux
         PRUtils::ArRMsg2Eigen(input4_msg, in4);
 
         // Output calculation
-        out = gains_vector.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3]);
+        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3]);
 
         // Output msg
         PRUtils::Eigen2ArMsg(out, out_msg);
 
-        out_msg.header.stamp = out_msg->header.stamp;
-        out_msg.header.frame_id = out_msg->header.frame_id;
+        out_msg.header.stamp = input1_msg->header.stamp;
+        out_msg.header.frame_id = input1_msg->header.frame_id;
         
         out_msg.current_time = this->get_clock()->now();
         publisher_->publish(out_msg);
@@ -216,13 +198,13 @@ namespace pr_aux
         PRUtils::ArRMsg2Eigen(input5_msg, in5);
 
         // Output calculation
-        out = gains_vector.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3] + in5*sings[4]);
+        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3] + in5*signs[4]);
 
         // Output msg
         PRUtils::Eigen2ArMsg(out, out_msg);
 
-        out_msg.header.stamp = out_msg->header.stamp;
-        out_msg.header.frame_id = out_msg->header.frame_id;
+        out_msg.header.stamp = input1_msg->header.stamp;
+        out_msg.header.frame_id = input1_msg->header.frame_id;
         
         out_msg.current_time = this->get_clock()->now();
         publisher_->publish(out_msg);

@@ -34,6 +34,10 @@ namespace pr_modelling
             "q_sol", 
             10);
 
+        publisher_qinde_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
+            "q_inde_sol", 
+            10);
+
         subscription_ = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "x_coord", 
             10, 
@@ -45,16 +49,31 @@ namespace pr_modelling
         // Inverse kinematics message and init time
         auto q_sol_msg = pr_msgs::msg::PRMatH();
         q_sol_msg.init_time = this->get_clock()->now();
+
+        // Inverse kinematics q_inde message and init time
+        auto q_inde_sol_msg = pr_msgs::msg::PRArrayH();
+        q_inde_sol_msg.init_time = this->get_clock()->now();
         
         PRModel::InverseKinematics(q_sol, x_msg->data, robot_params);
+        q_inde_sol(0) = q_sol(0,2);
+        q_inde_sol(1) = q_sol(1,2);
+        q_inde_sol(2) = q_sol(2,2);
+        q_inde_sol(3) = q_sol(3,1);
 
         PRUtils::Eigen2MatMsg(q_sol, q_sol_msg);
+        PRUtils::Eigen2ArMsg(q_inde_sol, q_inde_sol_msg);
 
         q_sol_msg.header.stamp = x_msg->header.stamp;
         q_sol_msg.header.frame_id = x_msg->header.frame_id;
+
+        q_inde_sol_msg.header.stamp = x_msg->header.stamp;
+        q_inde_sol_msg.header.frame_id = x_msg->header.frame_id;
+
         q_sol_msg.current_time = this->get_clock()->now();
-        
         publisher_->publish(q_sol_msg);
+
+        q_inde_sol_msg.current_time = this->get_clock()->now();
+        publisher_qinde_->publish(q_inde_sol_msg);
     }
 }
 

@@ -20,9 +20,13 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rcutils REQUIRED)
+find_package(message_filters REQUIRED)
 
 find_package(pr_msgs REQUIRED)
 find_package(pr_lib REQUIRED)
+
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(include)
 
@@ -72,12 +76,69 @@ ament_target_dependencies(replayer
 rclcpp_components_register_nodes(replayer "pr_aux::Replayer")
 set(node_plugins "${node_plugins}pr_aux::Replayer;$<TARGET_FILE:replayer>\n")
 
+### Replayer pos force node ###
+
+add_library(replayer_pos_force SHARED
+  src/replayer_pos_force.cpp)
+
+target_compile_definitions(replayer_pos_force
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(replayer_pos_force
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib")
+
+rclcpp_components_register_nodes(replayer_pos_force "pr_aux::ReplayerPosForce")
+set(node_plugins "${node_plugins}pr_aux::ReplayerPosForce;$<TARGET_FILE:replayer_pos_force>\n")
+
+### AddGain node ###
+
+add_library(add_gain SHARED
+  src/add_gain.cpp)
+
+target_compile_definitions(add_gain
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(add_gain
+  "rclcpp"
+  "rclcpp_components"
+  "message_filters"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(add_gain "pr_aux::AddGain")
+set(node_plugins "${node_plugins}pr_aux::AddGain;$<TARGET_FILE:add_gain>\n")
+
+### Kalman Filter node ###
+
+add_library(kalman_filter SHARED
+  src/kalman_filter.cpp)
+
+target_compile_definitions(kalman_filter
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(kalman_filter
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(kalman_filter "pr_aux::KalmanFilter")
+set(node_plugins "${node_plugins}pr_aux::KalmanFilter;$<TARGET_FILE:kalman_filter>\n")
+
 
 ### Installation ###
 
 install(TARGETS
   derivator
   replayer
+  replayer_pos_force
+  add_gain
+  kalman_filter
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

@@ -244,6 +244,7 @@ target_compile_definitions(inv_diff_kin
 ament_target_dependencies(inv_diff_kin
   "rclcpp"
   "rclcpp_components"
+  "message_filters"
   "pr_msgs"
   "pr_lib"
   "Eigen3")

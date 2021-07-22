@@ -130,6 +130,10 @@ def generate_launch_description():
                     node_name='force_sensor',
                     remappings=[
                         ("force_state", "force_state"),
+                        ("force_state_accelstamped", "force_state_accelstamped")
+                    ],
+                    parameters=[
+                        {"calibration": force_params['calibration']}
                     ]
                 ),
                 ComposableNode(
@@ -141,6 +145,12 @@ def generate_launch_description():
                         ("ref_force", "ref_force"),
                         ("vel_admittance", "vel_admittance"),
                         ("pos_admittance", "pos_admittance")
+                    ],
+                    parameters=[
+                        {"mass": admittance_params['mass']},
+                        {"damping": admittance_params['damping']},
+                        {"stiffness": admittance_params['stiffness']},
+                        {"ts": controller_params['ts']}
                     ]
                 ),
                 ComposableNode(
@@ -162,12 +172,13 @@ def generate_launch_description():
                     node_name='ref_pose_gen',
                     remappings=[
                         ("ref_pose", "ref_pose"),
+                        ("ref_pose_x", "ref_pose_x"),
                         ("end_flag", "end_flag"),
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file_q},
-                        {"is_cart": False},
+                        {"ref_path": ref_file_x},
+                        {"is_cart": True},
                         {"robot_config_params": pr_config_params}
                     ]
                 ),
@@ -178,7 +189,7 @@ def generate_launch_description():
                     remappings=[
                         ("ref_pose", "ref_force"),
                         ("end_flag", "end_flag_force"),
-                        ("joint_position", "joint_position")
+                        ("joint_position", "joint_position"),
                         ("ref_pose_x", "useless_topic")
                     ],
                     parameters=[
@@ -188,32 +199,29 @@ def generate_launch_description():
                     ]
                 ),
                 ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::InvDiffKinematics',
-                    node_name='inv_diff_kin',
-                    remappings=[
-                        ("vel_cart", "vel_admittance"),
-                        ("x_cart", "pos_admittance"),
-                        ("joint_position", "inc_q")
-                        ("joint_velocity", "inc_qp")
-                        ("det_fwd_jac", "det_fwd_jac")
-                    ],
-                    parameters=[
-                        {"robot_config_params": pr_config_params}
-                    ]
-                ),
-                ComposableNode(
                     package='pr_aux',
                     node_plugin='pr_aux::AddGain',
                     node_name='add_gain',
                     remappings=[
-                        ("input1", "inc_q"),
-                        ("input2", "ref_pose"),
-                        ("output", "ref_sum")
+                        ("input1", "pos_admittance"),
+                        ("input2", "ref_pose_x"),
+                        ("output", "ref_sum_x")
                     ],
                     parameters=[
                         {"signs": [1.0, 1.0]},
                         {"gains": [1.0, 1.0, 1.0, 1.0]}
+                    ]
+                ),
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::InverseKinematics',
+                    node_name='inv_kin_ref',
+                    remappings=[
+                        ("x_coord", "ref_sum_x"),
+                        ("q_inde_sol", "ref_sum"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": pr_config_params},
                     ]
                 ),
                 ComposableNode(
@@ -324,32 +332,32 @@ def generate_launch_description():
                     ]
                 ),
                        
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocap',
-                    node_name='mocap',
-                    remappings=[
-                        ("x_coord_mocap", "x_coord_mocap")
-                    ],
-                    parameters=[
-                        {"server_address": mocap_params["server_address"]},
-                        {"server_command_port": mocap_params["server_command_port"]},
-                        {"server_data_port": mocap_params["server_data_port"]},
-                        {"marker_names":  mocap_params["marker_names"][robot]},
-                        {"robot_5p": robot=="robot_5p"},
-                    ]
-                ),
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::ErrorModel',
-                    node_name='model_error',
-                    remappings=[
-                        ("x_mocap_error", "x_mocap_error")
-                    ],
-                    parameters=[
-                        {"tol": 0.01}
-                    ]
-                ), 
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocap',
+                #     node_name='mocap',
+                #     remappings=[
+                #         ("x_coord_mocap", "x_coord_mocap")
+                #     ],
+                #     parameters=[
+                #         {"server_address": mocap_params["server_address"]},
+                #         {"server_command_port": mocap_params["server_command_port"]},
+                #         {"server_data_port": mocap_params["server_data_port"]},
+                #         {"marker_names":  mocap_params["marker_names"][robot]},
+                #         {"robot_5p": robot=="robot_5p"},
+                #     ]
+                # ),
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::ErrorModel',
+                #     node_name='model_error',
+                #     remappings=[
+                #         ("x_mocap_error", "x_mocap_error")
+                #     ],
+                #     parameters=[
+                #         {"tol": 0.01}
+                #     ]
+                # ), 
 
                 ComposableNode(
                     package='pr_sensors_actuators',

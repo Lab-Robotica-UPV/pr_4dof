@@ -50,12 +50,11 @@ void PRUtils::vector2matrix(
 	}
 }
 
-void PRUtils:vector2EigenVector(const std::vector<double> &vec, Eigen::VectorXd &v){
+void PRUtils::vector2EigenVector(const std::vector<double> &vec, Eigen::VectorXd &v){
 	v.resize(vec.size());
 	for (int i=0; i<(int)vec.size(); i++){
 		v(i) = vec[i];
 	}
-	return v;
 }
 
 void PRUtils::array2vector(const std::array<double, 4> &ar, std::vector<double> &vec)

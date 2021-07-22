@@ -7,6 +7,7 @@
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "std_msgs/msg/bool.hpp"
 
+
 #include "bdaqctrl.h"
 #define deviceDescription L"PCI-1784,BID#0"
 using namespace Automation::BDaq;
@@ -54,6 +55,8 @@ namespace pr_sensors_actuators
             bool is_finished = false;
             std::vector<double> initial_position;
             int iter = 0;
+
+            double init_delay_sec = 4.0;
 
     };
 

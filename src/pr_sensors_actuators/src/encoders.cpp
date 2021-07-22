@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 #include <string>
+#include <thread>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
@@ -88,11 +89,11 @@ namespace pr_sensors_actuators
 
 
 		// Pause before start
-		std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(4000));
 
 		// Brake deactivation
-		ret = instantDoCtrl->Write(0,1,DOut);
-		RCLCPP_INFO(this->get_logger(), "Configuration completed, brake disabled");
+		//ret = instantDoCtrl->Write(0,1,DOut);
+		//RCLCPP_INFO(this->get_logger(), "Configuration completed, brake disabled");
 
 		//Create timer
         timer_ = this->create_wall_timer(
@@ -139,28 +140,29 @@ namespace pr_sensors_actuators
 			pulsos[3] = udCounterCtrl3->getValue();
 			position_msg.data[3] = pulsos[3]*0.000002325 + initial_position[3];
 
+			if (iter*ts/1000 == init_delay_sec){
+				// Brake deactivation
+				ret = instantDoCtrl->Write(0,1,DOut);
+				RCLCPP_INFO(this->get_logger(), "Configuration completed, brake disabled");
+			}
+			if (iter*ts/1000 >= init_delay_sec){
 
-			if(iter<10000)
-				iter++;
-			else
-				iter=0;
+				//Time clock
+				position_msg.header.frame_id = std::to_string(iter);
+				
+				position_msg.current_time = this->get_clock()->now();
+				position_msg.header.stamp = position_msg.current_time;
+				publisher_->publish(position_msg);
+            
+				/*RCLCPP_INFO(this->get_logger(), "Pulishing: %f %f %f %f", 
+				position_msg.data[0], 
+				position_msg.data[1], 
+				position_msg.data[2], 
+				position_msg.data[3]);*/
+			}
+            iter++;
+		}
 
-			//Time clock
-			position_msg.header.frame_id = std::to_string(iter);
-			
-			position_msg.current_time = this->get_clock()->now();
-			position_msg.header.stamp = position_msg.current_time;
-			publisher_->publish(position_msg);
-            
-            
-			/*RCLCPP_INFO(this->get_logger(), "Pulishing: %f %f %f %f", 
-            position_msg.data[0], 
-            position_msg.data[1], 
-            position_msg.data[2], 
-            position_msg.data[3]);*/
-			
-            
-		} 
         else 
         {
             //End flag activted
@@ -168,6 +170,8 @@ namespace pr_sensors_actuators
 	    	ret = instantDoCtrl->Write(0,1,DOut);
 			RCLCPP_INFO(this->get_logger(), "Brake disabled");
 		}
+
+		
 	}
 
     void Encoders::end_callback(const std_msgs::msg::Bool::SharedPtr end_msg)

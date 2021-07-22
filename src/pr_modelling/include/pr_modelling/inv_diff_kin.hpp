@@ -9,7 +9,7 @@
 #include "message_filters/sync_policies/exact_time.h"
 
 #include "pr_msgs/msg/pr_array_h.hpp"
-#include "pr_msgs/msg/pr_mat_h.hpp"
+#include "pr_msgs/msg/pr_float_h.hpp"
 #include "pr_lib/pr_model.hpp"
 #include "pr_lib/pr_utils.hpp"
 
@@ -17,11 +17,11 @@
 
 namespace pr_modelling
 {
-    class InvDiffKin : public rclcpp::Node
+    class InvDiffKinematics : public rclcpp::Node
     {
         public:
             //PR_MODELLING_PUBLIC
-            explicit InvDiffKin(const rclcpp::NodeOptions & options);
+            explicit InvDiffKinematics(const rclcpp::NodeOptions & options);
 
         protected:
             void topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& vel_cart_msg,
@@ -29,7 +29,7 @@ namespace pr_modelling
 
         private:
             message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_vel_cart;
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_vel_cart;
+            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_pos_cart;
 
             typedef message_filters::sync_policies::ApproximateTime
                     <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
@@ -47,6 +47,8 @@ namespace pr_modelling
             std::vector<double> robot_params;
             
             Eigen::Vector4d integ, qp_ant, qp, v;
+            Eigen::Matrix<double, 4, 4> ForJ;
+            double ts;
 
     };
 }

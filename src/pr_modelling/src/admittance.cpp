@@ -19,7 +19,7 @@ using std::placeholders::_1;
 
 namespace pr_modelling
 {
-    /**** Q GRAV TERMS COMPONENT ****/
+    /**** ADMITTANCE COMPONENT ****/
     Admittance::Admittance(const rclcpp::NodeOptions & options)
     : Node("admittance", options)
     {
@@ -84,10 +84,14 @@ namespace pr_modelling
         Cd = Cc;
         Dd = Dd;
 
+        state = Eigen::Matrix<double,8,1>::Zero();
+        state_ = Eigen::Matrix<double,8,1>::Zero();
+        output = Eigen::Matrix<double,8,1>::Zero();
+
 
     }
 
-    void Admittance::ref_force_callback(const pr_msgs::msg::PRArrayH::ConstPtr& fref_msg)
+    void Admittance::ref_force_callback(const pr_msgs::msg::PRArrayH::SharedPtr fref_msg)
     {
         if (init_f){
 
@@ -100,17 +104,17 @@ namespace pr_modelling
             v_admittance_msg.init_time = this->get_clock()->now();
 
             // x coordinate
-            force_error(0) = f_ref_msg(0) - msgForce.force[0];
+            force_error(0) = fref_msg->data[0] - msgForce.force[0];
             // z coordinate
-            force_error(1) = f_ref_msg(1) - msgForce.force[2];
+            force_error(1) = fref_msg->data[1] - msgForce.force[2];
             // theta coordinate
-            force_error(2) = f_ref_msg(2) - msgForce.momentum[1];
+            force_error(2) = fref_msg->data[2] - msgForce.momentum[1];
             // psi coordinate
-            force_error(3) = f_ref_msg(3) - msgForce.momentum[2];
+            force_error(3) = fref_msg->data[3] - msgForce.momentum[2];
 
             // State update
             state_ = Ad*state + Bd*force_error;
-            output = Cc*state + Dd*force_error;
+            output = -(Cd*state + Dd*force_error);
 
             state = state_;
 
@@ -123,6 +127,11 @@ namespace pr_modelling
             v_admittance_msg.data[1] = output(5);
             v_admittance_msg.data[2] = output(6);
             v_admittance_msg.data[3] = output(7);
+            // for (int i=0; i<4; i++){
+            //     if (abs(v_admittance_msg.data[i]) < 2e-4){
+            //         v_admittance_msg.data[i] = 0;
+            //     }
+            // }
 
             x_admittance_msg.header.stamp = fref_msg->header.stamp;
             x_admittance_msg.header.frame_id = fref_msg->header.frame_id;
@@ -139,10 +148,15 @@ namespace pr_modelling
         }
     }
 
-    void Admittance::force_callback(const pr_msgs::msg::PRForceState::ConstPtr& f_msg)
+    void Admittance::force_callback(const pr_msgs::msg::PRForceState::SharedPtr f_msg)
     {
         // Update the msg with the new force msg
-        msgForce = f_msg;
+        msgForce.force[0] = f_msg->force[0];
+        msgForce.force[1] = f_msg->force[1];
+        msgForce.force[2] = f_msg->force[2];
+        msgForce.momentum[0] = f_msg->momentum[0];
+        msgForce.momentum[1] = f_msg->momentum[1];
+        msgForce.momentum[2] = f_msg->momentum[2];
         init_f = true;
     }
 }

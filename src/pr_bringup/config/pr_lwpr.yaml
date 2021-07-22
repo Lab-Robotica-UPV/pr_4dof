@@ -1,0 +1,21 @@
+fwd:
+  initD: [200.0, 200.0, 200.0, 200.0]
+  initAlpha: [0.1, 0.1, 0.1, 0.1]
+  penalty: [0.001, 0.001, 0.001, 0.001]
+  initLambda: [0.999, 0.999, 0.999, 0.999]
+  finalLambda: [0.9999, 0.9999, 0.9999, 0.9999]
+  activateLearning: false
+  activatePrediction: true
+  loadModel: ""
+  saveModel: "lwpr_models/lwpr_fwd_trr2"
+
+inv:
+  initD: [200.0, 200.0, 200.0, 200.0]
+  initAlpha: [0.1, 0.1, 0.1, 0.1]
+  penalty: [0.001, 0.001, 0.001, 0.001]
+  initLambda: [0.999, 0.999, 0.999, 0.999]
+  finalLambda: [0.9999, 0.9999, 0.9999, 0.9999]
+  activateLearning: false
+  activatePrediction: true
+  loadModel: "lwpr_models/lwpr_inv_trr2"
+  saveModel: ""

@@ -25,8 +25,10 @@ namespace pr_modelling
         this->declare_parameter<std::vector<double>>(
             "robot_config_params", 
             {0.4, 0.4, 0.4, 0.15, 90*(M_PI/180), 45*(M_PI/180), 0.3, 0.3, 0.3, 50*(M_PI/180), 90*(M_PI/180)});
+        this->declare_parameter<double>("ts", 0.01);
 
         this->get_parameter("robot_config_params", robot_params);
+        this->get_parameter("ts", ts);
 
         publisher_qp = this->create_publisher<pr_msgs::msg::PRArrayH>(
             "joint_velocity", 
@@ -36,7 +38,7 @@ namespace pr_modelling
             "joint_position", 
             10);
 
-        publisher_detFwdJac = = this->create_publisher<pr_msgs::msg::PRFloatH>(
+        publisher_detFwdJac = this->create_publisher<pr_msgs::msg::PRFloatH>(
             "det_fwd_jac", 
             10);
 
@@ -51,7 +53,7 @@ namespace pr_modelling
     }
 
     void InvDiffKinematics::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& vel_cart_msg,
-                                           const pr_msgs::msg::PRArrayH::ConstPtr& pos_cart_msg,)
+                                           const pr_msgs::msg::PRArrayH::ConstPtr& pos_cart_msg)
     {
         // Joint velocity message and init time
         auto qp_msg = pr_msgs::msg::PRArrayH();
@@ -66,14 +68,14 @@ namespace pr_modelling
         det_fwd_jac_msg.init_time = this->get_clock()->now();
 
         // FwdJacobian calculation
-        PRModel::ForwardJacobian(ForJ, pos_cart_msg.data, robot_params);
+        PRModel::ForwardJacobian(ForJ, pos_cart_msg->data, robot_params);
 
         PRUtils::ArRMsg2Eigen(vel_cart_msg, v);
 
         qp = ForJ*v;
         det_fwd_jac_msg.data = ForJ.determinant();
 
-        integ = PRUtils::integration_forward_euler(qp, qp_ant, integ, ts);
+        integ = PRUtils::integration_trapezoidal(qp, qp_ant, integ, ts);
         qp_ant = qp;
 
         PRUtils::Eigen2ArMsg(qp, qp_msg);
