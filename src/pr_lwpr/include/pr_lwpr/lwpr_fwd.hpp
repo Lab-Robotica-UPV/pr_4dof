@@ -55,7 +55,7 @@ namespace pr_lwpr
             bool activatePrediction;
             std::string loadModel, saveModel;
             
-            Eigen::Vector4d q, qp, q_ant, qp_ant, u;
+            Eigen::Vector4d q, qp, q_ant, qp_ant, u, u_ant;
 
             Eigen::VectorXd state;
             Eigen::VectorXd y;

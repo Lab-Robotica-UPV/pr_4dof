@@ -130,6 +130,24 @@ ament_target_dependencies(kalman_filter
 rclcpp_components_register_nodes(kalman_filter "pr_aux::KalmanFilter")
 set(node_plugins "${node_plugins}pr_aux::KalmanFilter;$<TARGET_FILE:kalman_filter>\n")
 
+### Displayer node ###
+
+add_library(displayer SHARED
+  src/displayer.cpp)
+
+target_compile_definitions(displayer
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(displayer
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(displayer "pr_aux::Displayer")
+set(node_plugins "${node_plugins}pr_aux::Displayer;$<TARGET_FILE:displayer>\n")
+
 
 ### Installation ###
 
@@ -139,6 +157,7 @@ install(TARGETS
   replayer_pos_force
   add_gain
   kalman_filter
+  displayer
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

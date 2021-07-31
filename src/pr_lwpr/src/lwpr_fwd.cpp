@@ -103,6 +103,11 @@ namespace pr_lwpr
         // Jorge divides the control actions by 60 and 400 to normalize
         // Is there a better strategy?
         u(0) /= 60; u(1) /= 60; u(2) /= 60; u(3) /= 400;
+        q(0) = (q(0)-0.79)/0.14; 
+        q(1) = (q(1)-0.79)/0.14;
+        q(2) = (q(2)-0.79)/0.14;
+        q(3) = (q(3)-0.69)/0.14;
+
 
         if (activatePrediction){
           // Output message and init time
@@ -113,6 +118,12 @@ namespace pr_lwpr
             y = models[i]->predict(state);
             output(i) = y(0);
           }
+
+          // Escalado
+          output(0) = output(0)*0.14+0.79;
+          output(1) = output(1)*0.14+0.79;
+          output(2) = output(2)*0.14+0.79;
+          output(3) = output(3)*0.14+0.69;
 
           for(int i=0; i<output.size(); i++)
            output_msg.data[i] = output(i);
@@ -125,7 +136,7 @@ namespace pr_lwpr
 
         if (!first_iter && activateLearning){
           for (int i=0; i<q_msg->data.size(); i++){
-            state << q_ant, qp_ant/0.02, u;
+            state << q_ant, qp_ant/0.02, u_ant;
             y(0) = q(i);
             models[i]->update(state, y);
           }
@@ -136,6 +147,7 @@ namespace pr_lwpr
         }
         q_ant = q;
         qp_ant = qp;
+        u_ant = u;
     }
 }
 

@@ -25,6 +25,8 @@ controller:
 ref_path:
   q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_TRR2_CF1_V2.txt"
   x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_TRR2_CF1_V2.txt"
+  #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_manual.txt"
+  #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_manual.txt"
 
 #For PDG
 dir_kin:

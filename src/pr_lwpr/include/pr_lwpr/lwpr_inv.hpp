@@ -26,26 +26,14 @@ namespace pr_lwpr
             ~LWPRInv();
 
         protected:
-            void topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& q_msg,
-                                const pr_msgs::msg::PRArrayH::ConstPtr& u_msg);
+            void ref_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg);
+            void u_callback(const pr_msgs::msg::PRArrayH::SharedPtr u_msg);
 
         private:
 
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_q;
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_u;
-
-            typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-
-            /*typedef message_filters::sync_policies::ExactTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, 
-                     pr_msgs::msg::PROTS, pr_msgs::msg::PROTS,
-                     pr_msgs::msg::PRFloatH, pr_msgs::msg::PRFloatH> SyncPolicy;*/
-
-            typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-            std::shared_ptr<Synchronizer> sync_;
-            
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_;
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_ref;
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_u;
 
             std::vector<double> initD;
             std::vector<double> initAlpha, penalty, initLambda, finalLambda;
@@ -64,6 +52,8 @@ namespace pr_lwpr
             std::vector<LWPR_Object *> models;
             //LWPR_Object models[4];
             bool first_iter = true;
+            bool read_pos = false;
+            bool read_u = false;
             double ts;
             
     };

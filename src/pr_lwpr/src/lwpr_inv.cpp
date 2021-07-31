@@ -41,11 +41,17 @@ namespace pr_lwpr
         this->get_parameter("saveModel", saveModel);
         this->get_parameter("ts", ts);
 
-        sub_q.subscribe(this, "ref_pose");
-        sub_u.subscribe(this, "control_action");
+        subscription_ref = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "ref_pose",
+            1,
+            std::bind(&LWPRInv::ref_callback, this, std::placeholders::_1)
+        );
 
-        sync_.reset(new Synchronizer(SyncPolicy(1), sub_q, sub_u));
-        sync_->registerCallback(std::bind(&LWPRInv::topic_callback, this, std::placeholders::_1, std::placeholders::_2));
+        subscription_u = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "control_action",
+            1,
+            std::bind(&LWPRInv::u_callback, this, std::placeholders::_1)
+        );
 
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("out_lwpr_inv", 1);
 
@@ -92,53 +98,80 @@ namespace pr_lwpr
       models.clear();
     }
 
-    void LWPRInv::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& q_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& u_msg)
+    void LWPRInv::ref_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg)
     {
-        
 
         //Convert to Eigen
         PRUtils::ArRMsg2Eigen(q_msg, q);
-        PRUtils::ArRMsg2Eigen(u_msg, u);
 
         qp = PRUtils::derivation(q, q_ant, ts);
         qpp = PRUtils::derivation(qp, qp_ant, ts);
 
-        if (activatePrediction){
-          // Output message and init time
-          auto output_msg = pr_msgs::msg::PRArrayH();
-          output_msg.init_time = this->get_clock()->now();
+        if (!first_iter){
 
-          // Jorge divides the control actions by 60 or 400 to normalize
-          // Is there a better strategy?
-          state << q, qp/0.02, qpp;
-          for (int i=0; i<q_msg->data.size(); i++){
-            y = models[i]->predict(state);
-            output(i) = y(0);
-            output(i) *= scale_output(i);
-          }
+          if (activatePrediction){
+            // Output message and init time
+            auto output_msg = pr_msgs::msg::PRArrayH();
+            output_msg.init_time = this->get_clock()->now();
 
-          for(int i=0; i<output.size(); i++)
-           output_msg.data[i] = output(i);
-
-          output_msg.header.frame_id = q_msg->header.frame_id;
-          output_msg.header.stamp = q_msg->header.stamp;
-          output_msg.current_time = this->get_clock()->now();
-          publisher_->publish(output_msg);
-        }
-
-        if (activateLearning){
-          for (int i=0; i<q_msg->data.size(); i++){
+            // Jorge divides the control actions by 60 or 400 to normalize
+            // Is there a better strategy?
             state << q, qp/0.02, qpp;
-            y(0) = u(i)/scale_output(i);
-            models[i]->update(state, y);
+            for (int i=0; i<q_msg->data.size(); i++){
+              y = models[i]->predict(state);
+              output(i) = y(0);
+              output(i) *= scale_output(i);
+            }
+
+            for(int i=0; i<output.size(); i++)
+            output_msg.data[i] = output(i);
+
+            output_msg.header.frame_id = q_msg->header.frame_id;
+            output_msg.header.stamp = q_msg->header.stamp;
+            output_msg.current_time = this->get_clock()->now();
+            publisher_->publish(output_msg);
           }
+
+          if (activateLearning){
+            for (int i=0; i<q_msg->data.size(); i++){
+              state << q, qp/0.02, qpp;
+              y(0) = u(i)/scale_output(i);
+              models[i]->update(state, y);
+            }
+          }
+
+        }
+        
+        if (first_iter && activatePrediction || !activatePrediction){
+          // Output message and init time
+            auto output_msg = pr_msgs::msg::PRArrayH();
+            output_msg.init_time = this->get_clock()->now();
+
+            for(int i=0; i<4; i++)
+            output_msg.data[i] = 0;
+
+            output_msg.header.frame_id = q_msg->header.frame_id;
+            output_msg.header.stamp = q_msg->header.stamp;
+            output_msg.current_time = this->get_clock()->now();
+            publisher_->publish(output_msg);
+            
+          
+          first_iter = false;
         }
 
         q_ant = q;
         qp_ant = qp;
         
     }
+    
+    void LWPRInv::u_callback(const pr_msgs::msg::PRArrayH::SharedPtr u_msg)
+    {
+
+      //Convert to Eigen
+      PRUtils::ArRMsg2Eigen(u_msg, u);
+
+    }
+
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

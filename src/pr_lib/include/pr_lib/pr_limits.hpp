@@ -17,6 +17,10 @@ namespace PRLimits {
     Eigen::Matrix<double,4,2> LimActuators(void);
 
     Eigen::Vector4d LimAngles(void);
+
+    Eigen::Matrix<int,7,1> VerFactPos(const std::array<double, 4> &X, const std::vector<double> &RParam);
+
+    Eigen::Vector4d AngPatas(const double &theta, const Eigen::Matrix<double,4,3> &q);
 }
 
 
