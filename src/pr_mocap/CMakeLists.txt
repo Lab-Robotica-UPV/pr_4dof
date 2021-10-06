@@ -66,7 +66,7 @@ ament_target_dependencies(pr_x_mocap
 rclcpp_components_register_nodes(pr_x_mocap "pr_mocap::PRXMocap")
 set(node_plugins "${node_plugins}pr_mocap::PRXMocap;$<TARGET_FILE:pr_x_mocap>\n")
 
-### Mocap error node ###
+### Mocap synchronizer node ###
 
 add_library(pr_x_mocap_synchronizer SHARED
   src/pr_x_mocap_synchronizer.cpp)
@@ -83,9 +83,27 @@ ament_target_dependencies(pr_x_mocap_synchronizer
 rclcpp_components_register_nodes(pr_x_mocap_synchronizer "pr_mocap::PRXMocapSynchronizer")
 set(node_plugins "${node_plugins}pr_mocap::PRXMocapSynchronizer;$<TARGET_FILE:pr_x_mocap_synchronizer>\n")
 
+### Mocap recorder node ###
+
+add_library(pr_x_mocap_recorder SHARED
+  src/pr_x_mocap_recorder.cpp)
+
+target_compile_definitions(pr_x_mocap_recorder
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(pr_x_mocap_recorder
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+)
+
+rclcpp_components_register_nodes(pr_x_mocap_recorder "pr_mocap::PRXMocapRecorder")
+set(node_plugins "${node_plugins}pr_mocap::PRXMocapRecorder;$<TARGET_FILE:pr_x_mocap_recorder>\n")
+
 install(TARGETS
   pr_x_mocap
   pr_x_mocap_synchronizer
+  pr_x_mocap_recorder
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

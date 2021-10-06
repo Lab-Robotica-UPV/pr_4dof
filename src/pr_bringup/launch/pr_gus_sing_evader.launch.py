@@ -5,6 +5,7 @@ from launch_ros.descriptions import ComposableNode
 from ament_index_python.packages import get_package_share_directory
 
 from numpy import fromstring
+from datetime import datetime
 
 import yaml
 
@@ -288,6 +289,19 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"tol": 0.01}
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocapRecorder',
+                    node_name='ref_x_mocap_recorder',
+                    remappings=[
+                        ("end_flag", "end_flag"),
+                        ("joint_position", "joint_position")
+                    ],
+                    parameters=[
+                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_TRR6_CF1_VS1"}
                     ]
                 ),
 

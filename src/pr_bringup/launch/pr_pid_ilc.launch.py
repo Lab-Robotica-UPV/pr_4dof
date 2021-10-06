@@ -30,10 +30,10 @@ def generate_launch_description():
         'mocap_server.yaml'
         )
 
-    lwpr_params_file = os.path.join(
+    ilc_parameters_file = os.path.join(
         get_package_share_directory('pr_bringup'),
         'config',
-        'pr_lwpr.yaml'
+        'pr_ilc.yaml'
     )
 
     robot_yaml_file = open(robot_parameters_file)
@@ -45,6 +45,9 @@ def generate_launch_description():
     mocap_yaml_file = open(mocap_config)
     mocap_params = yaml.load(mocap_yaml_file)
 
+    ilc_yaml_file = open(ilc_parameters_file)
+    ilc_params = yaml.load(ilc_yaml_file)
+
     robot = controller_params['robot']['robot_name']
     robot_config = controller_params['robot']['config']    
 
@@ -53,11 +56,6 @@ def generate_launch_description():
 
     ref_file_q = controller_params['ref_path']['q']
     ref_file_x = controller_params['ref_path']['x']
-
-    lwpr_yaml_file = open(lwpr_params_file)
-    lwpr_params = yaml.load(lwpr_yaml_file)
-    lwpr_params_fwd = lwpr_params['fwd']
-    lwpr_params_inv = lwpr_params['inv']
 
     with open(ref_file_q, 'r') as f:
         first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -123,7 +121,6 @@ def generate_launch_description():
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),
-                
                 ComposableNode(
                     package='pr_ref_gen',
                     node_plugin='pr_ref_gen::RefPose',
@@ -141,98 +138,54 @@ def generate_launch_description():
                 ),
 
                 ComposableNode(
-                    package='pr_aux',
-                    node_plugin='pr_aux::Derivator',
-                    node_name='derivator',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("joint_velocity", "joint_velocity")
-                    ],
-                    parameters=[
-                        {"initial_value": first_reference_q},
-                        {"ts": controller_params['ts']}
-                    ]
-                ),
-
-                ComposableNode(
                     package='pr_controllers',
                     node_plugin='pr_controllers::PIDController',
                     node_name='controller',
                     remappings=[
                         ("ref_pos", "ref_pose"),
                         ("pos", "joint_position"),
+                        ("control_action", "control_action_pid")
                     ],
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']},
-                        {"initial_position": first_reference_q},
-                        {"initial_reference": first_reference_q}
+                        {"ki_gain": controller_params['controller']['ki']}
                     ]
-                ), 
+                ),
+
+                ComposableNode(
+                    package='pr_ilc',
+                    node_plugin='pr_ilc::IlcPD',
+                    node_name='ilc',
+                    remappings=[
+                        ("joint_position", "joint_position"),
+                        ("ref_pose", "ref_pose"),
+                        ("control_action_ilc", "control_action_ilc")
+                    ],
+                    parameters=[
+                        {"ref_path": ref_file_q},
+                        {"kp_gain": ilc_params['pd']['kp']},
+                        {"kd_gain": ilc_params['pd']['kd']},
+                        {"traj_repetitions": ilc_params['traj_repetitions']},
+                        {"load_path": ilc_params['load_path']},
+                        {"save_path": ilc_params['save_path']}
+                    ]
+                ),
 
                 ComposableNode(
                     package='pr_aux',
-                    node_plugin='pr_aux::KalmanFilter',
-                    node_name='kalman_filter',
+                    node_plugin='pr_aux::AddGain',
+                    node_name='add_gain',
                     remappings=[
-                        ("joint_position", "joint_position"),
-                        ("joint_position_filt", "joint_position_filt"),
-                        ("joint_velocity_filt", "joint_velocity_filt")
+                        ("input1", "control_action_pid"),
+                        ("input2", "control_action_ilc"),
+                        ("output", "control_action")
                     ],
                     parameters=[
-                        {"initial_value": first_reference_q},
-                        {"ts": controller_params['ts']},
-                        {"q": 100.0},
-                        {"r": 0.001}
+                        {"signs": [1.0, 1.0]},
+                        {"gains": [1.0, 1.0, 1.0, 1.0]}
                     ]
                 ),
-
-                ComposableNode(
-                    package='pr_lwpr',
-                    node_plugin='pr_lwpr::LWPRFwd',
-                    node_name='lwpr_fwd',
-                    remappings=[
-                        ("joint_position", "joint_position_filt"),
-                        ("joint_velocity", "joint_velocity_filt"),
-                        ("control_action", "control_action"),
-                        ("out_lwpr_fwd", "out_lwpr_fwd")
-                    ],
-                    parameters=[
-                        {"initD": lwpr_params_fwd['initD']},
-                        {"initAlpha": lwpr_params_fwd['initAlpha']},
-                        {"penalty": lwpr_params_fwd['penalty']},
-                        {"initLambda": lwpr_params_fwd['initLambda']},
-                        {"finalLambda": lwpr_params_fwd['finalLambda']},
-                        {"activateLearning": lwpr_params_fwd['activateLearning']},
-                        {"activatePrediction": lwpr_params_fwd['activatePrediction']},
-                        {"loadModel": lwpr_params_fwd['loadModel']},
-                        {"saveModel": lwpr_params_fwd['saveModel']}
-                    ]
-                ),
-                
-                ComposableNode(
-                    package='pr_lwpr',
-                    node_plugin='pr_lwpr::LWPRInv',
-                    node_name='lwpr_inv',
-                    remappings=[
-                        ("ref_pose", "ref_pose"),
-                        ("control_action", "control_action"),
-                        ("out_lwpr_inv", "out_lwpr_inv")
-                    ],
-                    parameters=[
-                        {"initD": lwpr_params_inv['initD']},
-                        {"initAlpha": lwpr_params_inv['initAlpha']},
-                        {"penalty": lwpr_params_inv['penalty']},
-                        {"initLambda": lwpr_params_inv['initLambda']},
-                        {"finalLambda": lwpr_params_inv['finalLambda']},
-                        {"activateLearning": lwpr_params_inv['activateLearning']},
-                        {"activatePrediction": lwpr_params_inv['activatePrediction']},
-                        {"loadModel": lwpr_params_inv['loadModel']},
-                        {"saveModel": lwpr_params_inv['saveModel']},
-                        {"ts": controller_params['ts']}
-                    ]
-                ), 
 
                 ComposableNode(
                     package='pr_sensors_actuators',

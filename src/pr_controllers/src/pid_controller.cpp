@@ -24,19 +24,11 @@ namespace pr_controllers
         this->declare_parameter<std::vector<double>>("kv_gain", {114.27, 114.27, 114.27, 491.32});
         this->declare_parameter<std::vector<double>>("ki_gain", {0.0, 0.0, 0.0, 0.0});
 
-        this->declare_parameter<std::vector<double>>("initial_position", {0.679005, 0.708169, 0.684298, 0.637145});
-        this->declare_parameter<std::vector<double>>("initial_reference", {0.679005, 0.708169, 0.684298, 0.637145});
-
         this->declare_parameter<double>("ts", 0.01);
 
         this->get_parameter("kp_gain", Kp);
         this->get_parameter("kv_gain", Kv);
         this->get_parameter("ki_gain", Ki);
-
-        std::vector<double> init_pos, init_ref;
-
-        this->get_parameter("initial_position", init_pos);
-        this->get_parameter("initial_reference", init_ref);
 
         this->get_parameter("ts", ts);
 
@@ -45,7 +37,6 @@ namespace pr_controllers
         Kv_mat = Eigen::Matrix4d::Zero(4,4);
         Ki_mat = Eigen::Matrix4d::Zero(4,4);
         for(int i=0; i<4; i++){
-            pos_ant(i) = init_pos[i];
             Kp_mat(i,i) = Kp[i];
             Kv_mat(i,i) = Kv[i];
             Ki_mat(i,i) = Ki[i];
@@ -97,6 +88,10 @@ namespace pr_controllers
             PRUtils::ArRMsg2Eigen(pos_msg, pos);
 
             e = pos-ref;
+            if (first_iter){
+                pos_ant = pos;
+                first_iter = false;
+            }
             vel = PRUtils::derivation(pos, pos_ant, ts);
             integ = PRUtils::integration_forward_euler(e, e_ant, integ, ts);
             pos_ant = pos;

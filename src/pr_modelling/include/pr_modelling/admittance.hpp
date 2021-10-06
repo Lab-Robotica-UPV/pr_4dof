@@ -6,6 +6,8 @@
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/pr_force_state.hpp"
 
+#include "pr_msgs/msg/pr_bool_h.hpp"
+
 #include "eigen3/Eigen/Dense"
 #include "eigen3/unsupported/Eigen/MatrixFunctions"
 
@@ -19,11 +21,13 @@ namespace pr_modelling
         protected:
             void ref_force_callback(const pr_msgs::msg::PRArrayH::SharedPtr f_ref_msg);
             void force_callback(const pr_msgs::msg::PRForceState::SharedPtr f_msg);
+            void activation_pin_callback(const pr_msgs::msg::PRBoolH::SharedPtr activation_pin_msg);
 
         private:
 
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr f_ref_sub;
             rclcpp::Subscription<pr_msgs::msg::PRForceState>::SharedPtr f_sub;
+            rclcpp::Subscription<pr_msgs::msg::PRBoolH>::SharedPtr activation_pin_sub;
             
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_pos_;
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_vel_;
@@ -47,6 +51,9 @@ namespace pr_modelling
 
             pr_msgs::msg::PRForceState msgForce;
             bool init_f = false;
+            bool activation_pin = true;
+            // By default, this pin is in true, which means that if no program changes it, the admittance
+            // will be computed as expected
     };
 
 }

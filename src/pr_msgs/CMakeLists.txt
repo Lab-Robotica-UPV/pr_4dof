@@ -39,6 +39,7 @@ endif()
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PRArray.msg"
   "msg/PRArrayH.msg"
+  "msg/PRBoolH.msg"
   "msg/PRForceState.msg"
   "msg/PRMatH.msg"
   "msg/PRMat.msg"

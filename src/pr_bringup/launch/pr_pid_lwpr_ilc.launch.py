@@ -36,6 +36,12 @@ def generate_launch_description():
         'pr_lwpr.yaml'
     )
 
+    ilc_parameters_file = os.path.join(
+        get_package_share_directory('pr_bringup'),
+        'config',
+        'pr_ilc.yaml'
+    )
+
     robot_yaml_file = open(robot_parameters_file)
     pr_params = yaml.load(robot_yaml_file)
 
@@ -58,6 +64,9 @@ def generate_launch_description():
     lwpr_params = yaml.load(lwpr_yaml_file)
     lwpr_params_fwd = lwpr_params['fwd']
     lwpr_params_inv = lwpr_params['inv']
+
+    ilc_yaml_file = open(ilc_parameters_file)
+    ilc_params = yaml.load(ilc_yaml_file)
 
     with open(ref_file_q, 'r') as f:
         first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -166,9 +175,7 @@ def generate_launch_description():
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']},
-                        {"initial_position": first_reference_q},
-                        {"initial_reference": first_reference_q}
+                        {"ki_gain": controller_params['controller']['ki']}
                     ]
                 ),
 
@@ -179,10 +186,11 @@ def generate_launch_description():
                     remappings=[
                         ("input1", "control_action_pid"),
                         ("input2", "out_lwpr_inv"),
+                        ("input3", "control_action_ilc"),
                         ("output", "control_action")
                     ],
                     parameters=[
-                        {"signs": [1.0, 1.0]},
+                        {"signs": lwpr_params_inv['gains_pid_lwpr_ilc']},
                         {"gains": [1.0, 1.0, 1.0, 1.0]}
                     ]
                 ),
@@ -221,7 +229,6 @@ def generate_launch_description():
                         {"initLambda": lwpr_params_fwd['initLambda']},
                         {"finalLambda": lwpr_params_fwd['finalLambda']},
                         {"activateLearning": lwpr_params_fwd['activateLearning']},
-                        {"activatePrediction": lwpr_params_fwd['activatePrediction']},
                         {"loadModel": lwpr_params_fwd['loadModel']},
                         {"saveModel": lwpr_params_fwd['saveModel']}
                     ]
@@ -243,10 +250,28 @@ def generate_launch_description():
                         {"initLambda": lwpr_params_inv['initLambda']},
                         {"finalLambda": lwpr_params_inv['finalLambda']},
                         {"activateLearning": lwpr_params_inv['activateLearning']},
-                        {"activatePrediction": lwpr_params_inv['activatePrediction']},
                         {"loadModel": lwpr_params_inv['loadModel']},
                         {"saveModel": lwpr_params_inv['saveModel']},
                         {"ts": controller_params['ts']}
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_ilc',
+                    node_plugin='pr_ilc::IlcPD',
+                    node_name='ilc',
+                    remappings=[
+                        ("joint_position", "joint_position"),
+                        ("ref_pose", "ref_pose"),
+                        ("control_action_ilc", "control_action_ilc")
+                    ],
+                    parameters=[
+                        {"ref_path": ref_file_q},
+                        {"kp_gain": ilc_params['pd']['kp']},
+                        {"kd_gain": ilc_params['pd']['kd']},
+                        {"traj_repetitions": ilc_params['traj_repetitions']},
+                        {"load_path": ilc_params['load_path']},
+                        {"save_path": ilc_params['save_path']}
                     ]
                 ), 
 

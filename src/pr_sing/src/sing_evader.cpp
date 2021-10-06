@@ -67,6 +67,8 @@ namespace pr_sing
 
         publisher_vc_ = this->create_publisher<pr_msgs::msg::PRArrayH>("vc_des", 1);
 
+        publisher_sing_pin = this->create_publisher<pr_msgs::msg::PRBoolH>("sing_pin", 1);
+
 
     }
 
@@ -83,6 +85,9 @@ namespace pr_sing
         //Publish also vc_des data
         auto vc_des_msg = pr_msgs::msg::PRArrayH();
         vc_des_msg.init_time = this->get_clock()->now();
+        //Publish bool sing_pin
+        auto sing_pin_msg = pr_msgs::msg::PRBoolH();
+        sing_pin_msg.init_time = this->get_clock()->now();
 
         //Convert to Eigen
         for(int i=0;i<(int)x_msg->data.size();i++) {
@@ -111,6 +116,11 @@ namespace pr_sing
             tol_OTS, iter_OTS
         );
 
+        // sing_pin se activa si la referencia no se encuentra en una singularidad
+        sing_pin = false;
+        minAng_OTS_ref = angOTS_ref.minCoeff();
+        if (minAng_OTS_ref >= lmin_Ang_OTS && abs(for_jac_det_ref->data)>=lmin_FJac) sing_pin = true;
+
         iterations++;
         //std::cout << iterations << " " << vc_des.transpose() << std::endl;
 
@@ -126,10 +136,15 @@ namespace pr_sing
         vc_des_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
         vc_des_msg.header.stamp = ref_msg->header.stamp;
 
+        sing_pin_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
+        sing_pin_msg.header.stamp = ref_msg->header.stamp;
+
         q_ref_mod_msg.current_time = this->get_clock()->now();
         publisher_->publish(q_ref_mod_msg);
         vc_des_msg.current_time = this->get_clock()->now();
         publisher_vc_->publish(vc_des_msg);
+        sing_pin_msg.current_time = this->get_clock()->now();
+        publisher_sing_pin->publish(sing_pin_msg);
     }
 }
 

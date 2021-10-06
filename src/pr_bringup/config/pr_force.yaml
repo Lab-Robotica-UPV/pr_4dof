@@ -14,4 +14,4 @@ admittance_params:
   stiffness: [250.0, 500.0, 25.0, 25.0]
 
 calibration: true
-ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_Fent_zeros.txt"
+ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_Fent__TRR18_CF1_V1.txt"

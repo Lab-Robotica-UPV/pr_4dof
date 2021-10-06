@@ -8,6 +8,8 @@ import os
 from numpy import fromstring, pi
 import yaml
 
+from datetime import datetime
+
 def generate_launch_description():
 
     """Generate launch description with multiple components."""
@@ -54,7 +56,7 @@ def generate_launch_description():
     with open(ref_file_x, 'r') as f:
         first_reference_x = fromstring(f.readline(), dtype=float, sep=" ").tolist()
 
-    pr_pdg = ComposableNodeContainer(
+    pr_pid = ComposableNodeContainer(
             node_name='pr_container',
             node_namespace='',
             package='rclcpp_components',
@@ -139,11 +141,22 @@ def generate_launch_description():
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']},
-                        {"initial_position": first_reference_q},
-                        {"initial_reference": first_reference_q}
+                        {"ki_gain": controller_params['controller']['ki']}
                     ]
-                ), 
+                ),
+
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapRecorder',
+                #     node_name='ref_x_mocap_recorder',
+                #     remappings=[
+                #         ("end_flag", "end_flag"),
+                #         ("joint_position", "joint_position")
+                #     ],
+                #     parameters=[
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Verf_AllActuators"}
+                #     ]
+                # ),
 
                 ComposableNode(
                     package='pr_sensors_actuators',
@@ -161,4 +174,4 @@ def generate_launch_description():
             output='screen',
     )
 
-    return launch.LaunchDescription([pr_pdg])
+    return launch.LaunchDescription([pr_pid])

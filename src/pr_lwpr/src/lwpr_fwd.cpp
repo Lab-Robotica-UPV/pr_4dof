@@ -24,7 +24,6 @@ namespace pr_lwpr
         this->declare_parameter<std::vector<double>>("initLambda", {0.999, 0.999, 0.999, 0.999});
         this->declare_parameter<std::vector<double>>("finalLambda", {0.9999, 0.9999, 0.9999, 0.9999});
         this->declare_parameter<bool>("activateLearning", true);
-        this->declare_parameter<bool>("activatePrediction", false);
         this->declare_parameter<std::string>("loadModel", "");
         this->declare_parameter<std::string>("saveModel", "");
         
@@ -35,7 +34,6 @@ namespace pr_lwpr
         this->get_parameter("initLambda", initLambda);
         this->get_parameter("finalLambda", finalLambda);
         this->get_parameter("activateLearning", activateLearning);
-        this->get_parameter("activatePrediction", activatePrediction);
         this->get_parameter("loadModel", loadModel);
         this->get_parameter("saveModel", saveModel);
 
@@ -92,8 +90,7 @@ namespace pr_lwpr
     void LWPRFwd::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& q_msg,
                                  const pr_msgs::msg::PRArrayH::ConstPtr& qp_msg,
                                  const pr_msgs::msg::PRArrayH::ConstPtr& u_msg)
-    {
-        
+    {  
 
         //Convert to Eigen
         PRUtils::ArRMsg2Eigen(q_msg, q);
@@ -108,31 +105,29 @@ namespace pr_lwpr
         q(2) = (q(2)-0.79)/0.14;
         q(3) = (q(3)-0.69)/0.14;
 
-
-        if (activatePrediction){
-          // Output message and init time
-          auto output_msg = pr_msgs::msg::PRArrayH();
-          output_msg.init_time = this->get_clock()->now();
-          state << q, qp/0.02, u;
-          for (int i=0; i<q_msg->data.size(); i++){
-            y = models[i]->predict(state);
-            output(i) = y(0);
-          }
-
-          // Escalado
-          output(0) = output(0)*0.14+0.79;
-          output(1) = output(1)*0.14+0.79;
-          output(2) = output(2)*0.14+0.79;
-          output(3) = output(3)*0.14+0.69;
-
-          for(int i=0; i<output.size(); i++)
-           output_msg.data[i] = output(i);
-
-          output_msg.header.frame_id = q_msg->header.frame_id;
-          output_msg.header.stamp = q_msg->header.stamp;
-          output_msg.current_time = this->get_clock()->now();
-          publisher_->publish(output_msg);
+        // Output message and init time
+        auto output_msg = pr_msgs::msg::PRArrayH();
+        output_msg.init_time = this->get_clock()->now();
+        state << q, qp/0.02, u;
+        for (int i=0; i<q_msg->data.size(); i++){
+          y = models[i]->predict(state);
+          output(i) = y(0);
         }
+
+        // Escalado
+        output(0) = output(0)*0.14+0.79;
+        output(1) = output(1)*0.14+0.79;
+        output(2) = output(2)*0.14+0.79;
+        output(3) = output(3)*0.14+0.69;
+
+        for(int i=0; i<output.size(); i++)
+        output_msg.data[i] = output(i);
+
+        output_msg.header.frame_id = q_msg->header.frame_id;
+        output_msg.header.stamp = q_msg->header.stamp;
+        output_msg.current_time = this->get_clock()->now();
+        publisher_->publish(output_msg);
+        
 
         if (!first_iter && activateLearning){
           for (int i=0; i<q_msg->data.size(); i++){

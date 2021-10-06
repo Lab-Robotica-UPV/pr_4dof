@@ -47,6 +47,12 @@ namespace pr_modelling
             std::bind(&Admittance::force_callback, this, std::placeholders::_1)
         );
 
+        activation_pin_sub = this->create_subscription<pr_msgs::msg::PRBoolH>(
+            "activation_pin",
+            1,
+            std::bind(&Admittance::activation_pin_callback, this, std::placeholders::_1)
+        );
+
         // sync_.reset(new Synchronizer(SyncPolicy(1), sub_Fref, sub_F));
         // sync_->registerCallback(std::bind(&Admittance::topic_callback, this, std::placeholders::_1, std::placeholders::_2));
         // sync_->setMaxIntervalDuration(rclcpp::Duration(0, 1000000));
@@ -103,14 +109,15 @@ namespace pr_modelling
             auto v_admittance_msg = pr_msgs::msg::PRArrayH();
             v_admittance_msg.init_time = this->get_clock()->now();
 
+            // If the pin is not activated, the force errors will be zero
             // x coordinate
-            force_error(0) = fref_msg->data[0] - msgForce.force[0];
+            force_error(0) = (fref_msg->data[0] - msgForce.force[0])*activation_pin;
             // z coordinate
-            force_error(1) = fref_msg->data[1] - msgForce.force[2];
+            force_error(1) = (fref_msg->data[1] - msgForce.force[2])*activation_pin;
             // theta coordinate
-            force_error(2) = fref_msg->data[2] - msgForce.momentum[1];
+            force_error(2) = (fref_msg->data[2] - msgForce.momentum[1])*activation_pin;
             // psi coordinate
-            force_error(3) = fref_msg->data[3] - msgForce.momentum[2];
+            force_error(3) = (fref_msg->data[3] - msgForce.momentum[2])*activation_pin;
 
             // State update
             state_ = Ad*state + Bd*force_error;
@@ -158,6 +165,12 @@ namespace pr_modelling
         msgForce.momentum[1] = f_msg->momentum[1];
         msgForce.momentum[2] = f_msg->momentum[2];
         init_f = true;
+    }
+
+    void Admittance::activation_pin_callback(const pr_msgs::msg::PRBoolH::SharedPtr activation_pin_msg)
+    {
+        // Update the activation pin
+        activation_pin = activation_pin_msg->data;
     }
 }
 

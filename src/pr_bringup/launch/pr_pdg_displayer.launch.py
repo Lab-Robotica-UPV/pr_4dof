@@ -262,7 +262,7 @@ def generate_launch_description():
                         ("callback", "ref_pose")
                     ],
                     parameters=[
-                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/pauses/ind_pause_TRR1_CF1_IDHolgV1_ext.txt"},
+                        {"data_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/pauses/ind_pause_TRR8_CF1_IDHolgV1_ext.txt"},
                     ]
                 ),
                        

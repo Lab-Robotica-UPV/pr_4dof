@@ -51,6 +51,7 @@ namespace pr_controllers
             double ts;
 
             bool init_ref = false;
+            bool first_iter = true;
     };
 }
 

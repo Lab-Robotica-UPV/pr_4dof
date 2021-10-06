@@ -4,10 +4,9 @@ fwd:
   penalty: [0.0001, 0.0001, 0.0001, 0.0001]
   initLambda: [0.999, 0.999, 0.999, 0.999]
   finalLambda: [0.99999, 0.99999, 0.99999, 0.99999]
-  activateLearning: true
-  activatePrediction: true
+  activateLearning: false
   loadModel: "lwpr_models/lwpr_fwd_4_"
-  saveModel: "lwpr_models/lwpr_fwd_5_"
+  saveModel: "lwpr_models/lwpr_fwd_5_1"
 
 inv:
   initD: [200.0, 200.0, 200.0, 200.0]
@@ -15,7 +14,15 @@ inv:
   penalty: [0.001, 0.001, 0.001, 0.001]
   initLambda: [0.999, 0.999, 0.999, 0.999]
   finalLambda: [0.9999, 0.9999, 0.9999, 0.9999]
-  activateLearning: true
-  activatePrediction: true
-  loadModel: "lwpr_models/lwpr_inv_4_"
-  saveModel: "lwpr_models/lwpr_inv_5_"
+  activateLearning: false
+  loadModel: "lwpr_models/lwpr_inv_6_5_"
+  saveModel: ""
+  gains_pid_lwpr: [1.0, 1.0]
+  gains_pid_lwpr_ilc: [1.0, 1.0, 1.0]
+
+# En gains_pid_lwpr:
+# [1.0, 0.0] para solo activar PID
+# [0.0, 1.0] para solo activar LWPR
+# [1.0, 1.0] para activar ambos
+
+# gains_pid_lwpr_ilc es identico anyadiendo al final el ILC

@@ -24,7 +24,6 @@ namespace pr_lwpr
         this->declare_parameter<std::vector<double>>("initLambda", {0.999, 0.999, 0.999, 0.999});
         this->declare_parameter<std::vector<double>>("finalLambda", {0.9999, 0.9999, 0.9999, 0.9999});
         this->declare_parameter<bool>("activateLearning", true);
-        this->declare_parameter<bool>("activatePrediction", false);
         this->declare_parameter<std::string>("loadModel", "");
         this->declare_parameter<std::string>("saveModel", "");
         this->declare_parameter<double>("ts", 0.01);
@@ -36,7 +35,6 @@ namespace pr_lwpr
         this->get_parameter("initLambda", initLambda);
         this->get_parameter("finalLambda", finalLambda);
         this->get_parameter("activateLearning", activateLearning);
-        this->get_parameter("activatePrediction", activatePrediction);
         this->get_parameter("loadModel", loadModel);
         this->get_parameter("saveModel", saveModel);
         this->get_parameter("ts", ts);
@@ -109,28 +107,26 @@ namespace pr_lwpr
 
         if (!first_iter){
 
-          if (activatePrediction){
-            // Output message and init time
-            auto output_msg = pr_msgs::msg::PRArrayH();
-            output_msg.init_time = this->get_clock()->now();
+          // Output message and init time
+          auto output_msg = pr_msgs::msg::PRArrayH();
+          output_msg.init_time = this->get_clock()->now();
 
-            // Jorge divides the control actions by 60 or 400 to normalize
-            // Is there a better strategy?
-            state << q, qp/0.02, qpp;
-            for (int i=0; i<q_msg->data.size(); i++){
-              y = models[i]->predict(state);
-              output(i) = y(0);
-              output(i) *= scale_output(i);
-            }
-
-            for(int i=0; i<output.size(); i++)
-            output_msg.data[i] = output(i);
-
-            output_msg.header.frame_id = q_msg->header.frame_id;
-            output_msg.header.stamp = q_msg->header.stamp;
-            output_msg.current_time = this->get_clock()->now();
-            publisher_->publish(output_msg);
+          // Jorge divides the control actions by 60 or 400 to normalize
+          // Is there a better strategy?
+          state << q, qp/0.02, qpp;
+          for (int i=0; i<q_msg->data.size(); i++){
+            y = models[i]->predict(state);
+            output(i) = y(0);
+            output(i) *= scale_output(i);
           }
+
+          for(int i=0; i<output.size(); i++)
+          output_msg.data[i] = output(i);
+
+          output_msg.header.frame_id = q_msg->header.frame_id;
+          output_msg.header.stamp = q_msg->header.stamp;
+          output_msg.current_time = this->get_clock()->now();
+          publisher_->publish(output_msg);
 
           if (activateLearning){
             for (int i=0; i<q_msg->data.size(); i++){
@@ -142,19 +138,18 @@ namespace pr_lwpr
 
         }
         
-        if (first_iter && activatePrediction || !activatePrediction){
+        if (first_iter){
           // Output message and init time
-            auto output_msg = pr_msgs::msg::PRArrayH();
-            output_msg.init_time = this->get_clock()->now();
+          auto output_msg = pr_msgs::msg::PRArrayH();
+          output_msg.init_time = this->get_clock()->now();
 
-            for(int i=0; i<4; i++)
-            output_msg.data[i] = 0;
+          for(int i=0; i<4; i++)
+          output_msg.data[i] = 0;
 
-            output_msg.header.frame_id = q_msg->header.frame_id;
-            output_msg.header.stamp = q_msg->header.stamp;
-            output_msg.current_time = this->get_clock()->now();
-            publisher_->publish(output_msg);
-            
+          output_msg.header.frame_id = q_msg->header.frame_id;
+          output_msg.header.stamp = q_msg->header.stamp;
+          output_msg.current_time = this->get_clock()->now();
+          publisher_->publish(output_msg);
           
           first_iter = false;
         }

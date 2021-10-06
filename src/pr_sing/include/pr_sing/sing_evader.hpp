@@ -14,6 +14,7 @@
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/prots.hpp"
 #include "pr_msgs/msg/pr_float_h.hpp"
+#include "pr_msgs/msg/pr_bool_h.hpp"
 
 #include "pr_lib/pr_singularity.hpp"
 
@@ -58,6 +59,7 @@ namespace pr_sing
 
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_;
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_vc_;
+            rclcpp::Publisher<pr_msgs::msg::PRBoolH>::SharedPtr publisher_sing_pin;
 
             Eigen::Matrix<double,6,4> OTS_med = Eigen::Matrix<double,6,4>::Zero();
             Eigen::Matrix<double,6,1> angOTS_ref = Eigen::Matrix<double,6,1>::Zero();
@@ -73,6 +75,8 @@ namespace pr_sing
             std::vector<double> robot_params;
             int iterations=0, iter_max=30, ncomb, iter_OTS;
             double tol, tol_OTS, ts, des_qind, lmin_Ang_OTS, lmin_FJac;
+            double minAng_OTS_ref;
+            bool sing_pin = true; // If true, the robot is not in singular position
 
     };
 }
