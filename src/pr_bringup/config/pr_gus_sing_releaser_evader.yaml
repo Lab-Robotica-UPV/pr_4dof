@@ -2,7 +2,7 @@ ts: 0.01
 
 robot: 
   robot_name: 'robot_3ups_rpu'
-  config: 1
+  config: 3
 
 actuators:
   v_sat: 9.5
@@ -21,8 +21,8 @@ ots:
   iter: 30
 
 sing_releaser_evader:
-  lmin_Ang_OTS: 2.0
-  lmin_FJac: 0.015
+  lmin_Ang_OTS:  0.0 #2.0
+  lmin_FJac:  0.000 # 0.015
   fk:
     tol: 0.0000001
     iter: 30
@@ -36,5 +36,5 @@ ref_path:
     q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_TR15_CF1_V1.txt"
     x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_TR15_CF1_V1.txt"
   evader:
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_TRR6_CF1_VS1.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_TRR6_CF1_VS1.txt"
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_qinde_TRR18_CF3_V1.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_cart_TRR18_CF3_V1.txt"

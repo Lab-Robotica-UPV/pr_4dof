@@ -28,9 +28,9 @@ find_package(pr_lib REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-find_library(/home/paralelo4dofnew/ros2_eloquent_ws/LWPR/lib_ros/lib lwpr)
+find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/LWPR/lib_ros/lib lwpr)
 
-include_directories(/home/paralelo4dofnew/ros2_eloquent_ws/LWPR/lib_ros/include)
+include_directories(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/LWPR/lib_ros/include)
 
 
 include_directories(include)
@@ -53,7 +53,7 @@ endif()
 add_library(lwpr_fwd SHARED
   src/lwpr_fwd.cpp)
 
-target_link_libraries(lwpr_fwd "-L/home/paralelo4dofnew/ros2_eloquent_ws/LWPR/lib_ros/lib" lwpr)
+target_link_libraries(lwpr_fwd "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/LWPR/lib_ros/lib" lwpr)
 
 target_compile_definitions(lwpr_fwd
   PRIVATE "COMPOSITION_BUILDING_DLL")
@@ -74,7 +74,7 @@ set(node_plugins "${node_plugins}pr_lwpr::LWPRFwd;$<TARGET_FILE:lwpr_fwd>\n")
 add_library(lwpr_inv SHARED
   src/lwpr_inv.cpp)
 
-target_link_libraries(lwpr_inv "-L/home/paralelo4dofnew/ros2_eloquent_ws/LWPR/lib_ros/lib" lwpr)
+target_link_libraries(lwpr_inv "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/LWPR/lib_ros/lib" lwpr)
 
 target_compile_definitions(lwpr_inv
   PRIVATE "COMPOSITION_BUILDING_DLL")

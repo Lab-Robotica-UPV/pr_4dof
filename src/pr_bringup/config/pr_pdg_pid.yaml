@@ -2,10 +2,10 @@ ts: 0.01
 
 robot: 
   robot_name: "robot_3ups_rpu"
-  config: 1
+  config: 3
 
 actuators:
-  v_sat: 9.5
+  v_sat: 4.5
   vp_conversion: [28.4628, 28.4628, 28.4628, 246.6779]
 
 controller:
@@ -23,8 +23,8 @@ controller:
   #ki: [1000.0, 1000.0, 1000.0, 10000.0]
 
 ref_path:
-  q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_TRR6_CF1_VS1.txt"
-  x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_TRR6_CF1_VS1.txt"
+  q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_qinde_TRR18_CF3_V1.txt"
+  x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_cart_TRR18_CF3_V1.txt"
   #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_manual.txt"
   #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_manual.txt"
 

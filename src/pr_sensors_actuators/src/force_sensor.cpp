@@ -1,6 +1,7 @@
 #include "pr_sensors_actuators/force_sensor.hpp"
 
 using namespace std::chrono_literals;
+using std::placeholders::_1;
 
 namespace pr_sensors_actuators
 {
@@ -9,7 +10,9 @@ namespace pr_sensors_actuators
     : Node("force_sensor", options)
     {
       this->declare_parameter<bool>("calibration", true);
+      this->declare_parameter<bool>("noise_threshold", false);
       this->get_parameter("calibration", calibration);
+      this->get_parameter("noise_threshold",noise_threshold);
 
         //Configuración del socket
         RCLCPP_INFO(this->get_logger(), "Configurando sensor");
@@ -88,15 +91,25 @@ namespace pr_sensors_actuators
         
         publisher_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state", 1);
         publisher_accelstamped_ = this->create_publisher<geometry_msgs::msg::AccelStamped>("force_state_accelstamped", 1);
-        
+        publisher_sync_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state_sync", 1);
+
         RCLCPP_INFO(this->get_logger(), "Sensor configurado");
+
+        subscription_ = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "joint_position",
+            1,
+            std::bind(&ForceSensor::topic_callback, this, _1)
+        );
+
+        force_msg = pr_msgs::msg::PRForceState();
+
 
     }
 
     void ForceSensor::timer_callback()
     {
       // ForceSensor message and init time
-      auto force_msg = pr_msgs::msg::PRForceState();
+      //auto force_msg = pr_msgs::msg::PRForceState();
       force_msg.init_time = this->get_clock()->now();
 
         //RCLCPP_INFO(this->get_logger(), "Sending request");
@@ -123,16 +136,17 @@ namespace pr_sensors_actuators
         force_msg.momentum[0] = 1.0*resp.FTData[3]/1000000.0;
         force_msg.momentum[1] = 1.0*resp.FTData[4]/1000000.0;
         force_msg.momentum[2] = 1.0*resp.FTData[5]/1000000.0;
-        // Threshold: 3 times the standard deviation
-        for (int i=0; i<3; i++){
-          if (abs(force_msg.force[i]) < 4*std_noise[i]){
-            force_msg.force[i] = 0;
+        // Threshold: 4 times the standard deviation
+        if (noise_threshold){
+          for (int i=0; i<3; i++){
+            if (abs(force_msg.force[i]) < 4*std_noise[i]){
+              force_msg.force[i] = 0;
+            }
+            if (abs(force_msg.momentum[i]) < 4*std_noise[i+3]){
+              force_msg.momentum[i] = 0;
+            } 
           }
-          if (abs(force_msg.momentum[i]) < 4*std_noise[i+3]){
-            force_msg.momentum[i] = 0;
-          } 
         }
-
         force_msg.header.stamp = this->get_clock()->now();
         force_msg.current_time = force_msg.header.stamp;
 
@@ -156,6 +170,38 @@ namespace pr_sensors_actuators
         //                                                             force_msg.momentum[0],
         //                                                             force_msg.momentum[1],
         //                                                             force_msg.momentum[2]);
+    }
+
+    void ForceSensor::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg)
+    {
+      auto force_msg_sync = pr_msgs::msg::PRForceState();
+      force_msg_sync.init_time = this->get_clock()->now();
+
+      force_msg_sync.force[0] = force_msg.force[0];
+      force_msg_sync.force[1] = force_msg.force[1];
+      force_msg_sync.force[2] = force_msg.force[2];
+      force_msg_sync.momentum[0] = force_msg.momentum[0];
+      force_msg_sync.momentum[1] = force_msg.momentum[1];
+      force_msg_sync.momentum[2] = force_msg.momentum[2];
+
+      // Threshold: 4 times the standard deviation
+      if (noise_threshold){
+        for (int i=0; i<3; i++){
+          if (abs(force_msg_sync.force[i]) < 4*std_noise[i]){
+            force_msg_sync.force[i] = 0;
+          }
+          if (abs(force_msg_sync.momentum[i]) < 4*std_noise[i+3]){
+            force_msg.momentum[i] = 0;
+          } 
+        }
+      }
+
+      force_msg_sync.header.stamp = q_msg->header.stamp;
+      force_msg_sync.header.frame_id = q_msg->header.frame_id;
+
+      force_msg_sync.current_time = this->get_clock()->now();
+      publisher_sync_->publish(force_msg_sync);
+
     }
 
 }

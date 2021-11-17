@@ -136,7 +136,8 @@ def generate_launch_description():
                         ("force_state_accelstamped", "force_state_accelstamped")
                     ],
                     parameters=[
-                        {"calibration": force_params['calibration']}
+                        {"calibration": force_params['calibration']},
+                        {"noise_threshold": force_params['noise_threshold']}
                     ]
                 ),
 

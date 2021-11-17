@@ -252,6 +252,25 @@ ament_target_dependencies(inv_diff_kin
 rclcpp_components_register_nodes(inv_diff_kin "pr_modelling::InvDiffKinematics")
 set(node_plugins "${node_plugins}pr_modelling::InvDiffKinematics;$<TARGET_FILE:inv_diff_kin>\n")
 
+### Force Fixed Frame node ###
+
+add_library(force_fixed_frame SHARED
+  src/force_fixed_frame.cpp)
+
+target_compile_definitions(force_fixed_frame
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(force_fixed_frame
+  "rclcpp"
+  "rclcpp_components"
+  "message_filters"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(force_fixed_frame "pr_modelling::ForceFixedFrame")
+set(node_plugins "${node_plugins}pr_modelling::ForceFixedFrame;$<TARGET_FILE:force_fixed_frame>\n")
+
 
 ### Installation ###
 
@@ -267,6 +286,7 @@ install(TARGETS
   for_jac
   admittance
   inv_diff_kin
+  force_fixed_frame
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

@@ -108,6 +108,8 @@ namespace pr_ref_gen
             std::bind(&RefInitAuto::topic_callback_cameras, this, _1)
         );
 
+        //for (int i=0; i< robot_params.size(); i++) std::cout << robot_params[i] << " " << std::endl;
+
         // // Prueba eliminar
         // //Eigen::Vector4d X_ini;
         // x_ini << 0.1, 0.79, -0.2793, -0.122;

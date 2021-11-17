@@ -2,7 +2,7 @@ ts: 0.01
 
 robot: 
   robot_name: 'robot_3ups_rpu'
-  config: 1
+  config: 3
 
 actuators:
   v_sat: 9.5

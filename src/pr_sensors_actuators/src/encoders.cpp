@@ -138,7 +138,8 @@ namespace pr_sensors_actuators
 
 			//Fourth joint
 			pulsos[3] = udCounterCtrl3->getValue();
-			position_msg.data[3] = pulsos[3]*0.000002325 + initial_position[3];
+			//position_msg.data[3] = pulsos[3]*0.000002325 + initial_position[3];
+			position_msg.data[3] = pulsos[3]*0.00000230571 + initial_position[3];
 
 			if (iter*ts/1000 == init_delay_sec){
 				// Brake deactivation

@@ -39,6 +39,8 @@ namespace PRUtils
     Eigen::Vector4d integration_trapezoidal(const Eigen::Vector4d &u, Eigen::Vector4d &u_ant, Eigen::Vector4d &y_ant, const double &ts);
     Eigen::Vector4d integration_forward_euler(const Eigen::Vector4d &u, Eigen::Vector4d &u_ant, Eigen::Vector4d &y_ant, const double &ts);
 
+    Eigen::Matrix3d RotationMatrices3UPE_RPU(const double &theta, const double &psi);
+
     template <typename DerivedA>
     void Eigen2MatMsg(
         const Eigen::MatrixBase<DerivedA> &matrix,

@@ -11,7 +11,16 @@ admittance_params:
   # Sensibilidad aumentada
   mass: [50.0, 100.0, 5.0, 5.0]
   damping: [223.5, 447.0, 22.35, 22.35]
-  stiffness: [250.0, 500.0, 25.0, 25.0]
+  #stiffness: [250.0, 500.0, 25.0, 25.0]
+  stiffness: [0.001, 0.001, 0.001, 0.001]
 
 calibration: true
-ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_Fent__TRR18_CF1_V1.txt"
+noise_threshold: false
+
+# For boot compensation and fixed frame
+fixed_frame_noise_threshold: true
+boot_mass: 2.2816
+boot_cdg: [0.1201, 0.0007, 0.0453]
+boot_compensation: true
+
+ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_Fent_TRR18_CF3_V1.txt"

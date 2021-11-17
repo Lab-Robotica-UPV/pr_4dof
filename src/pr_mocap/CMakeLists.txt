@@ -26,9 +26,9 @@ find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pr_lib REQUIRED)
 
-find_library(/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/src/pr_mocap/natnet_sdk/lib NatNetLibShared)
+find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/lib NatNet)
 
-include_directories(/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/src/pr_mocap/natnet_sdk/include)
+include_directories(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/include)
 
 include_directories(include)
 
@@ -50,7 +50,7 @@ endif()
 add_library(pr_x_mocap SHARED
   src/pr_x_mocap.cpp)
 
-target_link_libraries(pr_x_mocap "-L/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/src/pr_mocap/natnet_sdk/lib" NatNetLibShared)
+target_link_libraries(pr_x_mocap "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/lib" NatNet)
 
 target_compile_definitions(pr_x_mocap
   PRIVATE "COMPOSITION_BUILDING_DLL")

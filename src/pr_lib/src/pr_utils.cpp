@@ -97,3 +97,20 @@ Eigen::Vector4d PRUtils::integration_forward_euler(const Eigen::Vector4d &u, Eig
 	//y_ant = y;
 	return y;
 }
+Eigen::Matrix3d PRUtils::RotationMatrices3UPE_RPU(const double &theta,const double &psi){
+
+	// Matrices de rotacion para el robot 3UPE+RPU
+	// A partir de la posicion de la orientacion (theta y psi) del centro de la
+	// plataforma del robot paralelo, se determina la matriz de rotación para
+	// pasar del sistema móvil al fijo
+
+	Eigen::Matrix3d Rot_Mat_fm;
+	// Rotation Matrix from the mobile coordinate system to the fixed coordinate system
+	Rot_Mat_fm << 
+		cos(theta)*cos(psi), -cos(theta)*sin(psi), sin(theta),
+        sin(psi), cos(psi), 0,
+        -sin(theta)*cos(psi), sin(theta)*sin(psi), cos(theta);
+
+	return Rot_Mat_fm;
+
+}

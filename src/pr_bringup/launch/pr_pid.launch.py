@@ -154,8 +154,20 @@ def generate_launch_description():
                 #         ("joint_position", "joint_position")
                 #     ],
                 #     parameters=[
-                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Verf_AllActuators"}
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_all_legs"}
                 #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_sensors_actuators',
+                #     node_plugin='pr_sensors_actuators::ForceSensor',
+                #     node_name='force_sensor',
+                #     remappings=[
+                #         ("force_state", "force_state"),
+                #         ("force_state_accelstamped", "force_state_accelstamped"),
+                #         ("force_state_sync", "force_state_sync"),
+                #         ("joint_position", "joint_position")
+                #     ],
                 # ),
 
                 ComposableNode(

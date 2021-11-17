@@ -14,6 +14,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "pr_msgs/msg/pr_array.hpp"
+#include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/pr_force_state.hpp"
 #include "geometry_msgs/msg/accel_stamped.hpp"
 
@@ -33,7 +34,8 @@ namespace pr_sensors_actuators
         protected:
             //Change for a topic callback to sync with encoder
             void timer_callback();
-            
+            //Synchronize with the encoder
+            void topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg);
 
         private:
             typedef struct response_struct {
@@ -43,7 +45,9 @@ namespace pr_sensors_actuators
 	            int32_t FTData[6];
             } RESPONSE;
 
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_;
+            rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_sync_;
             rclcpp::Publisher<geometry_msgs::msg::AccelStamped>::SharedPtr publisher_accelstamped_;
             rclcpp::TimerBase::SharedPtr timer_;
             int socketHandle;
@@ -56,7 +60,9 @@ namespace pr_sensors_actuators
             int i_fuerza,j_fuerza;
 
             bool calibration;
+            bool noise_threshold;
             std::vector<double> std_noise;
+            pr_msgs::msg::PRForceState force_msg;
     };
 
 }   // Namespace pr_sensors_actuators

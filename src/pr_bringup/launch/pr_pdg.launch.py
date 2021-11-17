@@ -8,6 +8,8 @@ import os
 from numpy import fromstring, pi
 import yaml
 
+from datetime import datetime
+
 def generate_launch_description():
 
     """Generate launch description with multiple components."""
@@ -53,6 +55,15 @@ def generate_launch_description():
     
     with open(ref_file_x, 'r') as f:
         first_reference_x = fromstring(f.readline(), dtype=float, sep=" ").tolist()
+
+    force_file = os.path.join(
+        get_package_share_directory('pr_bringup'),
+        'config',
+        'pr_force.yaml'
+    )
+
+    force_yaml_file = open(force_file)
+    force_params = yaml.load(force_yaml_file)
 
     pr_pdg = ComposableNodeContainer(
             node_name='pr_container',
@@ -274,7 +285,35 @@ def generate_launch_description():
                 #     parameters=[
                 #         {"tol": 0.01}
                 #     ]
-                # ), 
+                # ),
+
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapRecorder',
+                #     node_name='ref_x_mocap_recorder',
+                #     remappings=[
+                #         ("end_flag", "end_flag"),
+                #         ("joint_position", "joint_position")
+                #     ],
+                #     parameters=[
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_jose"}
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_sensors_actuators',
+                #     node_plugin='pr_sensors_actuators::ForceSensor',
+                #     node_name='force_sensor',
+                #     remappings=[
+                #         ("force_state", "force_state"),
+                #         ("force_state_accelstamped", "force_state_accelstamped"),
+                #         ("force_state_sync", "force_state_sync"),
+                #         ("joint_position", "joint_position")
+                #     ],
+                #     parameters=[
+                #         {"calibration": force_params['calibration']}
+                #     ]
+                # ),
 
                 ComposableNode(
                     package='pr_sensors_actuators',
