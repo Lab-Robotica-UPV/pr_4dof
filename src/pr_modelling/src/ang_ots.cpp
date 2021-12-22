@@ -38,6 +38,13 @@ namespace pr_modelling
                 OTS(j,i) = initial_ots[j];
         }
 
+        // OTS << 0.0582, 0.0692, 0.0673, 0.0683,
+        //        0.5508, 0.1229, -0.2639, 0.2031,
+        //        0.8326, 0.9900, 0.9622, 0.9768,
+        //        0.1577, -0.1636, 0.3513, 0.1070,
+        //        0, 0, 0, 0,
+        //        0.0119, -0.0124, 0.0266, -0.0487;
+
         // std::vector to std::array
         std::copy(initial_x_coord.begin(), initial_x_coord.begin() + 4, initial_x_coord_array.begin());
 

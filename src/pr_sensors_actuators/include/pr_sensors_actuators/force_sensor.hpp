@@ -17,6 +17,7 @@
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/pr_force_state.hpp"
 #include "geometry_msgs/msg/accel_stamped.hpp"
+#include "eigen3/Eigen/Dense"
 
 #define PORT 49152 /* Port the Net F/T always uses */
 #define COMMAND 2 /* Command code 2 starts streaming */
@@ -59,9 +60,21 @@ namespace pr_sensors_actuators
             uint8_t response[36];
             int i_fuerza,j_fuerza;
 
-            bool calibration;
-            bool noise_threshold;
-            std::vector<double> std_noise;
+            // If we wish to calibrate, set calibration to True. This will bias de sensor
+            // However, this is not enough since that measurement may have noise.
+            // This is why, in addition, a bias vector is calculated with the mean of some
+            // samples and subtracted in every timestep to all samples.
+            bool calibration; // Parameter
+            int num_samples_bias=1000;
+            Eigen::Matrix<double, Eigen::Dynamic, 6> samples_bias; // Matrix with all data to perform mean
+            Eigen::Matrix<double, 1, 6> bias = Eigen::Matrix<double,6,1>::Zero(); // Mean to subtract to all
+
+            // Apart from biasing, we can apply a filter so if the incomig data is small enough
+            // we can set it to 0 to avoid noise.
+            // This filter should be applied in the force_fixed_frame node if it is used there!
+            // In that casa, set it here to false
+            bool noise_threshold; // Parameter
+            std::vector<double> std_noise; // Std noise calculated from experiment
             pr_msgs::msg::PRForceState force_msg;
     };
 

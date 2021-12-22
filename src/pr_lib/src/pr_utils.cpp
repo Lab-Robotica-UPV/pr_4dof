@@ -63,6 +63,12 @@ void PRUtils::array2vector(const std::array<double, 4> &ar, std::vector<double> 
 		vec[i] = ar[i];
 }
 
+void PRUtils::vector2array(const std::vector<double> &vec, std::array<double, 4> &ar)
+{
+	for(int i=0; i<(int)vec.size(); i++)
+		ar[i] = vec[i];
+}
+
 
 void PRUtils::Eigen2ArMsg(const Eigen::Vector4d &eig_vec, pr_msgs::msg::PRArrayH &ar_msg)
 {

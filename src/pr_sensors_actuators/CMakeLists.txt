@@ -26,6 +26,9 @@ find_package(geometry_msgs REQUIRED)
 
 find_package(pr_msgs REQUIRED)
 
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3 REQUIRED)
+
 find_library(BIODAQ_LIBRARY NAMES biodaq)
 
 include_directories(include)
@@ -113,7 +116,8 @@ ament_target_dependencies(force_sensor
   "rclcpp"
   "rclcpp_components"
   "pr_msgs"
-  "geometry_msgs")
+  "geometry_msgs"
+  "Eigen3")
 
 rclcpp_components_register_nodes(force_sensor "pr_sensors_actuators::ForceSensor")
 set(node_plugins "${node_plugins}pr_sensors_actuators::ForceSensor;$<TARGET_FILE:force_sensor>\n")

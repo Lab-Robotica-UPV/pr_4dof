@@ -143,7 +143,7 @@ def generate_launch_description():
                     parameters=[
                         {"ref_cart_path": ref_file_x},
                         {"robot_config_params": pr_config_params},
-                        {"lmin_Ang_OTS": 0.0},
+                        {"lmin_Ang_OTS": 2.0},
                         {"lmin_FJac": 0.005}
                     ]
                 ),

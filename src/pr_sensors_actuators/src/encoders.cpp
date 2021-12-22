@@ -126,7 +126,7 @@ namespace pr_sensors_actuators
 
 			//First joint
 			pulsos[0] = udCounterCtrl0->getValue();
-			position_msg.data[0] = pulsos[0]*0.00002 + initial_position[0];
+			position_msg.data[0] = pulsos[0]*0.00002 + initial_position[0]; //pulsos[0]*0.00002*3.0/13.0 + initial_position[0];
 
 			//Second joint
 			pulsos[1] = udCounterCtrl1->getValue();

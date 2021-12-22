@@ -56,7 +56,7 @@ namespace pr_sensors_actuators
             std::vector<double> initial_position;
             int iter = 0;
 
-            double init_delay_sec = 5.0;
+            double init_delay_sec = 6.0;
 
     };
 

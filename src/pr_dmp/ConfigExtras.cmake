@@ -1,0 +1,1 @@
+find_package( Boost 1.34 COMPONENTS filesystem system serialization REQUIRED)

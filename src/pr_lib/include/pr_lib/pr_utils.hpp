@@ -29,7 +29,7 @@ namespace PRUtils
 
     //Usar template functions!!
     void array2vector(const std::array<double, 4> &ar, std::vector<double> &vec);
-
+    void vector2array(const std::vector<double> &vec, std::array<double, 4> &ar);
 
     void Eigen2ArMsg(const Eigen::Vector4d &eig_vec, pr_msgs::msg::PRArrayH &ar_msg);
 

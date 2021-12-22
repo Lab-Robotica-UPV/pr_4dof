@@ -38,7 +38,7 @@ def generate_launch_description():
 
     pr_config_params = pr_params[robot]['config'][robot_config]
     
-    ref_file = controller_params['ref_path']
+    ref_file = controller_params['ref_path']['q']
     
     with open(ref_file, 'r') as f:
         first_reference = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -71,7 +71,7 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][1]},
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),
@@ -84,7 +84,7 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][2]},
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),
@@ -97,7 +97,7 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][3]},
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),

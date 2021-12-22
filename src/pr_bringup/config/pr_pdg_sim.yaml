@@ -5,7 +5,7 @@ robot:
   config: 1
 
 actuators:
-  v_sat: 9.5
+  v_sat: 4.5
   vp_conversion: [1.0, 1.0, 1.0, 1.0]
 
 controller:

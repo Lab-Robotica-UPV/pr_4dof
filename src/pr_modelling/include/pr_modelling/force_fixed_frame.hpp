@@ -7,10 +7,6 @@
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_lib/pr_utils.hpp"
 
-#include "message_filters/subscriber.h"
-#include "message_filters/time_synchronizer.h"
-#include "message_filters/sync_policies/approximate_time.h"
-#include "message_filters/sync_policies/exact_time.h"
 
 
 #include "eigen3/Eigen/Dense"
@@ -29,27 +25,21 @@ namespace pr_modelling
             explicit ForceFixedFrame(const rclcpp::NodeOptions & options);
 
         protected:
-            void topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& x_msg,
-                                const pr_msgs::msg::PRForceState::ConstPtr& f_msg);
+            void topic_callback_force(const pr_msgs::msg::PRForceState::SharedPtr f_msg);
+            void topic_callback_x_mocap(const pr_msgs::msg::PRArrayH::SharedPtr x_msg);
             void apply_threshold(Eigen::Vector3d &force, Eigen::Vector3d &torque);
 
         private:
 
-            // Message filters to coordinate force and cameras
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_x;
-            message_filters::Subscriber<pr_msgs::msg::PRForceState> sub_f;
-
-            typedef message_filters::sync_policies::ExactTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRForceState> SyncPolicy;
-
-            typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-            std::shared_ptr<Synchronizer> sync_;
+            // Subscriptor
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr x_sub;
+            rclcpp::Subscription<pr_msgs::msg::PRForceState>::SharedPtr f_sub;
 
             
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_f_fixed;
 
-            // Boolean for first iteration
-            bool first_iter = true;
+            // Boolean for first iteration and message for x_msg
+            bool init_x = false, first_iter = true;
 
             // Boot mass parameter
             double boot_mass;
@@ -69,6 +59,9 @@ namespace pr_modelling
 
             // Init theta and psi
             double theta_ini, psi_ini;
+
+            // Current theta and psi
+            double theta, psi;
 
             // Noise threshold
             std::vector<double> std_noise;

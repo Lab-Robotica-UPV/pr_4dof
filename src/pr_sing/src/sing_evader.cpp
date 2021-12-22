@@ -52,16 +52,41 @@ namespace pr_sing
 
         RCLCPP_INFO(this->get_logger(), "Creating communication");
 
-        sub_ref.subscribe(this, "ref_pose");
-        sub_x.subscribe(this, "x_coord");
-        sub_ots_ref.subscribe(this, "ang_ots_ref");
-        sub_ots_med.subscribe(this, "ang_ots_med");
-        sub_det_ref.subscribe(this, "for_jac_det_ref");
-        sub_det_med.subscribe(this, "for_jac_det_med");
+        ref_sub = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "ref_pose",
+            1,
+            std::bind(&SingEvader::topic_callback_ref, this, std::placeholders::_1)
+        );
 
-        sync_.reset(new Synchronizer(SyncPolicy(1), sub_ref, sub_x, sub_ots_ref, sub_ots_med, sub_det_ref, sub_det_med));
-        sync_->registerCallback(std::bind(&SingEvader::topic_callback, this, std::placeholders::_1, std::placeholders::_2, 
-                                std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+        x_sub = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "x_coord",
+            1,
+            std::bind(&SingEvader::topic_callback_x, this, std::placeholders::_1)
+        );
+
+        ots_ref_sub = this->create_subscription<pr_msgs::msg::PROTS>(
+            "ang_ots_ref",
+            1,
+            std::bind(&SingEvader::topic_callback_ots_ref, this, std::placeholders::_1)
+        );
+
+        ots_med_sub = this->create_subscription<pr_msgs::msg::PROTS>(
+            "ang_ots_med",
+            1,
+            std::bind(&SingEvader::topic_callback_ots_med, this, std::placeholders::_1)
+        );
+
+        jac_det_ref_sub = this->create_subscription<pr_msgs::msg::PRFloatH>(
+            "for_jac_det_ref",
+            1,
+            std::bind(&SingEvader::topic_callback_jac_det_ref, this, std::placeholders::_1)
+        );
+
+        jac_det_med_sub = this->create_subscription<pr_msgs::msg::PRFloatH>(
+            "for_jac_det_med",
+            1,
+            std::bind(&SingEvader::topic_callback_jac_det_med, this, std::placeholders::_1)
+        );
 
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("ref_pose_mod", 1);
 
@@ -72,32 +97,80 @@ namespace pr_sing
 
     }
 
-    void SingEvader::topic_callback(const pr_msgs::msg::PRArrayH::ConstPtr& ref_msg,
-                                    const pr_msgs::msg::PRArrayH::ConstPtr& x_msg,
-                                    const pr_msgs::msg::PROTS::ConstPtr& ots_ref_msg,
-                                    const pr_msgs::msg::PROTS::ConstPtr& ots_med_msg,
-                                    const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det_ref,
-                                    const pr_msgs::msg::PRFloatH::ConstPtr& for_jac_det_med)
+    void SingEvader::topic_callback_ref(const pr_msgs::msg::PRArrayH::SharedPtr ref_msg)
     {
-        // Ref mod message and init time
-        auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
-        q_ref_mod_msg.init_time = this->get_clock()->now();
-        //Publish also vc_des data
-        auto vc_des_msg = pr_msgs::msg::PRArrayH();
-        vc_des_msg.init_time = this->get_clock()->now();
-        //Publish bool sing_pin
-        auto sing_pin_msg = pr_msgs::msg::PRBoolH();
-        sing_pin_msg.init_time = this->get_clock()->now();
+        if (init_x && init_ots_ref && init_ots_med && init_jac_det_ref && init_jac_det_med)
+        {
+            // Ref mod message and init time
+            auto q_ref_mod_msg = pr_msgs::msg::PRArrayH();
+            q_ref_mod_msg.init_time = this->get_clock()->now();
+            //Publish also vc_des data
+            auto vc_des_msg = pr_msgs::msg::PRArrayH();
+            vc_des_msg.init_time = this->get_clock()->now();
+            //Publish bool sing_pin
+            auto sing_pin_msg = pr_msgs::msg::PRBoolH();
+            sing_pin_msg.init_time = this->get_clock()->now();
 
-        //Convert to Eigen
-        for(int i=0;i<(int)x_msg->data.size();i++) {
-            x_coord(i) = x_msg->data[i];
-            q_ref(i) = ref_msg->data[i];
+            //Convert to Eigen
+            for(int i=0;i<(int)ref_msg->data.size();i++) {
+                q_ref(i) = ref_msg->data[i];
+            }
+
+            q_ind_mod = PRSingularity::CalculateQindModEvader(
+                x_coord, q_ref, angOTS_ref, angOTS_med, OTS_med,
+                minc_des, jac_det_med, jac_det_ref, robot_params, vc_des,
+                Mlim_q_ind, Vlim_angp, des_qind, lmin_Ang_OTS,
+                lmin_FJac,
+                tol, iter_max,
+                tol_OTS, iter_OTS
+            );
+
+            // sing_pin se activa si la referencia no se encuentra en una singularidad
+            sing_pin = false;
+            minAng_OTS_ref = angOTS_ref.minCoeff();
+            if (minAng_OTS_ref >= lmin_Ang_OTS && abs(jac_det_ref)>=lmin_FJac) sing_pin = true;
+
+            iterations++;
+            //std::cout << iterations << " " << vc_des.transpose() << std::endl;
+
+            for(int i=0;i<4;i++)
+                q_ref_mod_msg.data[i] = q_ind_mod(i);
+
+            q_ref_mod_msg.header.frame_id = ref_msg->header.frame_id;
+            q_ref_mod_msg.header.stamp = ref_msg->header.stamp;
+
+            for(int i=0;i<4;i++)
+                vc_des_msg.data[i] = vc_des(i);
+
+            vc_des_msg.header.frame_id = ref_msg->header.frame_id;
+            vc_des_msg.header.stamp = ref_msg->header.stamp;
+
+            sing_pin_msg.data = sing_pin;
+            sing_pin_msg.header.frame_id = ref_msg->header.frame_id;
+            sing_pin_msg.header.stamp = ref_msg->header.stamp;
+
+            q_ref_mod_msg.current_time = this->get_clock()->now();
+            publisher_->publish(q_ref_mod_msg);
+            vc_des_msg.current_time = this->get_clock()->now();
+            publisher_vc_->publish(vc_des_msg);
+            sing_pin_msg.current_time = this->get_clock()->now();
+            publisher_sing_pin->publish(sing_pin_msg);
         }
+    }
 
+    void SingEvader::topic_callback_x(const pr_msgs::msg::PRArrayH::SharedPtr x_msg)
+    {
+        init_x = true;
+        PRUtils::ArRMsg2Eigen(x_msg, x_coord);
+    }
+    void SingEvader::topic_callback_ots_ref(const pr_msgs::msg::PROTS::SharedPtr ots_ref_msg)
+    {
         for(int i=0;i<(int)ots_ref_msg->ots_ang.size();i++)
             angOTS_ref(i) = ots_ref_msg->ots_ang[i];
-
+        init_ots_ref = true;
+    }
+    void SingEvader::topic_callback_ots_med(const pr_msgs::msg::PROTS::SharedPtr ots_med_msg)
+    {
         for(int i=0;i<(int)ots_med_msg->ots_ang.size();i++)
             angOTS_med(i) = ots_med_msg->ots_ang[i];
 
@@ -106,45 +179,17 @@ namespace pr_sing
             int col = i%OTS_med.cols();
             OTS_med(row,col) = ots_med_msg->ots.data[i];
         }
-
-        q_ind_mod = PRSingularity::CalculateQindModEvader(
-            x_coord, q_ref, angOTS_ref, angOTS_med, OTS_med,
-            minc_des, for_jac_det_med->data, for_jac_det_ref->data, robot_params, vc_des,
-            Mlim_q_ind, Vlim_angp, des_qind, lmin_Ang_OTS,
-            lmin_FJac,
-            tol, iter_max,
-            tol_OTS, iter_OTS
-        );
-
-        // sing_pin se activa si la referencia no se encuentra en una singularidad
-        sing_pin = false;
-        minAng_OTS_ref = angOTS_ref.minCoeff();
-        if (minAng_OTS_ref >= lmin_Ang_OTS && abs(for_jac_det_ref->data)>=lmin_FJac) sing_pin = true;
-
-        iterations++;
-        //std::cout << iterations << " " << vc_des.transpose() << std::endl;
-
-        for(int i=0;i<4;i++)
-            q_ref_mod_msg.data[i] = q_ind_mod(i);
-
-        q_ref_mod_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
-        q_ref_mod_msg.header.stamp = ref_msg->header.stamp;
-
-        for(int i=0;i<4;i++)
-            vc_des_msg.data[i] = vc_des(i);
-
-        vc_des_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
-        vc_des_msg.header.stamp = ref_msg->header.stamp;
-
-        sing_pin_msg.header.frame_id = ref_msg->header.frame_id + ", " + x_msg->header.frame_id + ", " + ots_ref_msg->header.frame_id;
-        sing_pin_msg.header.stamp = ref_msg->header.stamp;
-
-        q_ref_mod_msg.current_time = this->get_clock()->now();
-        publisher_->publish(q_ref_mod_msg);
-        vc_des_msg.current_time = this->get_clock()->now();
-        publisher_vc_->publish(vc_des_msg);
-        sing_pin_msg.current_time = this->get_clock()->now();
-        publisher_sing_pin->publish(sing_pin_msg);
+        init_ots_med = true;
+    }
+    void SingEvader::topic_callback_jac_det_ref(const pr_msgs::msg::PRFloatH::SharedPtr for_jac_det_ref)
+    {
+        jac_det_ref = for_jac_det_ref->data;
+        init_jac_det_ref = true;
+    }
+    void SingEvader::topic_callback_jac_det_med(const pr_msgs::msg::PRFloatH::SharedPtr for_jac_det_med)
+    {
+        jac_det_med = for_jac_det_med->data;
+        init_jac_det_med = true;
     }
 }
 

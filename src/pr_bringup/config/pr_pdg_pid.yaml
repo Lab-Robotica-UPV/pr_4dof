@@ -2,16 +2,19 @@ ts: 0.01
 
 robot: 
   robot_name: "robot_3ups_rpu"
-  config: 3
+  config: 1
 
 actuators:
-  v_sat: 4.5
+  v_sat: 9.0
   vp_conversion: [28.4628, 28.4628, 28.4628, 246.6779]
 
 controller:
   #PDG
   kp: [27394.2003, 27394.2003, 27394.2003, 255168.2203]
   kv: [109.7532, 109.7532, 109.7532, 17927.4511]
+  # Se ha disminuido la componente derivativa porque al conectar admitancia + evasor 
+  # divergía por culpa del 17927.45, en el resto de casos ha ido bien el 17927.45
+  #kv: [109.7532, 109.7532, 109.7532, 2200.0]
   #Prueba 31 con valores más bruscos buenos para 5p
   #kp: [70000.0, 70000.0, 70000.0, 683716.0]
   #kv: [165.0, 165.0, 165.0, 12912.0]
@@ -21,10 +24,11 @@ controller:
   #PID
   ki: [5000.0, 5000.0, 5000.0, 50000.0] #Valores buenos
   #ki: [1000.0, 1000.0, 1000.0, 10000.0]
+  
 
 ref_path:
-  q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_qinde_TRR18_CF3_V1.txt"
-  x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_cart_TRR18_CF3_V1.txt"
+  q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_qinde_TE0_CF1_VF1.txt"
+  x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_cart_TE0_CF1_VF1.txt"
   #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_qinde_manual.txt"
   #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_cart_manual.txt"
 

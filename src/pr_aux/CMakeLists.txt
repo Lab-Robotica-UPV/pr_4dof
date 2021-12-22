@@ -148,6 +148,22 @@ ament_target_dependencies(displayer
 rclcpp_components_register_nodes(displayer "pr_aux::Displayer")
 set(node_plugins "${node_plugins}pr_aux::Displayer;$<TARGET_FILE:displayer>\n")
 
+### Saturator node ###
+
+add_library(saturator SHARED
+  src/saturator.cpp)
+
+target_compile_definitions(saturator
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(saturator
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs")
+
+rclcpp_components_register_nodes(saturator "pr_aux::Saturator")
+set(node_plugins "${node_plugins}pr_aux::Saturator;$<TARGET_FILE:saturator>\n")
+
 
 ### Installation ###
 
@@ -158,6 +174,7 @@ install(TARGETS
   add_gain
   kalman_filter
   displayer
+  saturator
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

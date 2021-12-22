@@ -72,7 +72,7 @@ namespace pr_sensors_actuators
 
             //Control action saturation
             sat_ca(volts, max_v);
-            if (volts > 3.33) std::cout << "El actuador " << n_motor << "tiene accion de control " << volts << std::endl;
+            //if (abs(volts) > 3.33) std::cout << "Actuador: " << n_motor+1 << " " << volts << std::endl;
             //std::cout << n_motor << " " << volts << " ";
                
             //RCLCPP_INFO(this->get_logger(), "Control action %f", volts);

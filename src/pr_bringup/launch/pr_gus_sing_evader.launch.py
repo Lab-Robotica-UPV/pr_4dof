@@ -25,7 +25,7 @@ def generate_launch_description():
     controller_params_file = os.path.join(
         get_package_share_directory('pr_bringup'),
         'config',
-        'pr_gus_sing_releaser_evader.yaml'
+        'pr_gus.yaml'
     )
 
     mocap_config = os.path.join(
@@ -33,6 +33,12 @@ def generate_launch_description():
         'config',
         'mocap_server.yaml'
         )
+
+    sing_file = os.path.join(
+        get_package_share_directory('pr_bringup'),
+        'config',
+        'pr_sing.yaml'
+    )
 
     controller_yaml_file = open(controller_params_file)
     controller_params = yaml.load(controller_yaml_file)
@@ -47,9 +53,12 @@ def generate_launch_description():
     pr_params = yaml.load(robot_yaml_file)    
 
     pr_config_params = pr_params[robot]['config'][robot_config]
+
+    sing_yaml_file = open(sing_file)
+    sing_params = yaml.load(sing_yaml_file)
         
-    ref_file_q = controller_params['ref_path']['evader']['q']
-    ref_file_x = controller_params['ref_path']['evader']['x']
+    ref_file_q = controller_params['ref_path']['q']
+    ref_file_x = controller_params['ref_path']['x']
 
     with open(ref_file_q, 'r') as f:
         first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
@@ -85,7 +94,7 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][1]},
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),
@@ -98,7 +107,7 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][2]},
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),
@@ -111,7 +120,7 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
+                        {"vp_conversion": controller_params['actuators']['vp_conversion'][3]},
                         {"max_v": controller_params['actuators']['v_sat']}
                     ]
                 ),
@@ -216,8 +225,8 @@ def generate_launch_description():
                         {"robot_config_params": pr_config_params},
                         {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
                         {"initial_position": first_reference_x},
-                        {"iter_max_ots": controller_params['ots']['iter']},
-                        {"tol_ots": controller_params['ots']['tol']},
+                        {"iter_max_ots": sing_params['ots']['iter']},
+                        {"tol_ots": sing_params['ots']['tol']},
                     ]
                 ),
 
@@ -233,8 +242,8 @@ def generate_launch_description():
                         {"robot_config_params": pr_config_params},
                         {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
                         {"initial_position": first_reference_x},
-                        {"iter_max_ots": controller_params['ots']['iter']},
-                        {"tol_ots": controller_params['ots']['tol']},
+                        {"iter_max_ots": sing_params['ots']['iter']},
+                        {"tol_ots": sing_params['ots']['tol']},
                     ]
                 ),
 
@@ -253,12 +262,12 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"robot_config_params": pr_config_params},
-                        {"lmin_Ang_OTS": controller_params['sing_releaser_evader']['lmin_Ang_OTS']},
-                        {"lmin_FJac": controller_params['sing_releaser_evader']['lmin_FJac']},
-                        {"iter_fk": controller_params['sing_releaser_evader']['fk']['iter']},
-                        {"tol_fk": controller_params['sing_releaser_evader']['fk']['tol']},
-                        {"iter_OTS": controller_params['sing_releaser_evader']['ots']['iter']},
-                        {"tol_OTS": controller_params['sing_releaser_evader']['ots']['tol']},
+                        {"lmin_Ang_OTS": sing_params['sing_releaser_evader']['lmin_Ang_OTS']},
+                        {"lmin_FJac": sing_params['sing_releaser_evader']['lmin_FJac']},
+                        {"iter_fk": sing_params['sing_releaser_evader']['fk']['iter']},
+                        {"tol_fk": sing_params['sing_releaser_evader']['fk']['tol']},
+                        {"iter_OTS": sing_params['sing_releaser_evader']['ots']['iter']},
+                        {"tol_OTS": sing_params['sing_releaser_evader']['ots']['tol']},
                         {"ts": controller_params['ts']}
                     ]
                 ),

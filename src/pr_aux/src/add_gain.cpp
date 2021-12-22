@@ -31,184 +31,118 @@ namespace pr_aux
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
 			"output", 
 			1);
-        sub_in1.subscribe(this, "input1");
-        sub_in2.subscribe(this, "input2");
-        sub_in3.subscribe(this, "input3");
-        sub_in4.subscribe(this, "input4");
-        sub_in5.subscribe(this, "input5");
-
+        
         num_inputs = signs.size();
         PRUtils::vector2EigenVector(gains, gains_eigen);
 
-        switch (num_inputs){
-            case 1:
-                {
-                sub_gain = this->create_subscription<pr_msgs::msg::PRArrayH>(
-                "input1", 
+       if (num_inputs>=1)
+        {            
+            sub_1 = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "input1", 
+            10, 
+            std::bind(&AddGain::topic_callback1, this, _1));
+
+            if (num_inputs>=2)
+            {
+                sub_2 = this->create_subscription<pr_msgs::msg::PRArrayH>(
+                "input2", 
                 10, 
-                std::bind(&AddGain::topic_callback1, this, _1));
-                }
-            break;
+                std::bind(&AddGain::topic_callback2, this, _1));
 
-            case 2:
+                if (num_inputs>=3)
                 {
-                sync2_.reset(new Synchronizer2(SyncPolicy2(1), sub_in1, sub_in2));
-                sync2_->registerCallback(std::bind(&AddGain::topic_callback2, this, std::placeholders::_1, std::placeholders::_2));
-                }
-            break;
+                    sub_3 = this->create_subscription<pr_msgs::msg::PRArrayH>(
+                    "input3", 
+                    10, 
+                    std::bind(&AddGain::topic_callback3, this, _1));
 
-            case 3:
-                {
-                sync3_.reset(new Synchronizer3(SyncPolicy3(1), sub_in1, sub_in2, sub_in3));
-                sync3_->registerCallback(std::bind(&AddGain::topic_callback3, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-                }
-            break;
+                    if (num_inputs>=4)
+                    {
+                        sub_4 = this->create_subscription<pr_msgs::msg::PRArrayH>(
+                        "input4", 
+                        10, 
+                        std::bind(&AddGain::topic_callback4, this, _1));
 
-            case 4:
-                {
-                sync4_.reset(new Synchronizer4(SyncPolicy4(1), sub_in1, sub_in2, sub_in3, sub_in4));
-                sync4_->registerCallback(std::bind(&AddGain::topic_callback4, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-                }
-            break;
+                        if (num_inputs>=5)
+                        {
+                            sub_5 = this->create_subscription<pr_msgs::msg::PRArrayH>(
+                            "input5", 
+                            10, 
+                            std::bind(&AddGain::topic_callback5, this, _1));
 
-            case 5:
-                {
-                sync5_.reset(new Synchronizer5(SyncPolicy5(1), sub_in1, sub_in2, sub_in3, sub_in4, sub_in5));
-                sync5_->registerCallback(std::bind(&AddGain::topic_callback5, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+                        }
+                    }
                 }
-            break;
+            }
         }
-
     }
 
     void AddGain::topic_callback1(const pr_msgs::msg::PRArrayH::SharedPtr input1_msg){
 
-        // Output message and init time
-        auto out_msg = pr_msgs::msg::PRArrayH();
-        out_msg.init_time = this->get_clock()->now();
-        
-        PRUtils::ArRMsg2Eigen(input1_msg, in1);
-
-        // Output calculation
-        out = gains_eigen.cwiseProduct(in1*signs[0]);
-
-        // Output msg
-        PRUtils::Eigen2ArMsg(out, out_msg);
-
-        out_msg.header.stamp = input1_msg->header.stamp;
-        out_msg.header.frame_id = input1_msg->header.frame_id;
-        
-        out_msg.current_time = this->get_clock()->now();
-        publisher_->publish(out_msg);
-    }
-
-    void AddGain::topic_callback2(const pr_msgs::msg::PRArrayH::ConstPtr& input1_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input2_msg)
+        if (num_inputs==1 || 
+            (num_inputs==2 && init_2) ||
+            (num_inputs==3 && init_2 && init_3) ||
+            (num_inputs==4 && init_2 && init_3 && init_4) ||
+            (num_inputs==5 && init_2 && init_3 && init_4 && init_5)
+            )
         {
 
-        // Output message and init time
-        auto out_msg = pr_msgs::msg::PRArrayH();
-        out_msg.init_time = this->get_clock()->now();
+            // Output message and init time
+            auto out_msg = pr_msgs::msg::PRArrayH();
+            out_msg.init_time = this->get_clock()->now();
+            
+            PRUtils::ArRMsg2Eigen(input1_msg, in1);
 
-        PRUtils::ArRMsg2Eigen(input1_msg, in1);
-        PRUtils::ArRMsg2Eigen(input2_msg, in2);
+            // Output calculation
+            if (num_inputs==1)
+            out = gains_eigen.cwiseProduct(in1*signs[0]);
 
-        // Output calculation
-        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1]);
+            else if (num_inputs==2)
+            out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1]);
 
-        // Output msg
-        PRUtils::Eigen2ArMsg(out, out_msg);
+            else if (num_inputs==3)
+            out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2]);
 
-        out_msg.header.stamp = input1_msg->header.stamp;
-        out_msg.header.frame_id = input1_msg->header.frame_id;
-        
-        out_msg.current_time = this->get_clock()->now();
-        publisher_->publish(out_msg);
+            else if (num_inputs==4)
+            out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3]);
+
+            else if (num_inputs==5)
+            out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3] + in5*signs[4]);
+
+
+            // Output msg
+            PRUtils::Eigen2ArMsg(out, out_msg);
+
+            out_msg.header.stamp = input1_msg->header.stamp;
+            out_msg.header.frame_id = input1_msg->header.frame_id;
+            
+            out_msg.current_time = this->get_clock()->now();
+            publisher_->publish(out_msg);
+        }
     }
 
-    void AddGain::topic_callback3(const pr_msgs::msg::PRArrayH::ConstPtr& input1_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input2_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input3_msg)
-        {
-
-        // Output message and init time
-        auto out_msg = pr_msgs::msg::PRArrayH();
-        out_msg.init_time = this->get_clock()->now();
-
-        PRUtils::ArRMsg2Eigen(input1_msg, in1);
+    void AddGain::topic_callback2(const pr_msgs::msg::PRArrayH::SharedPtr input2_msg){
+        init_2 = true;
         PRUtils::ArRMsg2Eigen(input2_msg, in2);
+    }
+
+    void AddGain::topic_callback3(const pr_msgs::msg::PRArrayH::SharedPtr input3_msg){
+        init_3 = true;
         PRUtils::ArRMsg2Eigen(input3_msg, in3);
-
-        // Output calculation
-        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2]);
-
-        // Output msg
-        PRUtils::Eigen2ArMsg(out, out_msg);
-
-        out_msg.header.stamp = input1_msg->header.stamp;
-        out_msg.header.frame_id = input1_msg->header.frame_id;
-        
-        out_msg.current_time = this->get_clock()->now();
-        publisher_->publish(out_msg);
     }
 
-    void AddGain::topic_callback4(const pr_msgs::msg::PRArrayH::ConstPtr& input1_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input2_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input3_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input4_msg)
-        {
-
-        // Output message and init time
-        auto out_msg = pr_msgs::msg::PRArrayH();
-        out_msg.init_time = this->get_clock()->now();
-
-        PRUtils::ArRMsg2Eigen(input1_msg, in1);
-        PRUtils::ArRMsg2Eigen(input2_msg, in2);
-        PRUtils::ArRMsg2Eigen(input3_msg, in3);
+    void AddGain::topic_callback4(const pr_msgs::msg::PRArrayH::SharedPtr input4_msg){
+        init_4 = true;
         PRUtils::ArRMsg2Eigen(input4_msg, in4);
-
-        // Output calculation
-        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3]);
-
-        // Output msg
-        PRUtils::Eigen2ArMsg(out, out_msg);
-
-        out_msg.header.stamp = input1_msg->header.stamp;
-        out_msg.header.frame_id = input1_msg->header.frame_id;
-        
-        out_msg.current_time = this->get_clock()->now();
-        publisher_->publish(out_msg);
     }
 
-    void AddGain::topic_callback5(const pr_msgs::msg::PRArrayH::ConstPtr& input1_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input2_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input3_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input4_msg,
-                                 const pr_msgs::msg::PRArrayH::ConstPtr& input5_msg)
-        {
-
-        // Output message and init time
-        auto out_msg = pr_msgs::msg::PRArrayH();
-        out_msg.init_time = this->get_clock()->now();
-
-        PRUtils::ArRMsg2Eigen(input1_msg, in1);
-        PRUtils::ArRMsg2Eigen(input2_msg, in2);
-        PRUtils::ArRMsg2Eigen(input3_msg, in3);
-        PRUtils::ArRMsg2Eigen(input4_msg, in4);
+    void AddGain::topic_callback5(const pr_msgs::msg::PRArrayH::SharedPtr input5_msg){
+        init_5 = true;
         PRUtils::ArRMsg2Eigen(input5_msg, in5);
-
-        // Output calculation
-        out = gains_eigen.cwiseProduct(in1*signs[0] + in2*signs[1] + in3*signs[2] + in4*signs[3] + in5*signs[4]);
-
-        // Output msg
-        PRUtils::Eigen2ArMsg(out, out_msg);
-
-        out_msg.header.stamp = input1_msg->header.stamp;
-        out_msg.header.frame_id = input1_msg->header.frame_id;
-        
-        out_msg.current_time = this->get_clock()->now();
-        publisher_->publish(out_msg);
     }
+
+
+    
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

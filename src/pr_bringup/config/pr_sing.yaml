@@ -1,0 +1,18 @@
+dir_kin:
+  tol: 0.0000001
+  iter: 30
+
+ots:
+  tol: 0.0000001
+  iter: 30
+
+sing_releaser_evader:
+  lmin_Ang_OTS:  2.0 #2.0
+  lmin_FJac:  0.005 #0.015
+  fk:
+    tol: 0.0000001
+    iter: 30
+  ots:
+    tol: 0.0000001
+    iter: 30
+  t_activation: 44.59 #29.0 

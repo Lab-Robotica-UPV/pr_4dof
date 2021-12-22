@@ -29,12 +29,13 @@ namespace pr_sensors_actuators
 
       // Initialization of std_noise
       std_noise.resize(6);
-      std_noise[0] = 0.036;
+      std_noise[0] = 0.5; //0.036; //Original basado en experimento ruido
       std_noise[1] = 0.0675;
       std_noise[2] = 0.9;
-      std_noise[3] = 0.0045;
-      std_noise[4] = 0.0040; //0.0030
-      std_noise[5] = 0.0183;
+      std_noise[3] = 0.03; //0.0045; //Original basado en experimento ruido
+      std_noise[4] = 0.03; //0.0040; //Original basado en experimento ruido
+      std_noise[5] = 0.03;
+
 
       // Sensor calibration
 
@@ -64,6 +65,7 @@ namespace pr_sensors_actuators
           usleep(1000000);
       }
 
+        // Prepare for reading data
 
         *(uint16_t*)&request[0] = htons(0x1234); /* standard header. */
         *(uint16_t*)&request[2] = htons(COMMAND); /* per table 9.1 in Net F/T user manual. */
@@ -86,6 +88,47 @@ namespace pr_sensors_actuators
         }
 
         setsockopt(socketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv,sizeof tv);
+
+        // Define bias if calibration is activated
+        if (calibration){
+
+          // Samples to take average from
+          samples_bias.resize(num_samples_bias, 6);
+
+          int sample_count=0;
+          
+          // Fill samples_bias with this loop
+          while (sample_count<num_samples_bias){
+            
+            if (send(socketHandle, request, 8, 0 )<0) {
+              continue;
+            }
+
+            if (recv(socketHandle, response, 36, 0 )<0) {
+              continue;
+            }
+
+            resp.rdt_sequence = ntohl(*(uint32_t*)&response[0]);
+            resp.ft_sequence = ntohl(*(uint32_t*)&response[4]);
+            resp.status = ntohl(*(uint32_t*)&response[8]);
+            for( i_fuerza = 0; i_fuerza < 6; i_fuerza++ ) {
+                resp.FTData[i_fuerza] = ntohl(*(int32_t*)&response[12 + i_fuerza * 4]);
+            }
+
+
+            samples_bias(sample_count,0) = 1.0*resp.FTData[0]/1000000.0;
+            samples_bias(sample_count,1) = 1.0*resp.FTData[1]/1000000.0;
+            samples_bias(sample_count,2) = 1.0*resp.FTData[2]/1000000.0;
+            samples_bias(sample_count,3) = 1.0*resp.FTData[3]/1000000.0;
+            samples_bias(sample_count,4) = 1.0*resp.FTData[4]/1000000.0;
+            samples_bias(sample_count,5) = 1.0*resp.FTData[5]/1000000.0; 
+
+            sample_count++;
+            usleep(1000);
+          }
+          // Calculate mean
+          bias = samples_bias.colwise().mean();
+        }
 
         timer_ = this->create_wall_timer(5ms, std::bind(&ForceSensor::timer_callback, this));
         
@@ -129,14 +172,15 @@ namespace pr_sensors_actuators
             resp.FTData[i_fuerza] = ntohl(*(int32_t*)&response[12 + i_fuerza * 4]);
         }
 
+        // Subtract bias. If not calibrated, bias will remain 0
+        force_msg.force[0] = 1.0*resp.FTData[0]/1000000.0 - bias(0);
+        force_msg.force[1] = 1.0*resp.FTData[1]/1000000.0 - bias(1);
+        force_msg.force[2] = 1.0*resp.FTData[2]/1000000.0 - bias(2);
+        force_msg.momentum[0] = 1.0*resp.FTData[3]/1000000.0 - bias(3);
+        force_msg.momentum[1] = 1.0*resp.FTData[4]/1000000.0 - bias(4);
+        force_msg.momentum[2] = 1.0*resp.FTData[5]/1000000.0 - bias(5);
 
-        force_msg.force[0] = 1.0*resp.FTData[0]/1000000.0;
-        force_msg.force[1] = 1.0*resp.FTData[1]/1000000.0;
-        force_msg.force[2] = 1.0*resp.FTData[2]/1000000.0;
-        force_msg.momentum[0] = 1.0*resp.FTData[3]/1000000.0;
-        force_msg.momentum[1] = 1.0*resp.FTData[4]/1000000.0;
-        force_msg.momentum[2] = 1.0*resp.FTData[5]/1000000.0;
-        // Threshold: 4 times the standard deviation
+        // Threshold: If activated, filters 4 times the standard deviation
         if (noise_threshold){
           for (int i=0; i<3; i++){
             if (abs(force_msg.force[i]) < 4*std_noise[i]){
@@ -154,12 +198,13 @@ namespace pr_sensors_actuators
 
         auto force_msg_as = geometry_msgs::msg::AccelStamped();
 
-        force_msg_as.accel.linear.x = 1.0*resp.FTData[0]/1000000.0;
-        force_msg_as.accel.linear.y = 1.0*resp.FTData[1]/1000000.0;
-        force_msg_as.accel.linear.z = 1.0*resp.FTData[2]/1000000.0;
-        force_msg_as.accel.angular.x = 1.0*resp.FTData[3]/1000000.0;
-        force_msg_as.accel.angular.y = 1.0*resp.FTData[4]/1000000.0;
-        force_msg_as.accel.angular.z = 1.0*resp.FTData[5]/1000000.0;
+        // Subtract bias. If not calibrated, bias will remain 0
+        force_msg_as.accel.linear.x = 1.0*resp.FTData[0]/1000000.0 - bias(0);
+        force_msg_as.accel.linear.y = 1.0*resp.FTData[1]/1000000.0 - bias(1);
+        force_msg_as.accel.linear.z = 1.0*resp.FTData[2]/1000000.0 - bias(2);
+        force_msg_as.accel.angular.x = 1.0*resp.FTData[3]/1000000.0 - bias(3);
+        force_msg_as.accel.angular.y = 1.0*resp.FTData[4]/1000000.0 - bias(4);
+        force_msg_as.accel.angular.z = 1.0*resp.FTData[5]/1000000.0 - bias(5);
 
         force_msg_as.header.stamp = this->get_clock()->now();
         publisher_accelstamped_->publish(force_msg_as);
@@ -183,18 +228,6 @@ namespace pr_sensors_actuators
       force_msg_sync.momentum[0] = force_msg.momentum[0];
       force_msg_sync.momentum[1] = force_msg.momentum[1];
       force_msg_sync.momentum[2] = force_msg.momentum[2];
-
-      // Threshold: 4 times the standard deviation
-      if (noise_threshold){
-        for (int i=0; i<3; i++){
-          if (abs(force_msg_sync.force[i]) < 4*std_noise[i]){
-            force_msg_sync.force[i] = 0;
-          }
-          if (abs(force_msg_sync.momentum[i]) < 4*std_noise[i+3]){
-            force_msg.momentum[i] = 0;
-          } 
-        }
-      }
 
       force_msg_sync.header.stamp = q_msg->header.stamp;
       force_msg_sync.header.frame_id = q_msg->header.frame_id;

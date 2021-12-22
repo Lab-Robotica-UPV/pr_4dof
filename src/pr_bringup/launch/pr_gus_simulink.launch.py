@@ -38,7 +38,7 @@ def generate_launch_description():
 
     pr_config_params = pr_params[robot]['config'][robot_config]
     
-    ref_file = controller_params['ref_path']
+    ref_file = controller_params['ref_path']['q']
     
     with open(ref_file, 'r') as f:
         first_reference = fromstring(f.readline(), dtype=float, sep=" ").tolist()
