@@ -12,7 +12,10 @@ pd:
 
 # Deben elegirse los nombres para que quede claro a qué referencia se refiere.
 # NO poner txt
-load_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/ilc_data/ref_TRR3_CF1_IdV1_mod_kp3kd3_10"
+load_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/ilc_data/ref_TRR3_CF1_IdV1_mod_kp3kd3_10PID_4"
 save_path: ""
 # Hay que escribir a mano la repeticion de la trayectoria
 traj_repetitions: 9.0
+
+# data['ilc']
+# Exact copy

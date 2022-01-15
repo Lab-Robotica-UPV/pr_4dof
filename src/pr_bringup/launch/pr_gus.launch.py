@@ -1,47 +1,17 @@
-import os
 import launch
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from ament_index_python.packages import get_package_share_directory
-
-from numpy import fromstring
-
-import yaml
 
 
 def generate_launch_description():
 
     """Generate launch description with multiple components."""
 
-    #Load config file
-
-    robot_parameters_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_config_params.yaml'
-    )
-
-    controller_params_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_gus.yaml'
-    )
-
-    controller_yaml_file = open(controller_params_file)
-    controller_params = yaml.load(controller_yaml_file)
-
-    robot = controller_params['robot']['robot_name']
-    robot_config = controller_params['robot']['config']
-
-    robot_yaml_file = open(robot_parameters_file)
-    pr_params = yaml.load(robot_yaml_file)    
-
-    pr_config_params = pr_params[robot]['config'][robot_config]
-    
-    ref_file = controller_params['ref_path']['q']
-    
-    with open(ref_file, 'r') as f:
-        first_reference = fromstring(f.readline(), dtype=float, sep=" ").tolist()
+    # Load data dictionary
+    import sys
+    sys.path.append('src/pr_bringup/launch')
+    from load_data import data
     
     pr_gus = ComposableNodeContainer(
             node_name='pr_container',
@@ -58,8 +28,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": data['gus']['vp_conversion'][0]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -71,8 +41,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][1]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": data['gus']['vp_conversion'][1]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -84,8 +54,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][2]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": data['gus']['vp_conversion'][2]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -97,8 +67,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][3]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": data['gus']['vp_conversion'][3]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -111,11 +81,11 @@ def generate_launch_description():
                         ("joint_velocity", "joint_velocity")
                     ],
                     parameters=[
-                        {"k1": controller_params['controller']['k1']},
-                        {"k2": controller_params['controller']['k2']},
-                        {"ts": controller_params['ts']},
-                        {"initial_position": first_reference},
-                        {"initial_reference": first_reference}
+                        {"k1": data['gus']['controller']['k1']},
+                        {"k2": data['gus']['controller']['k2']},
+                        {"ts": data['general']['ts']},
+                        {"initial_position": data['general']['init_q']},
+                        {"initial_reference": data['general']['init_q']}
                     ]
                 ),
                 ComposableNode(
@@ -127,8 +97,8 @@ def generate_launch_description():
                         ("joint_velocity", "joint_velocity")
                     ],
                     parameters=[
-                        {"initial_value": first_reference},
-                        {"ts": controller_params['ts']}
+                        {"initial_value": data['general']['init_q']},
+                        {"ts": data['general']['ts']}
                     ]
                 ),
                 ComposableNode(
@@ -141,9 +111,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file},
+                        {"ref_path": data['general']['ref_path']['q']},
                         {"is_cart": False},
-                        {"robot_config_params": pr_config_params}
+                        {"robot_config_params": data['config_params']['geometry']}
                     ]
                 ),
                 ComposableNode(
@@ -154,8 +124,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"initial_position": first_reference}
+                        {"ts_ms": data['general']['ts']*1000},
+                        {"initial_position": data['general']['init_q']},
+                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
                     ]
                 ),
             ],

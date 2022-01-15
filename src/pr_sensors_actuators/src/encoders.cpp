@@ -27,10 +27,12 @@ namespace pr_sensors_actuators
         //Parameter declaration
         this->declare_parameter<float>("ts_ms", 10.0);
         this->declare_parameter<std::vector<double>>("initial_position", {0.665559, 0.654974, 0.691026, 0.631511});
+		this->declare_parameter<std::vector<double>>("gearbox_mult", {1.0, 1.0, 1.0, 1.0});
 
         //Read parameters
         this->get_parameter("ts_ms", ts);
         this->get_parameter("initial_position", initial_position);
+		this->get_parameter("gearbox_mult", gearbox_mult);
 
         //Position publisher
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
@@ -126,20 +128,20 @@ namespace pr_sensors_actuators
 
 			//First joint
 			pulsos[0] = udCounterCtrl0->getValue();
-			position_msg.data[0] = pulsos[0]*0.00002 + initial_position[0]; //pulsos[0]*0.00002*3.0/13.0 + initial_position[0];
+			position_msg.data[0] = pulsos[0]*0.00002*gearbox_mult[0] + initial_position[0]; //pulsos[0]*0.00002*3.0/13.0 + initial_position[0];
 
 			//Second joint
 			pulsos[1] = udCounterCtrl1->getValue();
-			position_msg.data[1] = pulsos[1]*0.00002 + initial_position[1];
+			position_msg.data[1] = pulsos[1]*0.00002*gearbox_mult[1] + initial_position[1];
 
 			//Third joint
 			pulsos[2] = udCounterCtrl2->getValue();
-			position_msg.data[2] = pulsos[2]*0.00002 + initial_position[2];
+			position_msg.data[2] = pulsos[2]*0.00002*gearbox_mult[2] + initial_position[2];
 
 			//Fourth joint
 			pulsos[3] = udCounterCtrl3->getValue();
-			//position_msg.data[3] = pulsos[3]*0.000002325 + initial_position[3];
-			position_msg.data[3] = pulsos[3]*0.00000230571 + initial_position[3];
+			//position_msg.data[3] = pulsos[3]*0.000002325*gearbox_mult[3] + initial_position[3];
+			position_msg.data[3] = pulsos[3]*0.00000230571*gearbox_mult[3] + initial_position[3];
 
 			if (iter*ts/1000 == init_delay_sec){
 				// Brake deactivation

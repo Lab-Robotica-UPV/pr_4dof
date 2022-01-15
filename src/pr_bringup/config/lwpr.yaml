@@ -5,8 +5,8 @@ fwd:
   initLambda: [0.999, 0.999, 0.999, 0.999]
   finalLambda: [0.99999, 0.99999, 0.99999, 0.99999]
   activateLearning: false
-  loadModel: "lwpr_models/lwpr_fwd_4_"
-  saveModel: "lwpr_models/lwpr_fwd_5_1"
+  loadModel: "models_lwpr/lwpr_fwd_4_"
+  saveModel: ""
 
 inv:
   initD: [200.0, 200.0, 200.0, 200.0]
@@ -15,7 +15,7 @@ inv:
   initLambda: [0.999, 0.999, 0.999, 0.999]
   finalLambda: [0.9999, 0.9999, 0.9999, 0.9999]
   activateLearning: false
-  loadModel: "lwpr_models/lwpr_inv_6_5_"
+  loadModel: "models_lwpr/lwpr_inv_6_5_"
   saveModel: ""
   gains_pid_lwpr: [1.0, 1.0]
   gains_pid_lwpr_ilc: [1.0, 1.0, 1.0]
@@ -26,3 +26,7 @@ inv:
 # [1.0, 1.0] para activar ambos
 
 # gains_pid_lwpr_ilc es identico anyadiendo al final el ILC
+
+
+# data['lwpr']
+# Exact copy

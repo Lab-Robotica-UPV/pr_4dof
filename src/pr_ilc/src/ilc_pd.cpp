@@ -57,7 +57,7 @@ namespace pr_ilc
             }
             // Comprobar que tienen el mismo numero de elementos
             if(n_ref!=e_ant.rows() || n_ref!=u_ant.rows()){
-                RCLCPP_ERROR(this->get_logger(), "Could not open action file");
+                RCLCPP_ERROR(this->get_logger(), "The number of samples of the files does not match");
                 return;
             }
             std::cout << e_ant.rows() << std::endl;

@@ -57,6 +57,7 @@ namespace pr_sensors_actuators
             int iter = 0;
 
             double init_delay_sec = 6.0;
+            std::vector<double> gearbox_mult;
 
     };
 

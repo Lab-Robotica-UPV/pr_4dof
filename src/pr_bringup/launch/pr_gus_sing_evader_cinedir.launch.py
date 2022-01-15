@@ -13,57 +13,12 @@ def generate_launch_description():
 
     """Generate launch description with multiple components."""
 
-    #Load config file
+    # Load data dictionary
+    import sys
+    sys.path.append('src/pr_bringup/launch')
+    from load_data import data
 
-    robot_parameters_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_config_params.yaml'
-    )
-
-    controller_params_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_gus.yaml'
-    )
-
-    mocap_config = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'mocap_server.yaml'
-        )
-
-    sing_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_sing.yaml'
-    )
-
-    controller_yaml_file = open(controller_params_file)
-    controller_params = yaml.load(controller_yaml_file)
-
-    mocap_yaml_file = open(mocap_config)
-    mocap_params = yaml.load(mocap_yaml_file)
-
-    robot = controller_params['robot']['robot_name']
-    robot_config = controller_params['robot']['config']
-
-    robot_yaml_file = open(robot_parameters_file)
-    pr_params = yaml.load(robot_yaml_file)    
-
-    pr_config_params = pr_params[robot]['config'][robot_config]
-
-    sing_yaml_file = open(sing_file)
-    sing_params = yaml.load(sing_yaml_file)
-        
-    ref_file_q = controller_params['ref_path']['q']
-    ref_file_x = controller_params['ref_path']['x']
-
-    with open(ref_file_q, 'r') as f:
-        first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
-    
-    with open(ref_file_x, 'r') as f:
-        first_reference_x = fromstring(f.readline(), dtype=float, sep=" ").tolist()
+    controller_params = data['gus']
 
     pr_gus = ComposableNodeContainer(
             node_name='pr_container',
@@ -80,8 +35,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][0]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -93,8 +48,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][1]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][1]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -106,8 +61,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][2]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][2]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -119,8 +74,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][3]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][3]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -135,9 +90,9 @@ def generate_launch_description():
                     parameters=[
                         {"k1": controller_params['controller']['k1']},
                         {"k2": controller_params['controller']['k2']},
-                        {"ts": controller_params['ts']},
-                        {"initial_position": first_reference_q},
-                        {"initial_reference": first_reference_q}
+                        {"ts": data['general']['ts']},
+                        {"initial_position": data['general']['init_q']},
+                        {"initial_reference": data['general']['init_q']}
                     ]
                 ),
                 ComposableNode(
@@ -149,8 +104,8 @@ def generate_launch_description():
                         ("joint_velocity", "joint_velocity")
                     ],
                     parameters=[
-                        {"initial_value": first_reference_q},
-                        {"ts": controller_params['ts']}
+                        {"initial_value": data['general']['init_q']},
+                        {"ts": data['general']['ts']}
                     ]
                 ),
                 ComposableNode(
@@ -164,9 +119,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file_x},
+                        {"ref_path": data['general']['ref_path']['x']},
                         {"is_cart": True},
-                        {"robot_config_params": pr_config_params}
+                        {"robot_config_params": data['config_params']['geometry']}
                     ]
                 ),
 
@@ -179,10 +134,10 @@ def generate_launch_description():
                         ("x_coord", "x_coord"),
                     ],
                     parameters=[
-                        {"robot_config_params": pr_config_params},
-                        {"initial_position": first_reference_x},
-                        {"tol": sing_params['dir_kin']['tol']},
-                        {"iter": sing_params['dir_kin']['iter']},
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"initial_position": data['general']['init_x']},
+                        {"tol": data['general']['dir_kin']['tol']},
+                        {"iter": data['general']['dir_kin']['iter']},
                     ]
                 ),
 
@@ -195,7 +150,7 @@ def generate_launch_description():
                         ("for_jac_det", "for_jac_det_med"),
                     ],
                     parameters=[
-                        {"robot_config_params": pr_config_params},
+                        {"robot_config_params": data['config_params']['geometry']},
                     ]
                 ),
 
@@ -208,7 +163,7 @@ def generate_launch_description():
                         ("for_jac_det", "for_jac_det_ref"),
                     ],
                     parameters=[
-                        {"robot_config_params": pr_config_params},
+                        {"robot_config_params": data['config_params']['geometry']},
                     ]
                 ),
 
@@ -221,11 +176,11 @@ def generate_launch_description():
                         ("ang_ots", "ang_ots_med"),
                     ],
                     parameters=[
-                        {"robot_config_params": pr_config_params},
-                        {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
-                        {"initial_x_coord": first_reference_x},
-                        {"iter_max_ots": sing_params['ots']['iter']},
-                        {"tol_ots": sing_params['ots']['tol']},
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"initial_ots": data['sing']['ots']['initial_ots']},
+                        {"initial_position": data['general']['init_x']},
+                        {"iter_max_ots": data['sing']['ots']['iter']},
+                        {"tol_ots": data['sing']['ots']['tol']},
                     ]
                 ),
 
@@ -238,11 +193,11 @@ def generate_launch_description():
                         ("ang_ots", "ang_ots_ref"),
                     ],
                     parameters=[
-                        {"robot_config_params": pr_config_params},
-                        {"initial_ots": [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]},
-                        {"initial_x_coord": first_reference_x},
-                        {"iter_max_ots": sing_params['ots']['iter']},
-                        {"tol_ots": sing_params['ots']['tol']},
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"initial_ots": data['sing']['ots']['initial_ots']},
+                        {"initial_position": data['general']['init_x']},
+                        {"iter_max_ots": data['sing']['ots']['iter']},
+                        {"tol_ots": data['sing']['ots']['tol']},
                     ]
                 ),
 
@@ -260,14 +215,14 @@ def generate_launch_description():
                         ("ref_pose_mod", "ref_pose_mod")
                     ],
                     parameters=[
-                        {"robot_config_params": pr_config_params},
-                        {"lmin_Ang_OTS": sing_params['sing_releaser_evader']['lmin_Ang_OTS']},
-                        {"lmin_FJac": sing_params['sing_releaser_evader']['lmin_FJac']},
-                        {"iter_fk": sing_params['sing_releaser_evader']['fk']['iter']},
-                        {"tol_fk": sing_params['sing_releaser_evader']['fk']['tol']},
-                        {"iter_OTS": sing_params['sing_releaser_evader']['ots']['iter']},
-                        {"tol_OTS": sing_params['sing_releaser_evader']['ots']['tol']},
-                        {"ts": controller_params['ts']}
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"lmin_Ang_OTS": data['sing']['lmin_Ang_OTS']},
+                        {"lmin_FJac": data['sing']['lmin_FJac']},
+                        {"iter_fk": data['general']['dir_kin']['iter']},
+                        {"tol_fk": data['general']['dir_kin']['tol']},
+                        {"iter_OTS": data['sing']['ots']['iter']},
+                        {"tol_OTS": data['sing']['ots']['tol']},
+                        {"ts": data['general']['ts']}
                     ]
                 ),
 
@@ -308,8 +263,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"initial_position": first_reference_q}
+                        {"ts_ms": data['general']['ts']*1000},
+                        {"initial_position": data['general']['init_q']},
+                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
                     ]
                 ),
             ],

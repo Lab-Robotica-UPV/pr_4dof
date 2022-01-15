@@ -1,0 +1,8 @@
+vp_conversion: [1.0, 1.0, 1.0, 1.0] #[4.333333, 4.333333, 4.33333, 1.0]
+
+controller:
+  k1: 0.75
+  k2: 0.5
+
+# data['gus']
+# Exact copy

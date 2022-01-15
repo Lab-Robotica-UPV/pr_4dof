@@ -13,60 +13,12 @@ def generate_launch_description():
 
     """Generate launch description with multiple components."""
 
-    #Load config file
+    # Load data dictionary
+    import sys
+    sys.path.append('src/pr_bringup/launch')
+    from load_data import data
 
-    robot_parameters_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_config_params.yaml'
-    )
-
-    controller_params_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_pdg_pid.yaml'
-    )
-
-    mocap_config = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'mocap_server.yaml'
-        )
-
-    force_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_force.yaml'
-    )
-
-    controller_yaml_file = open(controller_params_file)
-    controller_params = yaml.load(controller_yaml_file)
-
-    robot = controller_params['robot']['robot_name']
-    robot_config = controller_params['robot']['config']
-
-    robot_yaml_file = open(robot_parameters_file)
-    pr_params = yaml.load(robot_yaml_file)
-
-    mocap_yaml_file = open(mocap_config)
-    mocap_params = yaml.load(mocap_yaml_file)
-
-    force_yaml_file = open(force_file)
-    force_params = yaml.load(force_yaml_file)   
-
-    pr_config_params = pr_params[robot]['config'][robot_config]
-    pr_physical_properties =  pr_params[robot]['physical_properties']
-    
-    ref_file_q = controller_params['ref_path']['q']
-    ref_file_x = controller_params['ref_path']['x']
-
-    ref_file_F = force_params['ref_force_path']
-
-    with open(ref_file_x, 'r') as f:
-        first_reference_x = fromstring(f.readline(), dtype=float, sep=" ").tolist()
-    
-    with open(ref_file_q, 'r') as f:
-        first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
+    controller_params = data['pdg_pid']
     
     pr_dmp = ComposableNodeContainer(
             node_name='pr_container',
@@ -83,8 +35,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][0]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -96,8 +48,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][1]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][1]},
+                        {"max_v":  data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -109,8 +61,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][2]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][2]},
+                        {"max_v":  data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -122,8 +74,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][3]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][3]},
+                        {"max_v":  data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -139,20 +91,20 @@ def generate_launch_description():
                         ("gka_traj","ref_force")
                     ],
                     parameters=[
-                        {"ts": controller_params['ts']},
-                        {"ref_path": ref_file_x},
-                        {"gka_path": ref_file_F},
+                        {"ts": data['general']['ts']},
+                        {"ref_path": data['general']['ref_path']['x']},
+                        {"gka_path": data['force']['ref_force_path']},
                         {"n_basis_functions": 200},
                         {"save_directory": ""},
                         {"isCart": True},
                         {"calcCart": True},
-                        {"ref_x_init": first_reference_x},
-                        {"robot_config_params": pr_config_params},
-                        {"damping_coefficient": [894.0, 894.0, 89.4, 89.4]},
-                        {"spring_constant": [250.0, 500.0, 25.0, 25.0]},
-                        {"mass": [200.0, 200.0, 20.0, 20.0]},
-                        {"speed": 1.0},
-                        {"gain_slowdown": 0.1}
+                        {"ref_x_init": data['general']['init_x']},
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"damping_coefficient": data['dmp']['damping']},
+                        {"spring_constant": data['dmp']['spring']},
+                        {"mass": data['dmp']['mass']},
+                        {"speed": data['dmp']['speed']},
+                        {"gain_slowdown": data['dmp']['gain_slowdown']}
                     ]
                 ),
                 ComposableNode(
@@ -179,8 +131,8 @@ def generate_launch_description():
                         ("force_state_accelstamped", "force_state_accelstamped")
                     ],
                     parameters=[
-                        {"calibration": force_params['calibration']},
-                        {"noise_threshold": force_params['noise_threshold']}
+                        {"calibration": data['force']['calibration']},
+                        {"noise_threshold": data['force']['noise_threshold']}
                     ]
                 ),
                 ComposableNode(
@@ -193,10 +145,10 @@ def generate_launch_description():
                         ("force_state_fixed", "force_state_fixed"),
                     ],
                     parameters=[
-                        {"boot_mass": force_params['boot_mass']},
-                        {"boot_cdg": force_params['boot_cdg']},
-                        {"boot_compensation": force_params['boot_compensation']},
-                        {"fixed_frame_noise_threshold": force_params['fixed_frame_noise_threshold']}
+                        {"boot_mass": data['force']['boot_mass']},
+                        {"boot_cdg": data['force']['boot_cdg']},
+                        {"boot_compensation": data['force']['boot_compensation']},
+                        {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
                     ]
                 ),
                 ComposableNode(
@@ -221,11 +173,11 @@ def generate_launch_description():
                         ("x_coord_mocap", "x_coord_mocap")
                     ],
                     parameters=[
-                        {"server_address": mocap_params["server_address"]},
-                        {"server_command_port": mocap_params["server_command_port"]},
-                        {"server_data_port": mocap_params["server_data_port"]},
-                        {"marker_names":  mocap_params["marker_names"][robot]},
-                        {"robot_5p": robot=="robot_5p"},
+                        {"server_address": data['mocap_server']["server_address"]},
+                        {"server_command_port": data['mocap_server']["server_command_port"]},
+                        {"server_data_port": data['mocap_server']["server_data_port"]},
+                        {"marker_names":  data['mocap_server']["marker_names"]},
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
                     ]
                 ),
 
@@ -249,8 +201,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"initial_position": first_reference_q}
+                        {"ts_ms": data['general']['ts']*1000},
+                        {"initial_position": data['general']['init_q']},
+                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
                     ]
                 ),
             ],

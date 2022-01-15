@@ -12,58 +12,12 @@ def generate_launch_description():
 
     """Generate launch description with multiple components."""
 
-    robot_parameters_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_config_params.yaml'
-    )
+    # Load data dictionary
+    import sys
+    sys.path.append('src/pr_bringup/launch')
+    from load_data import data
 
-    controller_params_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_pdg_pid.yaml'
-    )
-
-    mocap_config = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'mocap_server.yaml'
-        )
-
-    lwpr_params_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_lwpr.yaml'
-    )
-
-    robot_yaml_file = open(robot_parameters_file)
-    pr_params = yaml.load(robot_yaml_file)
-
-    controller_yaml_file = open(controller_params_file)
-    controller_params = yaml.load(controller_yaml_file)
-
-    mocap_yaml_file = open(mocap_config)
-    mocap_params = yaml.load(mocap_yaml_file)
-
-    robot = controller_params['robot']['robot_name']
-    robot_config = controller_params['robot']['config']    
-
-    pr_config_params = pr_params[robot]['config'][robot_config]
-    pr_physical_properties =  pr_params[robot]['physical_properties']
-
-    ref_file_q = controller_params['ref_path']['q']
-    ref_file_x = controller_params['ref_path']['x']
-
-    lwpr_yaml_file = open(lwpr_params_file)
-    lwpr_params = yaml.load(lwpr_yaml_file)
-    lwpr_params_fwd = lwpr_params['fwd']
-    lwpr_params_inv = lwpr_params['inv']
-
-    with open(ref_file_q, 'r') as f:
-        first_reference_q = fromstring(f.readline(), dtype=float, sep=" ").tolist()
-    
-    with open(ref_file_x, 'r') as f:
-        first_reference_x = fromstring(f.readline(), dtype=float, sep=" ").tolist()
+    controller_params = data['pdg_pid']
 
     pr_pdg = ComposableNodeContainer(
             node_name='pr_container',
@@ -80,8 +34,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][0]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][0]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -93,8 +47,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][1]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][1]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -106,8 +60,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][2]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][2]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 ComposableNode(
@@ -119,8 +73,8 @@ def generate_launch_description():
                         ("end_flag", "end_flag")
                     ],
                     parameters=[
-                        {"vp_conversion": controller_params['actuators']['vp_conversion'][3]},
-                        {"max_v": controller_params['actuators']['v_sat']}
+                        {"vp_conversion": controller_params['vp_conversion'][3]},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                 
@@ -134,9 +88,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": ref_file_q},
+                        {"ref_path": data['general']['ref_path']['q']},
                         {"is_cart": False},
-                        {"robot_config_params": pr_config_params}
+                        {"robot_config_params": data['config_params']['geometry']}
                     ]
                 ),
 
@@ -149,8 +103,8 @@ def generate_launch_description():
                         ("joint_velocity", "joint_velocity")
                     ],
                     parameters=[
-                        {"initial_value": first_reference_q},
-                        {"ts": controller_params['ts']}
+                        {"initial_value": data['general']['init_q']},
+                        {"ts": data['general']['ts']}
                     ]
                 ),
 
@@ -180,7 +134,7 @@ def generate_launch_description():
                         ("output", "control_action")
                     ],
                     parameters=[
-                        {"signs": lwpr_params_inv['gains_pid_lwpr']},
+                        {"signs": data['lwpr']['inv']['gains_pid_lwpr']},
                         {"gains": [1.0, 1.0, 1.0, 1.0]}
                     ]
                 ),
@@ -195,8 +149,8 @@ def generate_launch_description():
                         ("joint_velocity_filt", "joint_velocity_filt")
                     ],
                     parameters=[
-                        {"initial_value": first_reference_q},
-                        {"ts": controller_params['ts']},
+                        {"initial_value": data['general']['init_q']},
+                        {"ts": data['general']['ts']},
                         {"q": 100.0},
                         {"r": 0.001}
                     ]
@@ -213,14 +167,14 @@ def generate_launch_description():
                         ("out_lwpr_fwd", "out_lwpr_fwd")
                     ],
                     parameters=[
-                        {"initD": lwpr_params_fwd['initD']},
-                        {"initAlpha": lwpr_params_fwd['initAlpha']},
-                        {"penalty": lwpr_params_fwd['penalty']},
-                        {"initLambda": lwpr_params_fwd['initLambda']},
-                        {"finalLambda": lwpr_params_fwd['finalLambda']},
-                        {"activateLearning": lwpr_params_fwd['activateLearning']},
-                        {"loadModel": lwpr_params_fwd['loadModel']},
-                        {"saveModel": lwpr_params_fwd['saveModel']}
+                        {"initD": data['lwpr']['fwd']['initD']},
+                        {"initAlpha": data['lwpr']['fwd']['initAlpha']},
+                        {"penalty": data['lwpr']['fwd']['penalty']},
+                        {"initLambda": data['lwpr']['fwd']['initLambda']},
+                        {"finalLambda": data['lwpr']['fwd']['finalLambda']},
+                        {"activateLearning": data['lwpr']['fwd']['activateLearning']},
+                        {"loadModel": data['lwpr']['fwd']['loadModel']},
+                        {"saveModel": data['lwpr']['fwd']['saveModel']}
                     ]
                 ),
                 
@@ -234,15 +188,15 @@ def generate_launch_description():
                         ("out_lwpr_inv", "out_lwpr_inv")
                     ],
                     parameters=[
-                        {"initD": lwpr_params_inv['initD']},
-                        {"initAlpha": lwpr_params_inv['initAlpha']},
-                        {"penalty": lwpr_params_inv['penalty']},
-                        {"initLambda": lwpr_params_inv['initLambda']},
-                        {"finalLambda": lwpr_params_inv['finalLambda']},
-                        {"activateLearning": lwpr_params_inv['activateLearning']},
-                        {"loadModel": lwpr_params_inv['loadModel']},
-                        {"saveModel": lwpr_params_inv['saveModel']},
-                        {"ts": controller_params['ts']}
+                        {"initD": data['lwpr']['inv']['initD']},
+                        {"initAlpha": data['lwpr']['inv']['initAlpha']},
+                        {"penalty": data['lwpr']['inv']['penalty']},
+                        {"initLambda": data['lwpr']['inv']['initLambda']},
+                        {"finalLambda": data['lwpr']['inv']['finalLambda']},
+                        {"activateLearning": data['lwpr']['inv']['activateLearning']},
+                        {"loadModel": data['lwpr']['inv']['loadModel']},
+                        {"saveModel": data['lwpr']['inv']['saveModel']},
+                        {"ts": data['general']['ts']}
                     ]
                 ), 
 
@@ -254,8 +208,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        {"initial_position": first_reference_q}
+                        {"ts_ms": data['general']['ts']*1000},
+                        {"initial_position": data['general']['init_q']},
+                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
                     ]
                 ),            
             ],

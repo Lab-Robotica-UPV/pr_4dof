@@ -27,3 +27,6 @@ boot_mass: 2.2816
 boot_cdg: [0.1201, 0.0007, 0.0453]
 
 ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_Fent_aux.txt"
+
+# data['force']
+# Has exact copy. Maybe it will be better to include the robot_name option

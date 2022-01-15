@@ -1,0 +1,24 @@
+# No se usa por el momento
+ts: 0.01
+
+robot:
+  robot_name: 'robot_3ups_rpu' #'robot_5p'
+  config: 3
+  v_sat: 9.5
+  encoder_gearbox: [1.0, 1.0, 1.0, 1.0] #[3.0/13.0, 3.0/13.0, 3.0/13.0, 1.0]
+
+ref_path:
+  q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRR3_CF1_5P_IdV1.txt"
+  x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRR3_CF1_5P_IdV1.txt"
+
+#Iterations for direct kinematics
+dir_kin:
+  tol: 0.0000001
+  iter: 30
+
+# Use of displayer
+displayer:
+  data_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/pauses/ind_pause_TRR8_CF1_IDHolgV1_ext.txt"
+
+# data['general']
+# Includes all this data and also init_q and init_x
