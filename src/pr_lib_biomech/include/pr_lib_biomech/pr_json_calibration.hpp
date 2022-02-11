@@ -10,28 +10,11 @@ namespace PRJsonData{
     namespace PRJsonCal{
 
         struct Calibration_data_struct;
-        struct Lig_struct;
         struct TibColLig_struct;
         struct FibColLig_struct;
         struct O6_r_O6_struct;
         struct Plane4Bar_struct;
         struct Widths_struct;
-
-
-
-        struct TibColLig_struct{
-            Eigen::Vector3d SCS_Tib;
-        };
-
-        struct FibColLig_struct{
-            Eigen::Vector3d SCS_Tib;
-        };
-
-        struct Lig_struct{
-            TibColLig_struct TibColLig;
-            FibColLig_struct FibColLig;
-            void print_data();
-        };
 
         struct O6_r_O6_struct{
             Eigen::Vector3d LM2;
@@ -61,7 +44,6 @@ namespace PRJsonData{
         struct Calibration_data_struct : public Data_struct{
 
             Eigen::Vector3d ACSpelvis_r_PelAvg_ACSpelvis;
-            Lig_struct Lig;
             Eigen::Matrix3d O6_R_SCS_Tib;
             O6_r_O6_struct O6_r_O6;
             Plane4Bar_struct Plane4Bar;
@@ -77,6 +59,7 @@ namespace PRJsonData{
             Eigen::Matrix<double,6,1> m;
             double m_pie;
             Eigen::Matrix<double,3,6> rg;
+            Eigen::Vector3d G_g;
 
             bool correct_reading = true;
             std::vector<std::string> non_correct;

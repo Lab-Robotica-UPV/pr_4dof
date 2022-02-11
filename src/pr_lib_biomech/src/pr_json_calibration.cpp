@@ -2,14 +2,6 @@
 
 using namespace PRJsonData;
 
-
-void PRJsonCal::Lig_struct::print_data(){
-    std::cout << "--------Lig struct---------" << std::endl;
-    std::cout << "TibColLig.SCS_Tib (transposed): " << TibColLig.SCS_Tib.transpose() << std::endl;
-    std::cout << "FibColLig.SCS_Tib (transposed): " << FibColLig.SCS_Tib.transpose() << std::endl;
-    std::cout << "--------Lig struct end ----\n" << std::endl;
-}
-
 void PRJsonCal::O6_r_O6_struct::print_data(){
     std::cout << "--------O6_r_O6 struct---------" << std::endl;
     std::cout << "LM2 (transposed): " << LM2.transpose() << std::endl;
@@ -43,17 +35,12 @@ PRJsonCal::Calibration_data_struct::Calibration_data_struct(std::string path)
     : Data_struct(path){
 
     // All structures inside the original are extracted into Values of rapidjson library
-    const Value &Lig_v = struct_value(document,"Lig");
-    const Value &TibColLig_v = struct_value(Lig_v,"TibColLig");
-    const Value &FibColLig_v = struct_value(Lig_v,"FibColLig");
     const Value &O6_r_O6_v = struct_value(document,"O6_r_O6");
     const Value &Plane4Bar_v = struct_value(document,"Plane4Bar");
     const Value &Widths_v = struct_value(document,"Widths");
 
     // all members are read from the original document or from the substructures
     read_member(document, "ACSpelvis_r_PelAvg_ACSpelvis", ACSpelvis_r_PelAvg_ACSpelvis);
-    read_member(TibColLig_v, "SCS_Tib",Lig.TibColLig.SCS_Tib);
-    read_member(FibColLig_v, "SCS_Tib",Lig.FibColLig.SCS_Tib);
     read_member(document,"O6_R_SCS_Tib",O6_R_SCS_Tib);
     read_member(O6_r_O6_v,"LM2",O6_r_O6.LM2);
     read_member(O6_r_O6_v,"MM2",O6_r_O6.MM2);
@@ -77,6 +64,7 @@ PRJsonCal::Calibration_data_struct::Calibration_data_struct(std::string path)
     read_member(document,"m",m);
     read_member(document,"m_pie",m_pie);
     read_member(document,"rg",rg);
+    read_member(document, "G_g", G_g);
 
     if (correct_reading==false){
         std::cout << "Something could not be read. Non correct readings:" << std::endl;
@@ -90,7 +78,6 @@ void PRJsonCal::Calibration_data_struct::print_data(){
     std::cout << "-----------------------------------Calibration data --------------------------------------\n" << std::endl;
     Data_struct::print_data();
     std::cout << "ACSpelvis_r_PelAvg_ACSpelvis (transposed): " << ACSpelvis_r_PelAvg_ACSpelvis.transpose() << std::endl;
-    Lig.print_data();
     std::cout << "O6_R_SCS_Tib:\n" << O6_R_SCS_Tib << std::endl;
     O6_r_O6.print_data();
     Plane4Bar.print_data();
@@ -105,5 +92,6 @@ void PRJsonCal::Calibration_data_struct::print_data(){
     std::cout << "ang_rod_FlxExt_i: " << ang_rod_FlxExt_i << std::endl;
     std::cout << "m (transpose): " << m.transpose() << std::endl;
     std::cout << "rg:\n" << rg << std::endl;
+    std::cout << "G_g (transpose): " << G_g << std::endl;
     std::cout << "-----------------------------------Calibration data --------------------------------------\n" << std::endl;
 }

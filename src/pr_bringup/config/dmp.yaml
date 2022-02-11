@@ -1,6 +1,48 @@
-damping: [894.0, 894.0, 89.4, 89.4]
-spring: [250.0, 500.0, 25.0, 25.0]
-mass: [200.0, 200.0, 20.0, 20.0]
+# Formulas para obtener mass (m), damping (d) y spring constant (k) con tres restricciones:
+# 1. Asegurar ganancia gain
+# 2. Asegurar tiempo de establecimiento ts
+# 3. Criticamente amortiguado (dos polos iguales y reales)
+# a) Obtenemos k como k=1/gain
+# b) Obtenemos d como d=ts*k/2
+# c) Obtenemos m como m=pow(d,2)/(4*k)
+
+# Valores para el cartesiano
+# damping: [894.0, 894.0, 89.4, 89.4]
+# spring: [250.0, 500.0, 25.0, 25.0]
+# mass: [200.0, 200.0, 20.0, 20.0]
+
+# Valores para el prismatico con tiempo de establecimiento de 2s y ganancia 1N/mm
+# damping: [1000.0, 1000.0, 1000.0, 1000.0]
+# spring: [1000.0, 1000.0, 1000.0, 1000.0]
+# mass: [250.0, 250.0, 250.0, 250.0]
+
+# Valores para el prismatico con tiempo de establecimiento de 1s y ganancia 1N/mm
+# damping: [500.0, 500.0, 500.0, 500.0]
+# spring: [1000.0, 1000.0, 1000.0, 1000.0]
+# mass: [62.5, 62.5, 62.5, 62.5]
+
+# Valores para el prismatico con tiempo de establecimiento de 0.2s y ganancia 1N/mm
+damping: [100.0, 100.0, 100.0, 100.0]
+spring: [1000.0, 1000.0, 1000.0, 1000.0]
+mass: [2.5, 2.5, 2.5, 2.5]
+
+# Valores que se deben colocar en la funcion intermedia H(s) para hacer un modelo de admitancia
+# con polos mas lentos que el DMP que permiten modificar el comportamiento del DMP
+# para el seguimiento de fuerzas. Estos parametros se han calculado como:
+# Valores deseados de ganancia total: [1/250.0, 1/500.0, 1/25.0, 1/25.0]
+# Con esto saco la ganancia de H(s) haciendo GH = G_TOT/G_DMP
+# Los valores de damping y spring se obtienen con la dinamica (debe ser mas lenta que la del DMP para no cancelar) 
+# deseada aplicando las formulas del principio, donde se ha tomado:
+# Tiempos de establecimiento deseados TS: [4.0, 2.0, 4.0, 4.0]
+params_H:
+  damping: [0.5, 0.5, 0.05, 0.05] #[0.75, 0.75, 0.075, 0.075]
+  spring: [0.25, 0.5, 0.025, 0.025]
+  mass: [0.25, 0.125, 0.025, 0.025] #[0.5625, 0.2813, 0.0563, 0.0563]
+
+# El de MATLAB. OJO! Si se usa este, hay que desactivar la division por tau en damping y mass en el dmp_ref_gen
+# damping: [384.0, 384.0, 384.0, 384.0]
+# spring: [36864.0, 36864.0, 36864.0, 36864.0]
+# mass: [1.0, 1.0, 1.0, 1.0]
 
 speed: 1.0
 gain_slowdown: 0.0

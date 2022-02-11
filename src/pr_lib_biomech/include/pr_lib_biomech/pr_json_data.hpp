@@ -156,13 +156,11 @@ namespace PRJsonData{
     template<typename D>
     inline const Value& Data_struct::struct_value(const D &doc, const std::string member){ 
         Value::ConstMemberIterator itr = doc.FindMember(member.c_str());
-        if (itr != doc.MemberEnd()){ 
-            const Value &val = doc[member.c_str()];
-            return val;
-        }
-        else{ 
+        if (itr == doc.MemberEnd()){  
             correct_reading = false;
         }
+        const Value& val = doc[member.c_str()];
+        return val;
     }
 
 }

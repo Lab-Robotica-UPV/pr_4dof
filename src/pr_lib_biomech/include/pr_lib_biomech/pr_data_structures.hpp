@@ -2,6 +2,8 @@
 #define PR_LIB_BIOMECH__DATA_STRUCTURES_
 
 #include "eigen3/Eigen/Dense"
+#include <string>
+#include <vector>
 
 using namespace Eigen;
 
@@ -14,7 +16,7 @@ namespace PRDataStructures{
         }; 
 
         struct Ext_struct{
-            PatLig_struct PagLig;
+            PatLig_struct PatLig;
         }; 
 
         struct ViaPtsViaContours_struct{
@@ -78,10 +80,108 @@ namespace PRDataStructures{
         ViaPtsViaContours_struct ViaPtsViaContours;
         Vector3d g4;
         Vector3d g6;
+
+        void print_data();
         
     };
 
-    
+    struct R_struct {
+        Matrix3d u_R_LMO4, LMO4_R_u, G_R_ACSpelvis, G_R_SCSpie, G_R_LMO4, LMO4_R_G, G_R_SCS_Tib;
+        void print_data();
+    };
+
+    // Struct with relevant data to check after experiment
+    struct Data_struct {
+
+        struct cad_struct {
+            VectorXd FlxExt, AbdAduc, IntExt;
+        };
+        struct rod_struct {
+            VectorXd FlxExt;
+        };
+        struct pie_struct {
+            VectorXd FlxExt;
+        };
+
+        struct ang_struct {
+            cad_struct cad;
+            rod_struct rod;
+            pie_struct pie;
+        };
+
+        ang_struct ang;
+        VectorXd Time;
+        std::string Date;
+        VectorXd GenForceHipFlxExt, GenForceKneeFlxExtGrav, GenForceKneeFlxExtFext, GenForceKneeFlxExtMext, GenForceKneeFlxExt;
+        Matrix<double,6,Dynamic> q;
+        VectorXd BicFemCB, GastLat, GastMed, BicFemCL, SemTend, SemMem, Sat, Gra;
+        VectorXd VasInt123, VasMedInf12, VasMedMed12, VasMedSup34, VasLatSup12, VasInt456, VasLatInf4;
+        VectorXd RecFem12_1, RecFem12_2, TenFacLat;
+        Matrix<double,8,Dynamic> FlxCoefMatRed;
+        Matrix<double,10,Dynamic> ExtCoefMatRed;
+        VectorXd F_OnTibUc, F_OnTibUt, F_ACL, F_PCL;
+        VectorXi Frame;
+
+        void print_data();
+    };
+
+    // Struct with data from human makers
+    struct Piel_struct {
+        Matrix<double, 3, Dynamic> LASIS; 
+        Matrix<double, 3, Dynamic> RASIS;
+        Matrix<double, 3, Dynamic> LPSIS;
+        Matrix<double, 3, Dynamic> RPSIS;
+        Matrix<double, 3, Dynamic> LFE;
+        Matrix<double, 3, Dynamic> MFE;
+        Matrix<double, 3, Dynamic> FH;
+        Matrix<double, 3, Dynamic> LM;
+        Matrix<double, 3, Dynamic> MM;
+        Matrix<double, 3, Dynamic> CAL;
+        Matrix<double, 3, Dynamic> MH1;
+        Matrix<double, 3, Dynamic> MH5;
+        Matrix<double, 3, Dynamic> Fext;
+
+        void print_data();
+    };
+
+    struct forLigForceCal_struct {
+        bool FlxActiveOrg;
+        std::vector<std::string> FlxLegend;
+        Matrix<double, 8, 1> FlxMusForceEstOpt;
+        Matrix<double, 8, 1> FlxMaxMusForce;
+        std::vector<std::string> ExtLegend;
+        Matrix<double, 10, 1> ExtMusForceEstOpt;
+        Matrix<double, 10, 1> ExtMaxMusForce;
+        double PatLig, RecFem12_1, RecFem12_2, TenFacLat;
+
+        void print_data();
+    };
+
+    struct ang_struct {
+        struct cad_struct {
+            double FlxExt, AbdAduc, IntExt;
+        };
+        struct rod_struct {
+            double FlxExt;
+        };
+        struct pie_struct {
+            double FlxExt;
+        };
+
+        cad_struct cad;
+        rod_struct rod;
+        pie_struct pie;
+        
+        void print_data();
+    };
+
+    // AUXILIARY Struct with input data from force sensor (remove in ROS)
+    struct AUXILIAR_ForceSensorin_struct {
+        Matrix<double, 3, Dynamic> Force;
+        Matrix<double, 3, Dynamic> Torque;
+
+        void print_data();
+    };
 
 }
 

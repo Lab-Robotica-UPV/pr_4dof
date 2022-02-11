@@ -94,11 +94,75 @@ ament_target_dependencies(dmp_admittance_force
 rclcpp_components_register_nodes(dmp_admittance_force "pr_dmp::AdmittanceForce")
 set(node_plugins "${node_plugins}pr_dmp::AdmittanceForce;$<TARGET_FILE:dmp_admittance_force>\n")
 
+### Dmp Evader Force node ###
+
+add_library(dmp_evader_force SHARED
+  src/dmp_evader_force.cpp)
+
+target_compile_definitions(dmp_evader_force
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_evader_force
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(dmp_evader_force "pr_dmp::EvaderForce")
+set(node_plugins "${node_plugins}pr_dmp::EvaderForce;$<TARGET_FILE:dmp_evader_force>\n")
+
+### Dmp_ref_dmp_force node ###
+
+add_library(dmp_ref_force SHARED
+  src/dmp_ref_force.cpp)
+
+target_link_libraries(dmp_ref_force ${Boost_LIBRARIES})
+target_link_libraries(dmp_ref_force "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib" dmp)
+target_link_libraries(dmp_ref_force "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib" dynamicalsystems)
+target_link_libraries(dmp_ref_force "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib" functionapproximators)
+
+target_compile_definitions(dmp_ref_force
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_ref_force
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "Eigen3"
+  "pr_lib"
+  "Boost"
+  )
+
+rclcpp_components_register_nodes(dmp_ref_force "pr_dmp::DmpRefForce")
+set(node_plugins "${node_plugins}pr_dmp::DmpRefForce;$<TARGET_FILE:dmp_ref_force>\n")
+
+### Dmp_force_adapted node ###
+
+add_library(dmp_force_adapted SHARED
+  src/dmp_force_adapted.cpp)
+
+target_compile_definitions(dmp_force_adapted
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_force_adapted
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "Eigen3"
+)
+
+rclcpp_components_register_nodes(dmp_force_adapted "pr_dmp::ForceAdapted")
+set(node_plugins "${node_plugins}pr_dmp::ForceAdapted;$<TARGET_FILE:dmp_force_adapted>\n")
+
 # Installation
 
 install(TARGETS
   dmp_ref_gen
   dmp_admittance_force
+  dmp_evader_force
+  dmp_ref_force
+  dmp_force_adapted
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin

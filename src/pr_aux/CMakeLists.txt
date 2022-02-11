@@ -164,6 +164,22 @@ ament_target_dependencies(saturator
 rclcpp_components_register_nodes(saturator "pr_aux::Saturator")
 set(node_plugins "${node_plugins}pr_aux::Saturator;$<TARGET_FILE:saturator>\n")
 
+### Matrix_mult node ###
+
+add_library(matrix_mult SHARED
+  src/matrix_mult.cpp)
+
+target_compile_definitions(matrix_mult
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(matrix_mult
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs")
+
+rclcpp_components_register_nodes(matrix_mult "pr_aux::MatrixMult")
+set(node_plugins "${node_plugins}pr_aux::MatrixMult;$<TARGET_FILE:MatrixMult>\n")
+
 
 ### Installation ###
 
@@ -175,6 +191,7 @@ install(TARGETS
   kalman_filter
   displayer
   saturator
+  matrix_mult
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

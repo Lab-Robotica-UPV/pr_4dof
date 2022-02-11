@@ -28,28 +28,50 @@ namespace pr_modelling
             10, 
             std::bind(&ForwardJacobian::topic_callback, this, _1));
 
-        publisher_ = this->create_publisher<pr_msgs::msg::PRFloatH>(
+        publisher_det_ = this->create_publisher<pr_msgs::msg::PRFloatH>(
             "for_jac_det", 
+            1);
+
+        publisher_jac_ = this->create_publisher<pr_msgs::msg::PRMatH>(
+            "for_jac", 
             1);
     }
 
     void ForwardJacobian::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr x_msg)
     {
-        // Forward Jacobian message and Init time
+        // Forward Jacobian and determinant message and Init time
         auto for_jac_det_msg = pr_msgs::msg::PRFloatH();
         for_jac_det_msg.init_time = this->get_clock()->now();
+
+        // Forward Jacobian message and Init time
+        auto for_jac_msg = pr_msgs::msg::PRMatH();
+        for_jac_msg.init_time = this->get_clock()->now();
 
         PRModel::ForwardJacobian(ForJac, x_msg->data, robot_params);
 
         double for_jac_det = ForJac.determinant();
+
+        for(int i=0; i<ForJac.rows(); i++)
+        {
+            for(int j=0; j<ForJac.cols(); j++)
+                for_jac_msg.data.push_back(ForJac(i,j));
+        }
+        for_jac_msg.rows = ForJac.rows();
+        for_jac_msg.cols = ForJac.cols();
+
+        for_jac_msg.header.stamp = x_msg->header.stamp;
+        for_jac_msg.header.frame_id = x_msg->header.frame_id;
+
 
         for_jac_det_msg.data = for_jac_det;
         for_jac_det_msg.header.stamp = x_msg->header.stamp;
         for_jac_det_msg.header.frame_id = x_msg->header.frame_id;
 
         for_jac_det_msg.current_time = this->get_clock()->now();
+        for_jac_msg.current_time = this->get_clock()->now();
 
-        publisher_->publish(for_jac_det_msg);
+        publisher_det_->publish(for_jac_det_msg);
+        publisher_jac_->publish(for_jac_msg);
     }
 }
 

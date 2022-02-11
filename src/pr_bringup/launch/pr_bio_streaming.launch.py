@@ -14,23 +14,10 @@ def generate_launch_description():
 
     #Load config file
 
-    controller_params_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_gus.yaml'
-    )
-
-    force_file = os.path.join(
-        get_package_share_directory('pr_bringup'),
-        'config',
-        'pr_force.yaml'
-    )
-
-    controller_yaml_file = open(controller_params_file)
-    controller_params = yaml.load(controller_yaml_file)
-
-    force_yaml_file = open(force_file)
-    force_params = yaml.load(force_yaml_file)
+    # Load data dictionary
+    import sys
+    sys.path.append('src/pr_bringup/launch')
+    from load_data import data
 
     
     pr_bio_streaming = ComposableNodeContainer(
@@ -57,7 +44,8 @@ def generate_launch_description():
                         ("force_state_accelstamped", "force_state_accelstamped")
                     ],
                     parameters=[
-                        {"calibration": force_params['calibration']}
+                        {"calibration": data['force']['calibration']},
+                        {"noise_threshold": data['force']['noise_threshold']}
                     ]
                 ),
                 ComposableNode(
@@ -68,8 +56,9 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"ts_ms": controller_params['ts']*1000},
-                        # {"initial_position": [0, 0, 0, 0]}
+                        {"ts_ms": data['general']['ts']*1000},
+                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
+                        {"initial_position": data['general']['init_q']},
                     ]
                 ),
             ],

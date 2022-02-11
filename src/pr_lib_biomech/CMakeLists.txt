@@ -45,7 +45,8 @@ endif()
 ### LIBRARY ###
 
 add_library(pr_lib_biomech SHARED
-  #src/pr_json_data.cpp
+  src/pr_algebra_fun.cpp
+  src/pr_data_structures.cpp
   src/pr_json_calibration.cpp
   src/pr_json_gdlf.cpp
   src/pr_mocap.cpp)

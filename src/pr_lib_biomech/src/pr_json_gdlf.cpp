@@ -47,7 +47,7 @@ void PRJsonGdlf::A_r_B_struct::print_data(){
 }
 
 void PRJsonGdlf::G_uMatPelvis_struct::print_data(){
-    std::cout << "--------A_r_B struct---------" << std::endl;
+    std::cout << "--------G_uMatPelvis struct---------" << std::endl;
     std::cout << "Flx.SemTend.Tib_Pel (1st col transposed): " << Flx.SemTend.Tib_Pel.col(0).transpose() << std::endl;
     std::cout << "Flx.SemMem.Tib_Pel (1st col transposed): " << Flx.SemMem.Tib_Pel.col(0).transpose() << std::endl;
     std::cout << "Flx.BicFemCB.Tib_Fem (1st col transposed): " << Flx.BicFemCB.Tib_Fem.col(0).transpose() << std::endl;
@@ -58,6 +58,7 @@ void PRJsonGdlf::G_uMatPelvis_struct::print_data(){
     std::cout << "Flx.Gra.Tib_Pel (1st col transposed): " << Flx.Gra.Tib_Pel.col(0).transpose() << std::endl;
     std::cout << "Ext.PatLig.Tib_Pat (1st col transposed): " << Ext.PatLig.Tib_Pat.col(0).transpose() << std::endl;
     std::cout << "Ext.TenFacLat.Tib_Pel (1st col transposed): " << Ext.TenFacLat.Tib_Pel.col(0).transpose() << std::endl;
+    std::cout << "--------G_uMatPelvis struct end---------" << std::endl;
 }
 
 // Constructor. Receives a path and extracts the JSON content

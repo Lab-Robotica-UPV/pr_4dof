@@ -14,7 +14,7 @@ PRMocap::Force_sensor_data::Force_sensor_data(std::vector<std::string> force_sen
     onRobot = (force_sensor_option == ForceSensorOptions::OnRobot);
     if (!onRobot) r_2_0 << 90.0/1000, 130.0/1000, 24.0/1000;
     else{
-        if (!robot_5p) r_2_0 << 0.0, 200.0/1000, 75.7/1000;
+        if (!robot_5p) r_2_0 << 0.0, 200.0/1000, -75.7/1000;
         //else // Left to implement
     }
 }

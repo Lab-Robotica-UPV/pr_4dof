@@ -7,6 +7,7 @@
 
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/pr_float_h.hpp"
+#include "pr_msgs/msg/pr_mat_h.hpp"
 
 #include "pr_lib/pr_model.hpp"
 
@@ -23,7 +24,8 @@ namespace pr_modelling
 
         private:
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
-            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_det_;
+            rclcpp::Publisher<pr_msgs::msg::PRMatH>::SharedPtr publisher_jac_;
 
             Eigen::Matrix<double, 4, 4> ForJac = Eigen::Matrix<double, 4, 4>::Zero();
             std::vector<double> robot_params;
