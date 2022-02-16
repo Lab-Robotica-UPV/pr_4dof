@@ -3,28 +3,51 @@ ots:
   iter: 30
   initial_ots: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
 
-lmin_Ang_OTS:
-  0: 2.0
-  1: 2.0
-  2: 2.0
-  3: 2.0
-  4: 2.0
-  5: 2.0
-  6: 2.0
-  7: 2.0
-  8: 2.0
-lmin_FJac:  
-  0: 0.015
-  1: 0.015
-  2: 0.015
-  3: 0.005
-  4: 0.015
-  5: 0.015
-  6: 0.015
-  7: 0.015
-  8: 0.015
+robot_3ups_rpu:
+  lmin_Ang_OTS:
+    0: 2.0
+    1: 2.0
+    2: 2.0
+    3: 2.0
+    4: 2.0
+    5: 2.0
+    6: 2.0
+    7: 2.0
+    8: 2.0
+  lmin_FJac:  
+    0: 0.015
+    1: 0.015
+    2: 0.015
+    3: 0.005
+    4: 0.015
+    5: 0.015
+    6: 0.015
+    7: 0.015
+    8: 0.015
+
+robot_5p:
+  lmin_Ang_OTS:
+    0: 0.0
+    1: 0.0
+    2: 0.0
+    3: 0.0
+    4: 0.0
+    5: 0.0
+    6: 0.0
+    7: 0.0
+    8: 0.0
+  lmin_FJac:  
+    0: 0.0
+    1: 0.0
+    2: 0.0
+    3: 0.0
+    4: 0.0
+    5: 0.0
+    6: 0.0
+    7: 0.0
+    8: 0.0
   
 t_activation_releaser: 44.59 #29.0 
 
 # data['sing']
-# Includes only the lmin_Ang_OTS and lmin_FJac of the config being used
+# Includes only the lmin_Ang_OTS and lmin_FJac for the robot and the config being used

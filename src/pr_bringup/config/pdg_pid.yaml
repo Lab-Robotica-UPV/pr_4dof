@@ -1,21 +1,30 @@
-vp_conversion: [28.4628, 28.4628, 28.4628, 246.6779]
+robot_3ups_rpu:
+  vp_conversion: [28.4628, 28.4628, 28.4628, 246.6779]
+  controller:
+    #PDG
+    kp: [27394.2003, 27394.2003, 27394.2003, 255168.2203]
+    kv: [109.7532, 109.7532, 109.7532, 17927.4511]
+    # Se ha disminuido la componente derivativa porque al conectar admitancia + evasor 
+    # divergía por culpa del 17927.45, en el resto de casos ha ido bien el 17927.45
+    #kv: [109.7532, 109.7532, 109.7532, 2200.0]
+    #Prueba 31 con valores más bruscos buenos para 5p
+    #kp: [70000.0, 70000.0, 70000.0, 683716.0]
+    #kv: [165.0, 165.0, 165.0, 12912.0]
+    #Prueba replay fuerza
+    #kp: [29190.0, 29190.0, 29190.0, 361023.0]
+    #kv: [114.27, 114.27, 114.27, 391.32]
+    #PID
+    ki: [5000.0, 5000.0, 5000.0, 50000.0] #Valores buenos
+    #ki: [1000.0, 1000.0, 1000.0, 10000.0]
 
-controller:
-  #PDG
-  kp: [27394.2003, 27394.2003, 27394.2003, 255168.2203]
-  kv: [109.7532, 109.7532, 109.7532, 17927.4511]
-  # Se ha disminuido la componente derivativa porque al conectar admitancia + evasor 
-  # divergía por culpa del 17927.45, en el resto de casos ha ido bien el 17927.45
-  #kv: [109.7532, 109.7532, 109.7532, 2200.0]
-  #Prueba 31 con valores más bruscos buenos para 5p
-  #kp: [70000.0, 70000.0, 70000.0, 683716.0]
-  #kv: [165.0, 165.0, 165.0, 12912.0]
-  #Prueba replay fuerza
-  #kp: [29190.0, 29190.0, 29190.0, 361023.0]
-  #kv: [114.27, 114.27, 114.27, 391.32]
-  #PID
-  ki: [5000.0, 5000.0, 5000.0, 50000.0] #Valores buenos
-  #ki: [1000.0, 1000.0, 1000.0, 10000.0]
+robot_5p:
+  vp_conversion: [28.4628, 28.4628, 28.4628, 246.6779]
+  controller:
+    #PDG
+    kp: [27394.2003, 27394.2003, 27394.2003, 255168.2203]
+    kv: [109.7532, 109.7532, 109.7532, 17927.4511]
+    #PID
+    ki: [5000.0, 5000.0, 5000.0, 50000.0] 
 
   # data['pr_pdg_pid']
-  # Exact copy. Maybe it's convenient to include option for both robot names
+  # Returns the controller gains for the selected robot

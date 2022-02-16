@@ -2,14 +2,21 @@
 ts: 0.01
 
 robot:
-  robot_name: 'robot_3ups_rpu' #'robot_5p'
+  robot_name: 'robot_5p' #'robot_3ups_rpu' #'robot_5p'
   config: 1
   v_sat: 9.5
-  encoder_gearbox: [1.0, 1.0, 1.0, 1.0] #[3.0/13.0, 3.0/13.0, 3.0/13.0, 1.0]
 
-ref_path:
-  q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_qinde_TE0_CF1_VF1.txt"
-  x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_cart_TE0_CF1_VF1.txt"
+robot_3ups_rpu: 
+  encoder_gearbox: [1.0, 1.0, 1.0, 1.0]
+  ref_path:
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_qinde_TE0_CF1_VF1.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_cart_TE0_CF1_VF1.txt"
+
+robot_5p:
+  encoder_gearbox: [0.23077, 0.23077, 0.23077, 1.0]
+  ref_path:
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRR17_CF1_5P_V1.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRR17_CF1_5P_V1.txt"
 
 #Iterations for direct kinematics
 dir_kin:

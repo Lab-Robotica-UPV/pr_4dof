@@ -109,7 +109,8 @@ def generate_launch_description():
                         {"ref_cart_path": data['general']['ref_path']['x']},
                         {"robot_config_params": data['config_params']['geometry']},
                         {"lmin_Ang_OTS": data['sing']['lmin_Ang_OTS']},
-                        {"lmin_FJac": data['sing']['lmin_FJac']}
+                        {"lmin_FJac": data['sing']['lmin_FJac']},
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"}
                     ]
                 ),
 
@@ -157,7 +158,7 @@ def generate_launch_description():
                     parameters=[
                         {"ts_ms": data['general']['ts']*1000},
                         {"initial_position": [0.0, 0.0, 0.0, 0.0]},
-                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
+                        {"gearbox_mult":  data['general']['encoder_gearbox']},
                     ]
                 ),            
             ],

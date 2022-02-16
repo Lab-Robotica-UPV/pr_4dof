@@ -324,7 +324,7 @@ def generate_launch_description():
                     parameters=[
                         {"ts_ms":  data['general']['ts']*1000},
                         {"initial_position": data['general']['init_q']},
-                        {"gearbox_mult":  data['general']['robot']['encoder_gearbox']},
+                        {"gearbox_mult":  data['general']['encoder_gearbox']},
                     ]
                 ),            
             ],

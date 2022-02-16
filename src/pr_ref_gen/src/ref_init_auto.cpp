@@ -36,12 +36,14 @@ namespace pr_ref_gen
         this->declare_parameter<double>("ts", 0.01);
         this->declare_parameter<double>("lmin_Ang_OTS",2.0);
         this->declare_parameter<double>("lmin_FJac", 0.015);
+        this->declare_parameter<bool>("robot_5p", false);
 
         this->get_parameter("ref_cart_path", ref_path);
         this->get_parameter("robot_config_params", robot_params);
         this->get_parameter("ts", ts);
         this->get_parameter("lmin_Ang_OTS",lmin_Ang_OTS);
         this->get_parameter("lmin_FJac", lmin_FJac);
+        this->get_parameter("robot_5p", robot_5p);
 
 
         //Read file
@@ -393,8 +395,8 @@ namespace pr_ref_gen
                 // Verificamos que los puntos a unir tienen el mismo signo
                 if (detJd_ini>=0 && detJd_fin>=0 || detJd_ini<0 && detJd_fin<0){
                     // Verificadores de factilibidad punto inicial y final
-                    verif_ini = PRLimits::VerFactPos(x_ini_arr, robot_params);
-                    verif_fin = PRLimits::VerFactPos(x_fin_arr, robot_params);
+                    verif_ini = PRLimits::VerFactPos(x_ini_arr, robot_params, robot_5p);
+                    verif_fin = PRLimits::VerFactPos(x_fin_arr, robot_params, robot_5p);
                     // Verifico que ambos puntos sean factibles
                     if ((verif_ini.cwiseAbs()).sum()==0 && (verif_fin.cwiseAbs()).sum()==0){
                         // Puntos de los tramos de diseño;
@@ -504,7 +506,10 @@ namespace pr_ref_gen
                         }
                     }
                     else{
-                        std::cout << "El punto inicial o final no es fisicamente alcanzable" << std::endl;
+                        if ((verif_ini.cwiseAbs()).sum()!=0)
+                            std::cout << "El punto inicial no es fisicamente alcanzable: " << verif_ini.transpose() << ", x ini: " << x_ini.transpose() << std::endl;
+                        if ((verif_fin.cwiseAbs()).sum()!=0)
+                            std::cout << "El punto final no es fisicamente alcanzable: " << verif_fin.transpose() << ", x fin: " << x_fin.transpose() << std::endl;
                     }
                 }
                 else{

@@ -15,7 +15,7 @@ PRMocap::Force_sensor_data::Force_sensor_data(std::vector<std::string> force_sen
     if (!onRobot) r_2_0 << 90.0/1000, 130.0/1000, 24.0/1000;
     else{
         if (!robot_5p) r_2_0 << 0.0, 200.0/1000, -75.7/1000;
-        //else // Left to implement
+        else r_2_0 << -320.44/1000.0, 150.0/1000.0, -13.4/1000.0;
     }
 }
 
@@ -313,15 +313,23 @@ void PRMocap::Mocap::force_sensor_origin(){
         Eigen::Vector3d col1 = r_markers.col(0);
         Eigen::Vector3d col2 = r_markers.col(1);
         Eigen::Vector3d col3 = r_markers.col(2);
-        if (force_sensor_option == ForceSensorOptions::OnRobot){
+        if (force_sensor_option == ForceSensorOptions::OnRobot && robot_option == RobotOptions::Robot3ups){
             unit_i = (col2-col1)/(col2-col1).norm();
             unit_j = (col3-col1)/(col3-col1).norm();
+            unit_k = unit_i.cross(unit_j);
+        }
+        else if (force_sensor_option == ForceSensorOptions::OnRobot && robot_option == RobotOptions::Robot5p){
+            unit_i = (col1-col2)/(col1-col2).norm();
+            Eigen::Vector3d aux = (col1-col3).cross(unit_i);
+            unit_k = aux/(aux.norm());
+            unit_j = unit_k.cross(unit_i);
         }
         else if (force_sensor_option == ForceSensorOptions::OffRobot){
             unit_i = (col1-col2)/(col1-col2).norm();
             unit_j = (col3-col2)/(col3-col2).norm();
+            unit_k = unit_i.cross(unit_j);
         }
-        unit_k = unit_i.cross(unit_j);
+        
 
         // Rotation matrix
         force_sensor_data->R_Sensor << unit_i, unit_j, unit_k;

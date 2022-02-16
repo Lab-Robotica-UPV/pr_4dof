@@ -15,7 +15,7 @@ namespace pr_biomech
         this->declare_parameter<std::string>("cal_data_file","/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose_calibration.txt");
         this->declare_parameter<std::string>("gdlf_data_file","/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose_CoefOffline_Data.txt");
         this->declare_parameter<std::string>("output_data_file","/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose_output_Data");
-        this->declare_parameter<int>("robot_option",1);
+        this->declare_parameter<int>("robot_option",2);
         this->declare_parameter<int>("force_sensor_option",1);
         this->declare_parameter<bool>("human_option",true);
 
@@ -93,7 +93,13 @@ namespace pr_biomech
             for (int i=0; i<3; i++){
                 force(i) = force_state_msg->force[i];
                 torque(i) = force_state_msg->momentum[i];
+
+                Data.input.forces.col(GlobalCnt)(i) = force(i);
+                Data.input.forces.col(GlobalCnt)(i+3) = torque(i);
             }
+
+            Data.input.robot_markers.middleCols(GlobalCnt*mocap_object->robot_data->markers_name.size(), mocap_object->robot_data->markers_name.size()) = mocap_object->robot_data->MarkersMatrix;
+            Data.input.human_markers.middleCols(GlobalCnt*mocap_object->human_data->markers_name.size(), mocap_object->human_data->markers_name.size()) = mocap_object->human_data->MarkersMatrix;
 
             // // Recoger R_sensor, r_sensor, marcadores humano
 
@@ -197,6 +203,7 @@ namespace pr_biomech
             //Data.print_data();
             // rclcpp::Time time6 = this->get_clock()->now();
 
+            gen_force_knee_msg.header.stamp = force_state_msg->header.stamp;
             gen_force_knee_msg.header.frame_id = force_state_msg->header.frame_id;
             gen_force_knee_msg.data = Data.GenForceKneeFlxExt(GlobalCnt);
 
@@ -205,10 +212,10 @@ namespace pr_biomech
             gen_force_knee_msg.current_time = this->get_clock()->now();
             publisher_->publish(gen_force_knee_msg);
 
-            double time_init = gen_force_knee_msg.init_time.sec + gen_force_knee_msg.init_time.nanosec*1e-9;
-            double time_current = gen_force_knee_msg.current_time.sec + gen_force_knee_msg.current_time.nanosec*1e-9;
-            double msec = (time_current - time_init)*1000;
-            std::cout << msec << std::endl;
+            // double time_init = gen_force_knee_msg.init_time.sec + gen_force_knee_msg.init_time.nanosec*1e-9;
+            // double time_current = gen_force_knee_msg.current_time.sec + gen_force_knee_msg.current_time.nanosec*1e-9;
+            // double msec = (time_current - time_init)*1000;
+            // std::cout << msec << std::endl;
             //double dur1 = time1.sec*1000 + time1.nanosec*1e-6 - time0.sec*1000 - time0.nanosec*1e-6;
             // double dur1 = time1.nanoseconds()*1e-6 - init.nanoseconds()*1e-6;
             // double dur2 = time2.nanoseconds()*1e-6 - time1.nanoseconds()*1e-6;
@@ -272,9 +279,13 @@ namespace pr_biomech
         vector2ss("F_OnTibUc", Data.F_OnTibUc, ss); ss << ",";
         vector2ss("F_OnTibUt", Data.F_OnTibUt, ss); ss << ",";
         vector2ss("F_ACL", Data.F_ACL, ss); ss << ",";
-        vector2ss("F_PCL", Data.F_PCL, ss);
+        vector2ss("F_PCL", Data.F_PCL, ss); ss << ",";
 
-        ss << "}";
+        ss << "\"input\":{";
+        matrix2ss("forces", Data.input.forces, ss); ss << ",";
+        matrix2ss("robot_markers", Data.input.robot_markers, ss); ss << ",";
+        matrix2ss("human_markers", Data.input.human_markers, ss);
+        ss << "}}";
 
         Document d;
         d.SetObject();
@@ -405,6 +416,9 @@ void pr_biomech::StreamingGDLF::initialization() {
     Data.F_ACL = Eigen::VectorXd::Zero(num_samples);
     Data.F_PCL = Eigen::VectorXd::Zero(num_samples);
     Data.Frame = Eigen::VectorXi::Zero(num_samples);
+    Data.input.forces = Eigen::MatrixXd::Zero(6, num_samples);
+    Data.input.robot_markers = Eigen::MatrixXd::Zero(3, num_samples*mocap_object->robot_data->markers_name.size());
+    Data.input.human_markers = Eigen::MatrixXd::Zero(3, num_samples*mocap_object->human_data->markers_name.size());
 
     Piel.LASIS = Eigen::MatrixXd::Zero(3, num_samples);
     Piel.RASIS = Eigen::MatrixXd::Zero(3, num_samples);

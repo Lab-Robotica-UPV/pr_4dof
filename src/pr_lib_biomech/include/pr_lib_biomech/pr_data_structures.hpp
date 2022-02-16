@@ -109,6 +109,12 @@ namespace PRDataStructures{
             pie_struct pie;
         };
 
+        struct input_struct {
+            Matrix<double, 6, Dynamic> forces;
+            Matrix<double, 3, Dynamic> robot_markers;
+            Matrix<double, 3, Dynamic> human_markers;
+        };
+
         ang_struct ang;
         VectorXd Time;
         std::string Date;
@@ -121,6 +127,7 @@ namespace PRDataStructures{
         Matrix<double,10,Dynamic> ExtCoefMatRed;
         VectorXd F_OnTibUc, F_OnTibUt, F_ACL, F_PCL;
         VectorXi Frame;
+        input_struct input;
 
         void print_data();
     };

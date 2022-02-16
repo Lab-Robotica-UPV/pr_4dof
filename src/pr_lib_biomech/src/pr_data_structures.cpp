@@ -123,6 +123,9 @@ void Data_struct::print_data() {
 	cout << "F_ACL: " << F_ACL(0) << endl;
 	cout << "F_PCL: " << F_PCL(0) << endl;
 	cout << "Frame: " << Frame(0) << endl;
+	cout << "input.forces: " << input.forces.col(0).transpose() << endl;
+	cout << "input.robot_markers: " << input.robot_markers.col(0).transpose() << endl;
+	cout << "input.human_markers: " << input.human_markers.col(0).transpose() << endl;
 	cout << "--------Data_struct (first elems) end ---------\n" << endl;
 
 }

@@ -14,11 +14,11 @@
 
 namespace PRLimits {
 
-    Eigen::Matrix<double,4,2> LimActuators(void);
+    Eigen::Matrix<double,4,2> LimActuators(bool robot_5p = false);
 
-    Eigen::Vector4d LimAngles(void);
+    Eigen::Vector4d LimAngles(bool robot_5p = false);
 
-    Eigen::Matrix<int,7,1> VerFactPos(const std::array<double, 4> &X, const std::vector<double> &RParam);
+    Eigen::Matrix<int,7,1> VerFactPos(const std::array<double, 4> &X, const std::vector<double> &RParam, bool robot_5p = false);
 
     Eigen::Vector4d AngPatas(const double &theta, const Eigen::Matrix<double,4,3> &q);
 }

@@ -1,10 +1,20 @@
 #include "pr_lib/pr_limits.hpp"
 #include "pr_lib/pr_model.hpp"
 
-Eigen::Matrix<double,4,2> PRLimits::LimActuators(void) {
+Eigen::Matrix<double,4,2> PRLimits::LimActuators(bool robot_5p) {
 
-    double q13_lim_ini=0.6537, q23_lim_ini=0.6474, q33_lim_ini=0.6502, q42_lim_ini=0.549;
-	double q_desp_max=0.28;
+	double q13_lim_ini, q23_lim_ini, q33_lim_ini, q42_lim_ini;
+	double q_desp_max;
+
+	if (!robot_5p){
+		q13_lim_ini=0.6537; q23_lim_ini=0.6474; q33_lim_ini=0.6502; q42_lim_ini=0.549;
+		q_desp_max=0.28;
+	}
+
+	else{
+		q13_lim_ini=0.781, q23_lim_ini=0.777, q33_lim_ini=0.779, q42_lim_ini=0.707;
+		q_desp_max=0.38;
+	} 
 
 	Eigen::Matrix<double,4,2> Mlim_q_ind;
 
@@ -16,9 +26,18 @@ Eigen::Matrix<double,4,2> PRLimits::LimActuators(void) {
 	return Mlim_q_ind;
 }
 
-Eigen::Vector4d PRLimits::LimAngles(void) {
+Eigen::Vector4d PRLimits::LimAngles(bool robot_5p) {
     
-	int a_esf_max=38, a_uni_max=90;
+	int a_esf_max, a_uni_max;
+
+	if (!robot_5p){
+		a_esf_max=38; a_uni_max=90;
+	}
+
+	else{
+		a_esf_max=45; a_uni_max=90;
+	}
+
 	Eigen::Vector4d Vlim_Angp;
 
 	Vlim_Angp << a_esf_max, a_esf_max, a_esf_max, a_uni_max;
@@ -26,7 +45,7 @@ Eigen::Vector4d PRLimits::LimAngles(void) {
 	return Vlim_Angp;
 }
 
-Eigen::Matrix<int,7,1> PRLimits::VerFactPos(const std::array<double, 4> &X, const std::vector<double> &RParam){
+Eigen::Matrix<int,7,1> PRLimits::VerFactPos(const std::array<double, 4> &X, const std::vector<double> &RParam, bool robot_5p){
 
 	// A partir de la posicion (Xm, Zm) y la orientacion (Theta y Psi) del 
 	// centro de la plataforma se determina si es factible llegar a ese punto.
@@ -53,8 +72,8 @@ Eigen::Matrix<int,7,1> PRLimits::VerFactPos(const std::array<double, 4> &X, cons
 	solAngP *= 180/M_PI;
 
 	// Limites
-	Eigen::Matrix<double,4,2> Mlim_q_ind = LimActuators();
-	Eigen::Vector4d Vlim_Angp = LimAngles();
+	Eigen::Matrix<double,4,2> Mlim_q_ind = LimActuators(robot_5p);
+	Eigen::Vector4d Vlim_Angp = LimAngles(robot_5p);
 
 
 	// Verificacion actuadores y juntas esfericas

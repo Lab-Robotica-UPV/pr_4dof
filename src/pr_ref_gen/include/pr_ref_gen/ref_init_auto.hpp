@@ -35,7 +35,8 @@ namespace pr_ref_gen
             Eigen::MatrixXd ref_matrix_x;
             //Eigen::MatrixXd ref_matrix_q;
 
-
+            // Robot boolean (if true, is robot_5p)
+            bool robot_5p;
             // Iteration for cameras and encodr
             int idx=0;
             // Number of samples
