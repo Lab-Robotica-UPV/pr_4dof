@@ -81,9 +81,13 @@ namespace pr_dmp
         publisher_x_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
 			"dmp_ref_gen_x", 
 			1);
-        // Publisher of the Force trajectory
-        publisher_force_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
-			"force_traj", 
+        // Publisher of the Init Force trajectory
+        publisher_force_init_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
+			"force_traj_init", 
+			1);
+        // Publisher of the Changed Force trajectory
+        publisher_force_changed_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
+			"force_traj_changed", 
 			1);
         // Publisher that ends the streaming
         publisher_end_ = this->create_publisher<std_msgs::msg::Bool>(
@@ -207,9 +211,12 @@ namespace pr_dmp
         s.resize(dmp_pos->dim());
         sd.resize(dmp_pos->dim());
         s_updated.resize(dmp_pos->dim());
-        s_force.resize(dmp_force->dim());
-        sd_force.resize(dmp_force->dim());
-        s_updated_force.resize(dmp_force->dim());
+        s_force_init.resize(dmp_force->dim());
+        sd_force_init.resize(dmp_force->dim());
+        s_updated_force_init.resize(dmp_force->dim());
+        s_force_changed.resize(dmp_force->dim());
+        sd_force_changed.resize(dmp_force->dim());
+        s_updated_force_changed.resize(dmp_force->dim());
 
         // Limit phase so that the exponential system lasts as much as the trajectory file (without stop conditions)
         if (dmp_pos->getAlphaPhase() != 0){
@@ -255,8 +262,10 @@ namespace pr_dmp
         auto ref_dmp_x_msg = pr_msgs::msg::PRArrayH();
         ref_dmp_x_msg.init_time = this->get_clock()->now();
         // Force message and init time
-        auto force_msg = pr_msgs::msg::PRArrayH();
-        force_msg.init_time = this->get_clock()->now();
+        auto force_init_msg = pr_msgs::msg::PRArrayH();
+        force_init_msg.init_time = this->get_clock()->now();
+        auto force_changed_msg = pr_msgs::msg::PRArrayH();
+        force_changed_msg.init_time = this->get_clock()->now();
 
         // Make sure we read the trajectory
         if (ref_read){
@@ -266,8 +275,11 @@ namespace pr_dmp
                 dmp_pos->integrateStart(s,sd);
                 s_pos = s.head(4);
                 if (force_read){
-                    dmp_force->integrateStart(s_force, sd_force);
-                    forces = s_force.head(4);
+                    dmp_force->integrateStart(s_force_changed, sd_force_changed);
+                    dmp_force->integrateStart(s_force_init, sd_force_init);
+                    forces_init = s_force_init.head(4);
+                    forces_changed = s_force_changed.head(4);
+                    //sd_force_init = sd_force_changed;
                 }
                 first_iter = false;
             }
@@ -292,9 +304,22 @@ namespace pr_dmp
                     s = s_updated;
                     s_pos = s.head(4);
                     if (force_read){
-                        dmp_force->integrateStepWithForceAndSlowDown(ts,s_force,s_updated_force,sd_force,force_force,force_vel,slowdown);
-                        s_force = s_updated_force;
-                        forces = s_force.head(4);
+                        dmp_force->integrateStepWithForceAndSlowDown(ts,s_force_init,s_updated_force_init,sd_force_init,Eigen::Vector4d::Zero(), Eigen::Vector4d::Zero(),slowdown);
+                        s_force_init = s_updated_force_init;
+                        forces_init = s_force_init.head(4);
+                        dmp_force->integrateStepWithForceAndSlowDown(ts,s_force_changed,s_updated_force_changed,sd_force_changed,force_force,force_vel,slowdown);
+                        s_force_changed = s_updated_force_changed;
+                        forces_changed = s_force_changed.head(4);
+                        // for (int i=0; i<4; i++){
+                        //     if (abs(forces_init(i)) < abs(forces_changed(i))){
+                        //         std::cout << "init: " << forces_init(i) << std::endl;
+                        //         std::cout << "changed: " << forces_changed(i) << std::endl;
+                        //         s_force_changed(i) = s_force_init(i);
+                        //         s_updated_force_changed(i) = s_updated_force_init(i);
+                        //         sd_force_changed(i) = sd_force_init(i);
+                        //         forces_changed(i) = forces_init(i);
+                        //     }
+                        // }
                     }
                 }
                 else{
@@ -346,12 +371,21 @@ namespace pr_dmp
                 }
 
                 if (force_read){
-                    for (int i=0; i<4; i++) force_msg.data[i] = forces[i];
-                    force_msg.header.stamp = pos_msg->header.stamp;
-                    force_msg.header.frame_id = pos_msg->header.frame_id;
+                    for (int i=0; i<4; i++){
+                        force_init_msg.data[i] = forces_init[i];
+                        force_changed_msg.data[i] = forces_changed[i];
+                    }
+                    force_init_msg.header.stamp = pos_msg->header.stamp;
+                    force_init_msg.header.frame_id = pos_msg->header.frame_id;
 
-                    force_msg.current_time = this->get_clock()->now();
-                    publisher_force_->publish(force_msg);
+                    force_changed_msg.header.stamp = pos_msg->header.stamp;
+                    force_changed_msg.header.frame_id = pos_msg->header.frame_id;
+
+                    force_init_msg.current_time = this->get_clock()->now();
+                    publisher_force_init_->publish(force_init_msg);
+
+                    force_changed_msg.current_time = this->get_clock()->now();
+                    publisher_force_changed_->publish(force_changed_msg);
                 }
 
                 // Prepare messages for publication

@@ -8,6 +8,8 @@ from numpy import fromstring
 
 import yaml
 
+from datetime import datetime
+
 def generate_launch_description():
 
     """Generate launch description with multiple components."""
@@ -116,15 +118,18 @@ def generate_launch_description():
                     node_name='streaming_GDLF',
                     remappings=[
                         ("force_state_sync", "force_state_sync"),
+                        ("generalized_force_knee", "generalized_force_knee"),
+                        ("f_opt_ref", "ref_force")
                     ],
                     parameters=[
                         {"num_samples": data['general']['num_samples']},
-                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Mannequin_calibration.txt"},
-                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Mannequin_CoefOffline_Data.txt"},
-                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Mannequin_output_Data"},
+                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Alejandro1_calibration.txt"},
+                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Alejandro1_CoefOffline_Data.txt"},
+                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Alejandro1_output_Data"},
                         {"robot_option": 2},
                         {"force_sensor_option": 1},
-                        {"human_option": True}
+                        {"human_option": True},
+                        {"musculo_Obj": "RecFem12_1"}
                     ]
                 ),
                 ComposableNode(
@@ -141,6 +146,18 @@ def generate_launch_description():
                         {"noise_threshold": data['force']['noise_threshold']}
                     ]
                 ),
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapRecorder',
+                #     node_name='ref_x_mocap_recorder',
+                #     remappings=[
+                #         ("end_flag", "end_flag"),
+                #         ("joint_position", "joint_position")
+                #     ],
+                #     parameters=[
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_alejandro"}
+                #     ]
+                # ),
                 ComposableNode(
                     package='pr_sensors_actuators',
                     node_plugin='pr_sensors_actuators::Encoders',

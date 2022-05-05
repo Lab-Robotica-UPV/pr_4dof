@@ -65,6 +65,27 @@ namespace pr_controllers
 
     }
 
+    PIDController::~PIDController(){
+        // For performance indices
+        index_error = index_error/iter;
+        index_action = index_action/(iter-1);
+        Je = index_error.sum()/4;
+        Ju = index_action.sum()/4;
+        std::cout << "Kp: ";
+        for (int i=0; i<4; i++) std::cout << Kp[i] << " ";
+        std::cout << std::endl;
+        std::cout << "Kv: ";
+        for (int i=0; i<4; i++) std::cout << Kv[i] << " ";
+        std::cout << std::endl;
+        std::cout << "Ki: ";
+        for (int i=0; i<4; i++) std::cout << Ki[i] << " ";
+        std::cout << std::endl;
+        std::cout << "indices error: " << index_error.transpose() << std::endl;
+        std::cout << "indices action: " << index_action.transpose() << std::endl;
+        std::cout << "Je: " << Je << std::endl;
+        std::cout << "Ju: " << Ju << std::endl;
+    }
+
     void PIDController::ref_callback(const pr_msgs::msg::PRArrayH::SharedPtr ref_msg)
     {
         PRUtils::ArRMsg2Eigen(ref_msg, ref);
@@ -107,6 +128,12 @@ namespace pr_controllers
             PRUtils::Eigen2ArMsg(proportional_action, proportional_action_msg);
             PRUtils::Eigen2ArMsg(derivative_action, derivative_action_msg);
             PRUtils::Eigen2ArMsg(integral_action, integral_action_msg);
+
+            // For performance indices
+            index_error = index_error + e.cwiseAbs();
+            if (iter!=0) index_action = index_action + (control_action-control_action_ant).cwiseAbs();
+            iter++;
+            control_action_ant = control_action;
 
             control_action_msg.header.stamp = pos_msg->header.stamp;
             control_action_msg.header.frame_id = pos_msg->header.frame_id;

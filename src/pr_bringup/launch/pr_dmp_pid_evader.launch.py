@@ -158,10 +158,13 @@ def generate_launch_description():
                         {"lmin_Ang_OTS": data['sing']['lmin_Ang_OTS']},
                         {"lmin_FJac": data['sing']['lmin_FJac']},
                         {"ts": data['general']['ts']},
-                        {"base_inc_force_jac": data['dmp']['spring'][0]*0.0004},
-                        {"base_inc_force_OTS": data['dmp']['spring'][0]*0.0004},
-                        {"dec_force_jac": data['dmp']['spring'][0]*0.0004/20.0},
-                        {"dec_force_OTS": data['dmp']['spring'][0]*0.0004/20.0},
+                        {"max_force": 150.0},
+                        {"gain_rate": 0.015},
+                        {"beta": 0.1}
+                        # {"base_inc_force_jac": data['dmp']['spring'][0]*0.0004},
+                        # {"base_inc_force_OTS": data['dmp']['spring'][0]*0.0004},
+                        # {"dec_force_jac": data['dmp']['spring'][0]*0.0004/20.0},
+                        # {"dec_force_OTS": data['dmp']['spring'][0]*0.0004/20.0},
                     ]
                 ),
                 

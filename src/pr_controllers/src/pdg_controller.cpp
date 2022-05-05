@@ -53,6 +53,24 @@ namespace pr_controllers
 
     }
 
+    PDGController::~PDGController(){
+        // For performance indices
+        index_error = index_error/iter;
+        index_action = index_action/(iter-1);
+        Je = index_error.sum()/4;
+        Ju = index_action.sum()/4;
+        std::cout << "Kp: ";
+        for (int i=0; i<4; i++) std::cout << Kp[i] << " ";
+        std::cout << std::endl;
+        std::cout << "Kv: ";
+        for (int i=0; i<4; i++) std::cout << Kv[i] << " ";
+        std::cout << std::endl;
+        std::cout << "indices error: " << index_error.transpose() << std::endl;
+        std::cout << "indices action: " << index_action.transpose() << std::endl;
+        std::cout << "Je: " << Je << std::endl;
+        std::cout << "Ju: " << Ju << std::endl;
+    }
+
     void PDGController::controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
                                             const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg)
     {
@@ -65,6 +83,17 @@ namespace pr_controllers
             for(int i=0; i<4; i++)
                 control_action_msg.data[i] = Kp[i]*(ref.data[i] - pos_msg->data[i]) - Kv[i]*vel_msg->data[i] + grav.data[i];
 
+            
+            // For performance indices
+            for (int i=0; i<4; i++){
+                e(i) = ref.data[i] - pos_msg->data[i];
+                control_action(i) = control_action_msg.data[i];
+            }
+            index_error = index_error + e.cwiseAbs();
+            if (iter!=0) index_action = index_action + (control_action-control_action_ant).cwiseAbs();
+            iter++;
+            control_action_ant = control_action;
+            
             control_action_msg.header.stamp = pos_msg->header.stamp;
             control_action_msg.header.frame_id = pos_msg->header.frame_id + ", " + vel_msg->header.frame_id;
 

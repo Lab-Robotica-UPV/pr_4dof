@@ -25,6 +25,8 @@ void PRMocap::Data::print_data(){
     for (int i=0; i<markers_name.size(); i++){
         std::cout << markers_name[i] << ": " << markers[i] << std::endl;
     }
+    std::cout << "MarkersMatrix: " << std::endl;
+    std::cout << MarkersMatrix << std::endl;
     std::cout << "\n" << std::endl;
 }
 
@@ -342,11 +344,12 @@ void PRMocap::Mocap::force_sensor_origin(){
         }
 
         //Vector of the location of the force sensor
-        if (force_sensor_option == ForceSensorOptions::OnRobot)
+        if (force_sensor_option == ForceSensorOptions::OnRobot){
             force_sensor_data->r_Sensor = r_markers.col(0) + (force_sensor_data->R_Sensor*force_sensor_data->r_2_0);
-        else if (force_sensor_option == ForceSensorOptions::OffRobot)
+        }
+        else if (force_sensor_option == ForceSensorOptions::OffRobot){
             force_sensor_data->r_Sensor = r_markers.col(1) + (force_sensor_data->R_Sensor*force_sensor_data->r_2_0);
-
+        }
     }
     
 }

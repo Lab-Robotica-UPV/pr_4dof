@@ -26,6 +26,11 @@ damping: [100.0, 100.0, 100.0, 100.0]
 spring: [1000.0, 1000.0, 1000.0, 1000.0]
 mass: [2.5, 2.5, 2.5, 2.5]
 
+# Valores para el DMP de admitancia, con ganancia [1/250, 1/500, 1/25, 1/25] y Te=[4 2 4 4]
+damping_adm: [500.0, 500.0, 50.0, 50.0]
+spring_adm: [250.0, 500.0, 25.0, 25.0]
+mass_adm: [250.0, 125.0, 25.0, 25.0]
+
 # Valores que se deben colocar en la funcion intermedia H(s) para hacer un modelo de admitancia
 # con polos mas lentos que el DMP que permiten modificar el comportamiento del DMP
 # para el seguimiento de fuerzas. Estos parametros se han calculado como:

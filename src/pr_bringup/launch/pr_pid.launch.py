@@ -112,14 +112,30 @@ def generate_launch_description():
 
                 # ComposableNode(
                 #     package='pr_mocap',
-                #     node_plugin='pr_mocap::PRXMocapRecorder',
-                #     node_name='ref_x_mocap_recorder',
+                #     node_plugin='pr_mocap::PRXMocap',
+                #     node_name='mocap',
                 #     remappings=[
-                #         ("end_flag", "end_flag"),
-                #         ("joint_position", "joint_position")
+                #         ("x_coord_mocap", "x_coord_mocap")
                 #     ],
                 #     parameters=[
-                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_all_legs"}
+                #         {"server_address": data['mocap_server']["server_address"]},
+                #         {"server_command_port": data['mocap_server']["server_command_port"]},
+                #         {"server_data_port": data['mocap_server']["server_data_port"]},
+                #         {"marker_names":  data['mocap_server']["marker_names"]},
+                #         {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapSynchronizer',
+                #     node_name='mocap_synchronizer',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("x_mocap_sync", "x_mocap_sync")
+                #     ],
+                #     parameters=[
+                #         {"tol": 0.01}
                 #     ]
                 # ),
 
@@ -128,11 +144,15 @@ def generate_launch_description():
                 #     node_plugin='pr_sensors_actuators::ForceSensor',
                 #     node_name='force_sensor',
                 #     remappings=[
+                #         ("joint_position", "joint_position"),
                 #         ("force_state", "force_state"),
-                #         ("force_state_accelstamped", "force_state_accelstamped"),
                 #         ("force_state_sync", "force_state_sync"),
-                #         ("joint_position", "joint_position")
+                #         ("force_state_accelstamped", "force_state_accelstamped")
                 #     ],
+                #     parameters=[
+                #         {"calibration": data['force']['calibration']},
+                #         {"noise_threshold": data['force']['noise_threshold']}
+                #     ]
                 # ),
 
                 ComposableNode(

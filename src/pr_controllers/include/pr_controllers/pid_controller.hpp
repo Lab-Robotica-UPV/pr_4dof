@@ -20,6 +20,7 @@ namespace pr_controllers
         public:
             //PR_COONTROLLERS_PUBLIC
             explicit PIDController(const rclcpp::NodeOptions & options);
+            ~PIDController();
 
         protected:
 
@@ -52,6 +53,13 @@ namespace pr_controllers
 
             bool init_ref = false;
             bool first_iter = true;
+
+            // For calculation of performance indices
+            int iter = 0;
+            Eigen::Vector4d control_action_ant;
+            Eigen::Vector4d index_error = Eigen::Vector4d::Zero();
+            Eigen::Vector4d index_action = Eigen::Vector4d::Zero();
+            double Je, Ju;
     };
 }
 

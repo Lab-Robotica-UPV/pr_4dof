@@ -64,9 +64,9 @@ void pr_biomech::StreamingGDLF::MusForceOpt2_Anta_Coef_Guard_Red() {
 	Matrix<double, 1, 10> ExtCoefMatRed = InterCoef(q(4), gdlf_data->q5.segment(q5ind(0), 2), gdlf_data->AllExtCoefMat2.middleCols(q5ind(0), 2));
 	Matrix<double, 1, 9> PatLigCoef = InterCoef(q(4), gdlf_data->q5.segment(q5ind(0), 2), gdlf_data->PatLigCoefMat.middleCols(q5ind(0), 2));
 	//Prints for verification --------------------------------------Borrar al final
-	//std::cout  << "FlxCoefMatRed:\t" << FlxCoefMatRed << std::endl;
-	//std::cout << "ExtCoefMatRed:\t" << ExtCoefMatRed << std::endl;
-	//std::cout << "PatLigCoef:\t" << PatLigCoef << std::endl;
+	// std::cout  << "FlxCoefMatRed:\t" << FlxCoefMatRed << std::endl;
+	// std::cout << "ExtCoefMatRed:\t" << ExtCoefMatRed << std::endl;
+	// std::cout << "PatLigCoef:\t" << PatLigCoef << std::endl;
 
 	//Number of intervals for Flextion-Extention
 	std::string  FrstActive;
@@ -146,7 +146,7 @@ void pr_biomech::StreamingGDLF::MusForceOpt2_Anta_Coef_Guard_Red() {
 		lb.resize(1, dof);
 		lb.fill(0);
 		//Prints for verification --------------------------------------Borrar al final
-		//std::cout << "MusForceEstOpt:\t" << MusForceEstOpt << std::endl;
+		// std::cout << "MusForceEstOpt:\t" << MusForceEstOpt << std::endl;
 		//Linear constraint equations
 		Aeq = CoefMatRed;
 		for (int c1 = 0; c1 < Aeq.cols(); c1++) {
@@ -164,8 +164,8 @@ void pr_biomech::StreamingGDLF::MusForceOpt2_Anta_Coef_Guard_Red() {
 		MusForceEstOpt = auxnumMusForceEstOpt.array() / auxdenMusForceEstOpt.sum();
 		MusEstresEstOpt = MusForceEstOpt.array() / MusArea.array();
 		//Prints for verification --------------------------------------Borrar al final
-		//std::cout << "CalculoMusForceEstOpt:\t" << MusForceEstOpt << std::endl;
-		//std::cout << "CalculoMusEstresEstOpt:\t" << MusEstresEstOpt << std::endl;
+		// std::cout << "CalculoMusForceEstOpt:\t" << MusForceEstOpt << std::endl;
+		// std::cout << "CalculoMusEstresEstOpt:\t" << MusEstresEstOpt << std::endl;
 		//Selection of the Optimal forces
 		if (FlxActive) {
 			ExtMusForceEstOpt = MusForceEstOpt;
@@ -179,10 +179,10 @@ void pr_biomech::StreamingGDLF::MusForceOpt2_Anta_Coef_Guard_Red() {
 	//std::cout  << "FlxMusForceEstOpt:\t" << FlxMusForceEstOpt << std::endl;
 	//std::cout << "ExtMusForceEstOpt:\t" << ExtMusForceEstOpt << std::endl;
 
-	//Force in the paterllar ligament
+	//Force in the patellar ligament
 	double PatLig = ExtMusForceEstOpt.segment(0, 9) * PatLigCoef.transpose();
 	//Prints for verification --------------------------------------Borrar al final
-	//std::cout << "CalPatlig:\t" << PatLig << std::endl;
+	// std::cout << "CalPatlig:\t" << PatLig << std::endl;
 
 	//Forces in the flexor muscles
 	forLigForceCal.FlxActiveOrg = FlxActiveOrg;

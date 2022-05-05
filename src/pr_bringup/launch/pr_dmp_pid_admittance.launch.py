@@ -100,9 +100,9 @@ def generate_launch_description():
                         {"calcCart": True},
                         {"ref_x_init": data['general']['init_x']},
                         {"robot_config_params": data['config_params']['geometry']},
-                        {"damping_coefficient": data['dmp']['damping']},
-                        {"spring_constant": data['dmp']['spring']},
-                        {"mass": data['dmp']['mass']},
+                        {"damping_coefficient": data['force']['admittance_params']['damping']},
+                        {"spring_constant": data['force']['admittance_params']['stiffness']},
+                        {"mass": data['force']['admittance_params']['mass']},
                         {"speed": data['dmp']['speed']},
                         {"gain_slowdown": data['dmp']['gain_slowdown']}
                     ]

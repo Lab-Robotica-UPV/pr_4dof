@@ -180,6 +180,23 @@ ament_target_dependencies(matrix_mult
 rclcpp_components_register_nodes(matrix_mult "pr_aux::MatrixMult")
 set(node_plugins "${node_plugins}pr_aux::MatrixMult;$<TARGET_FILE:MatrixMult>\n")
 
+### Element_wise_mult node ###
+
+add_library(element_wise_mult SHARED
+  src/element_wise_mult.cpp)
+
+target_compile_definitions(element_wise_mult
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(element_wise_mult
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib")
+
+rclcpp_components_register_nodes(element_wise_mult "pr_aux::ElementWiseMult")
+set(node_plugins "${node_plugins}pr_aux::ElementWiseMult;$<TARGET_FILE:ElementWiseMult>\n")
+
 
 ### Installation ###
 
@@ -192,6 +209,7 @@ install(TARGETS
   displayer
   saturator
   matrix_mult
+  element_wise_mult
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

@@ -124,8 +124,24 @@ void Data_struct::print_data() {
 	cout << "F_PCL: " << F_PCL(0) << endl;
 	cout << "Frame: " << Frame(0) << endl;
 	cout << "input.forces: " << input.forces.col(0).transpose() << endl;
-	cout << "input.robot_markers: " << input.robot_markers.col(0).transpose() << endl;
-	cout << "input.human_markers: " << input.human_markers.col(0).transpose() << endl;
+	cout << "input.LASIS: " << input.LASIS.col(0).transpose() << endl;
+	cout << "input.RASIS: " << input.RASIS.col(0).transpose() << endl;
+	cout << "input.LPSIS: " << input.LPSIS.col(0).transpose() << endl;
+	cout << "input.RPSIS: " << input.RPSIS.col(0).transpose() << endl;
+	cout << "input.RLE: " << input.RLE.col(0).transpose() << endl;
+	cout << "input.RME: " << input.RME.col(0).transpose() << endl;
+	cout << "input.RHF: " << input.RHF.col(0).transpose() << endl;
+	cout << "input.RLM: " << input.RLM.col(0).transpose() << endl;
+	cout << "input.RMM: " << input.RMM.col(0).transpose() << endl;
+	cout << "input.RCA: " << input.RCA.col(0).transpose() << endl;
+	cout << "input.RFM: " << input.RFM.col(0).transpose() << endl;
+	cout << "input.RVM: " << input.RVM.col(0).transpose() << endl;
+	cout << "input.P_Movil_1: " << input.P_Movil_1.col(0).transpose() << endl;
+	cout << "input.P_Movil_2: " << input.P_Movil_2.col(0).transpose() << endl;
+	cout << "input.P_Movil_3: " << input.P_Movil_3.col(0).transpose() << endl;
+	cout << "input.P_Fija_1: " << input.P_Fija_1.col(0).transpose() << endl;
+	cout << "input.P_Fija_2: " << input.P_Fija_2.col(0).transpose() << endl;
+	cout << "input.P_Fija_3: " << input.P_Fija_3.col(0).transpose() << endl;
 	cout << "--------Data_struct (first elems) end ---------\n" << endl;
 
 }

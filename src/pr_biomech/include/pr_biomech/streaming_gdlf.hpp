@@ -10,6 +10,7 @@
 #include "pr_lib_biomech/pr_mocap.hpp"
 #include "pr_lib_biomech/pr_data_structures.hpp"
 #include "pr_lib_biomech/pr_algebra_fun.hpp"
+#include "pr_lib_biomech/pr_biomech_fun.hpp"
 
 // JSON writer from rapidjson library
 #include "filewritestream.h"
@@ -24,6 +25,8 @@
 
 #include "pr_msgs/msg/pr_force_state.hpp"
 #include "pr_msgs/msg/pr_float_h.hpp"
+#include "pr_msgs/msg/pr_array_h.hpp"
+
 
 namespace pr_biomech
 {
@@ -41,6 +44,7 @@ namespace pr_biomech
             void CalConst_Pau2(); // Calculation of Subject Central System (SCS) of the model segments
             void CalTheta2Theta3(); // Calculation of Theta2 and Theta3
             void CalLigForceAnta_Pau(); // Calculation of ligaments
+            void FOpt(); // Calculation of Optimal Force
             
             //Calculos de dinamica
             void DynamicsHerz_Pau();
@@ -58,7 +62,8 @@ namespace pr_biomech
 
         private:
             rclcpp::Subscription<pr_msgs::msg::PRForceState>::SharedPtr subscription_;
-            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_gen_force_knee;
+            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_F_opt_ref;
 
             // PARAMETERS
             // Archivos de lectura y escritura de la struct Data
@@ -69,6 +74,8 @@ namespace pr_biomech
             // Recogida de datos de las camaras
             int robot_option, force_sensor_option;
             bool human_option;
+            // Musculo que se desea controlar
+            std::string musculo_Obj;
 
             // Datos de entrada
             std::unique_ptr<PRJsonData::PRJsonCal::Calibration_data_struct> cal_data;
@@ -149,6 +156,22 @@ namespace pr_biomech
 
             // Salida del calculo muscular
             PRDataStructures::forLigForceCal_struct forLigForceCal;
+
+            // Nombre de los musculos para FOpt
+            std::vector<std::string> Flx_name {"BicFemCB","GastLat","GastMed","BicFemCL","SemTend","SemMem","Sat","Gra"};
+            std::vector<std::string> Ext_name {"TenFacLat","VasInt123","VasMedInf12","VasMedMed12","VasMedSup34","VasLatSup12","VasInt456","VasLatInf4","RecFem12_1","RecFem12_2"};
+
+            // Fuerza o par generalizado para FOpt
+            double Obj;
+
+            // Salida de FOpt
+            // Respecto del sistema de camaras global
+            Eigen::Vector3d Fext_Opt = Eigen::Vector3d::Zero();
+            // Respecto del sistema del sensor. 
+            Eigen::Vector3d Fext_Opt_Sensor;
+            // Fuerza de referencia (formato PRArrayH)
+            Eigen::Vector4d F_Opt_ref;
+    
     };
 }
 

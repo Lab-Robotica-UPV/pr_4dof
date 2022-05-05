@@ -27,6 +27,12 @@ namespace pr_dmp
             1,
             std::bind(&AdmittanceForce::force_callback, this, _1)
         );
+
+        subscription_activation_pin_ = this->create_subscription<pr_msgs::msg::PRBoolH>(
+            "activation_pin",
+            1,
+            std::bind(&AdmittanceForce::activation_pin_callback, this, _1)
+        );
     }
 
     void AdmittanceForce::ref_force_callback(const pr_msgs::msg::PRArrayH::SharedPtr ref_force_msg)
@@ -38,7 +44,7 @@ namespace pr_dmp
             f_admittance_msg.init_time = this->get_clock()->now();
 
             for (int i=0;i<4; i++)
-                f_admittance_msg.data[i] = -K_adm[i]*(ref_force_msg->data[i]-current_force(i));
+                f_admittance_msg.data[i] = -K_adm[i]*(ref_force_msg->data[i]-current_force(i))*activation_pin;
 
 
             f_admittance_msg.header.stamp = ref_force_msg->header.stamp;
@@ -58,6 +64,12 @@ namespace pr_dmp
         current_force(3) = force_msg->momentum[2];
         
         init_f = true;
+    }
+
+    void AdmittanceForce::activation_pin_callback(const pr_msgs::msg::PRBoolH::SharedPtr activation_pin_msg)
+    {
+        // Update the msg with the new force msg
+        activation_pin = activation_pin_msg->data;
     }
 }
 

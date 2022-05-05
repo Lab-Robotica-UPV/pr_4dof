@@ -80,7 +80,8 @@ ament_target_dependencies(pdg_controller
   "rclcpp_components"
   "message_filters"
   "pr_msgs"
-  "pr_lib")
+  "pr_lib"
+  "Eigen3")
 
 rclcpp_components_register_nodes(pdg_controller "pr_controllers::PDGController")
 set(node_plugins "${node_plugins}pr_controllers::PDGController;$<TARGET_FILE:pdg_controller>\n")

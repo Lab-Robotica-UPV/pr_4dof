@@ -11,13 +11,14 @@ namespace pr_biomech
     {
 
         //Parameter declaration
-        this->declare_parameter<int>("num_samples", 2000);
+        this->declare_parameter<int>("num_samples", 4);
         this->declare_parameter<std::string>("cal_data_file","/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose_calibration.txt");
         this->declare_parameter<std::string>("gdlf_data_file","/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose_CoefOffline_Data.txt");
         this->declare_parameter<std::string>("output_data_file","/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose_output_Data");
         this->declare_parameter<int>("robot_option",2);
         this->declare_parameter<int>("force_sensor_option",1);
         this->declare_parameter<bool>("human_option",true);
+        this->declare_parameter<std::string>("musculo_Obj","");
 
 
         this->get_parameter("num_samples", num_samples);
@@ -27,6 +28,7 @@ namespace pr_biomech
         this->get_parameter("robot_option", robot_option);
         this->get_parameter("force_sensor_option", force_sensor_option);
         this->get_parameter("human_option", human_option);
+        this->get_parameter("musculo_Obj",musculo_Obj);
 
         try{
             mocap_object = std::make_unique<PRMocap::Mocap>(robot_option, force_sensor_option, human_option);
@@ -45,7 +47,8 @@ namespace pr_biomech
             std::bind(&StreamingGDLF::force_callback, this, _1)
         );
 
-        publisher_ = this->create_publisher<pr_msgs::msg::PRFloatH>("generalized_force_knee", 1);
+        publisher_gen_force_knee = this->create_publisher<pr_msgs::msg::PRFloatH>("generalized_force_knee", 1);
+        publisher_F_opt_ref = this->create_publisher<pr_msgs::msg::PRArrayH>("f_opt_ref", 1);
 
         // Load Widths data
         Widths(0) = cal_data->Widths.Fem;
@@ -66,7 +69,10 @@ namespace pr_biomech
 
         // This function is also auxiliar and initializes with input data for the algorithm
         // Can only be activated if num_samples=4
-        //AUXILIAR_initialization(); //.....................................................................................................................AUXILIAR
+        // AUXILIAR_initialization(); //.....................................................................................................................AUXILIAR
+    
+        // Auxiliar assignment of Obj for debugging purposes
+        Obj = 10;
     }
 
     void StreamingGDLF::force_callback(const pr_msgs::msg::PRForceState::SharedPtr force_state_msg){
@@ -74,6 +80,8 @@ namespace pr_biomech
         // Ref mod message and init time
         auto gen_force_knee_msg = pr_msgs::msg::PRFloatH();
         gen_force_knee_msg.init_time = this->get_clock()->now();
+        auto f_opt_ref_msg = pr_msgs::msg::PRArrayH();
+        f_opt_ref_msg.init_time = this->get_clock()->now();
 
         // rclcpp::Time init = this->get_clock()->now();
 
@@ -98,10 +106,28 @@ namespace pr_biomech
                 Data.input.forces.col(GlobalCnt)(i+3) = torque(i);
             }
 
-            Data.input.robot_markers.middleCols(GlobalCnt*mocap_object->robot_data->markers_name.size(), mocap_object->robot_data->markers_name.size()) = mocap_object->robot_data->MarkersMatrix;
-            Data.input.human_markers.middleCols(GlobalCnt*mocap_object->human_data->markers_name.size(), mocap_object->human_data->markers_name.size()) = mocap_object->human_data->MarkersMatrix;
+            Data.input.LASIS.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(0);
+            Data.input.RASIS.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(1);
+            Data.input.LPSIS.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(2);
+            Data.input.RPSIS.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(3);
+            Data.input.RLE.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(4);
+            Data.input.RME.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(5);
+            Data.input.RHF.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(6);
+            Data.input.RLM.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(7);
+            Data.input.RMM.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(8);
+            Data.input.RCA.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(9);
+            Data.input.RFM.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(10);
+            Data.input.RVM.col(GlobalCnt) = mocap_object->human_data->MarkersMatrix.col(11);
+            Data.input.P_Movil_1.col(GlobalCnt) = mocap_object->robot_data->MarkersMatrix.col(0);
+            Data.input.P_Movil_2.col(GlobalCnt) = mocap_object->robot_data->MarkersMatrix.col(1);
+            Data.input.P_Movil_3.col(GlobalCnt) = mocap_object->robot_data->MarkersMatrix.col(2);
+            Data.input.P_Fija_1.col(GlobalCnt) = mocap_object->robot_data->MarkersMatrix.col(3);
+            Data.input.P_Fija_2.col(GlobalCnt) = mocap_object->robot_data->MarkersMatrix.col(4);
+            Data.input.P_Fija_3.col(GlobalCnt) = mocap_object->robot_data->MarkersMatrix.col(5);
+            // Data.input.robot_markers.middleCols(GlobalCnt*mocap_object->robot_data->markers_name.size(), mocap_object->robot_data->markers_name.size()) = mocap_object->robot_data->MarkersMatrix;
+            // Data.input.human_markers.middleCols(GlobalCnt*mocap_object->human_data->markers_name.size(), mocap_object->human_data->markers_name.size()) = mocap_object->human_data->MarkersMatrix;
 
-            // // Recoger R_sensor, r_sensor, marcadores humano
+            // Recoger R_sensor, r_sensor, marcadores humano
 
             // 1. Calcular G_Fext y G_Mext (con R_sensor)
             G_Fext = -mocap_object->force_sensor_data->R_Sensor * force;
@@ -139,6 +165,10 @@ namespace pr_biomech
             // 4. Con r_sensor, calcular Piel.Fext, G_r_G.Fext
             Piel.Fext.col(GlobalCnt) = mocap_object->force_sensor_data->r_Sensor;
             G_r_G.Fext = Piel.Fext.col(GlobalCnt);
+
+            // if (GlobalCnt %100 == 0){
+            //     mocap_object->human_data->print_data();
+            // }  //G_r_G.print_data();
 
             // // This part will be substituted by the mocap and force sensor readings......................................................................AUXILIAR
             // r_Sensor = Piel.Fext.col(GlobalCnt); //..............................................................................................................Substitute by mocap reading
@@ -203,14 +233,34 @@ namespace pr_biomech
             //Data.print_data();
             // rclcpp::Time time6 = this->get_clock()->now();
 
+            // // Calculo de la fuerza externa respecto del sistema global dado el objetivo
+            // FOpt();
+            // // std::cout << Fext_Opt.transpose() << std::endl;
+            // // Fuerza externa respecto del sistema del sensor
+            // Fext_Opt_Sensor = mocap_object->force_sensor_data->R_Sensor.transpose()*Fext_Opt;
+            // // Fuerza de referencia
+            // F_Opt_ref << Fext_Opt_Sensor(0), Fext_Opt_Sensor(1), Fext_Opt_Sensor(2), 0;
+
+            // std::cout << "Fext_Opt: " << Fext_Opt.transpose() << std::endl;
+            // std::cout << "Fext_Opt_Sensor: " << Fext_Opt_Sensor.transpose() << std::endl;
+
             gen_force_knee_msg.header.stamp = force_state_msg->header.stamp;
             gen_force_knee_msg.header.frame_id = force_state_msg->header.frame_id;
             gen_force_knee_msg.data = Data.GenForceKneeFlxExt(GlobalCnt);
 
+            f_opt_ref_msg.header.stamp = force_state_msg->header.stamp;
+            f_opt_ref_msg.header.frame_id = force_state_msg->header.frame_id;
+            for (int i=0; i<4; i++){
+                f_opt_ref_msg.data[i] = F_Opt_ref(i);
+            }
+            
             GlobalCnt++;
 
             gen_force_knee_msg.current_time = this->get_clock()->now();
-            publisher_->publish(gen_force_knee_msg);
+            publisher_gen_force_knee->publish(gen_force_knee_msg);
+
+            f_opt_ref_msg.current_time = this->get_clock()->now();
+            publisher_F_opt_ref->publish(f_opt_ref_msg);
 
             // double time_init = gen_force_knee_msg.init_time.sec + gen_force_knee_msg.init_time.nanosec*1e-9;
             // double time_current = gen_force_knee_msg.current_time.sec + gen_force_knee_msg.current_time.nanosec*1e-9;
@@ -272,7 +322,8 @@ namespace pr_biomech
         vector2ss("VasLatSup12", Data.VasLatSup12, ss); ss << ",";
         vector2ss("VasInt456", Data.VasInt456, ss); ss << ",";
         vector2ss("VasLatInf4", Data.VasLatInf4, ss); ss << ",";
-        vector2ss("RecFem12_1", Data.RecFem12_2, ss); ss << ",";
+        vector2ss("RecFem12_1", Data.RecFem12_1, ss); ss << ",";
+        vector2ss("RecFem12_2", Data.RecFem12_2, ss); ss << ",";
         vector2ss("TenFacLat", Data.TenFacLat, ss); ss << ",";
         matrix2ss("FlxCoefMatRed", Data.FlxCoefMatRed, ss); ss << ",";
         matrix2ss("ExtCoefMatRed", Data.ExtCoefMatRed, ss); ss << ",";
@@ -283,8 +334,26 @@ namespace pr_biomech
 
         ss << "\"input\":{";
         matrix2ss("forces", Data.input.forces, ss); ss << ",";
-        matrix2ss("robot_markers", Data.input.robot_markers, ss); ss << ",";
-        matrix2ss("human_markers", Data.input.human_markers, ss);
+        matrix2ss("LASIS", Data.input.LASIS, ss); ss << ",";
+        matrix2ss("RASIS", Data.input.RASIS, ss); ss << ",";
+        matrix2ss("LPSIS", Data.input.LPSIS, ss); ss << ",";
+        matrix2ss("RPSIS", Data.input.RPSIS, ss); ss << ",";
+        matrix2ss("RLE", Data.input.RLE, ss); ss << ",";
+        matrix2ss("RME", Data.input.RME, ss); ss << ",";
+        matrix2ss("RHF", Data.input.RHF, ss); ss << ",";
+        matrix2ss("RLM", Data.input.RLM, ss); ss << ",";
+        matrix2ss("RMM", Data.input.RMM, ss); ss << ",";
+        matrix2ss("RCA", Data.input.RCA, ss); ss << ",";
+        matrix2ss("RFM", Data.input.RFM, ss); ss << ",";
+        matrix2ss("RVM", Data.input.RVM, ss); ss << ",";
+        matrix2ss("P_Movil_1", Data.input.P_Movil_1, ss); ss << ",";
+        matrix2ss("P_Movil_2", Data.input.P_Movil_2, ss); ss << ",";
+        matrix2ss("P_Movil_3", Data.input.P_Movil_3, ss); ss << ",";
+        matrix2ss("P_Fija_1", Data.input.P_Fija_1, ss); ss << ",";
+        matrix2ss("P_Fija_2", Data.input.P_Fija_2, ss); ss << ",";
+        matrix2ss("P_Fija_3", Data.input.P_Fija_3, ss);
+        // matrix2ss("robot_markers", Data.input.robot_markers, ss); ss << ",";
+        // matrix2ss("human_markers", Data.input.human_markers, ss);
         ss << "}}";
 
         Document d;
@@ -417,8 +486,27 @@ void pr_biomech::StreamingGDLF::initialization() {
     Data.F_PCL = Eigen::VectorXd::Zero(num_samples);
     Data.Frame = Eigen::VectorXi::Zero(num_samples);
     Data.input.forces = Eigen::MatrixXd::Zero(6, num_samples);
-    Data.input.robot_markers = Eigen::MatrixXd::Zero(3, num_samples*mocap_object->robot_data->markers_name.size());
-    Data.input.human_markers = Eigen::MatrixXd::Zero(3, num_samples*mocap_object->human_data->markers_name.size());
+    Data.input.LASIS = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RASIS = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.LPSIS = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RPSIS = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RLE = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RME = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RHF = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RLM = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RMM = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RCA = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RFM = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.RVM = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.P_Movil_1 = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.P_Movil_2 = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.P_Movil_3 = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.P_Fija_1 = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.P_Fija_2 = Eigen::MatrixXd::Zero(3, num_samples);
+    Data.input.P_Fija_3 = Eigen::MatrixXd::Zero(3, num_samples);
+
+    // Data.input.robot_markers = Eigen::MatrixXd::Zero(3, num_samples*mocap_object->robot_data->markers_name.size()); //24
+    // Data.input.human_markers = Eigen::MatrixXd::Zero(3, num_samples*mocap_object->human_data->markers_name.size()); //48
 
     Piel.LASIS = Eigen::MatrixXd::Zero(3, num_samples);
     Piel.RASIS = Eigen::MatrixXd::Zero(3, num_samples);
@@ -443,81 +531,159 @@ void pr_biomech::StreamingGDLF::AUXILIAR_initialization() { //..................
     AUXILIAR_ForceSensorin.Force.resize(3, num_samples);
     AUXILIAR_ForceSensorin.Torque.resize(3, num_samples);
 
+    // AUXILIAR_ForceSensorin.Force <<
+    //     0.22196887348544, 12.278994778356, -3.89805690727794, 4.33142972673402,
+    //     95.3377414997786, -30.8715768146965, 51.3105360965565, 74.8833625505454,
+    //     23.0808269450729, -54.4707206629079, -3.86025931546142, 25.5973116884979;
+
+    // AUXILIAR_ForceSensorin.Torque <<
+    //     -3.35140884563206, -16.9072163835842, -10.3047041861824, 10.807649335197,
+    //     1.72294171615608, 3.02304501267983, 0.823035132584989, 0.639216624105116,
+    //     -0.219808524037625, 4.11242991780717, 2.74755888430851, -2.2637694719948;
+
+    // Piel.LASIS <<
+    //     1.164245, 1.164047, 1.164949, 1.164001,
+    //     1.335371, 1.335517, 1.331638, 1.332329,
+    //     -1.350255, -1.353063, -1.364925, -1.363151;
+
+    // Piel.RASIS <<
+    //     0.829182, 0.829037, 0.830712, 0.829375,
+    //     1.33496, 1.334313, 1.336947, 1.336816,
+    //     -1.324737, -1.326898, -1.330643, -1.332763;
+
+    // Piel.LPSIS <<
+    //     1.035284, 1.03566, 1.031021, 1.031988,
+    //     1.22817, 1.217651, 1.213356, 1.213734,
+    //     -1.502076, -1.497275, -1.503653, -1.503438;
+
+
+    // Piel.RPSIS <<
+    //     0.945335, 0.945752, 0.941373, 0.942194,
+    //     1.225082, 1.214609, 1.212139, 1.212296,
+    //     -1.491387, -1.486225, -1.490374, -1.491204;
+
+    // Piel.LFE <<
+    //     0.852027, 0.836302, 0.851037, 0.840061,
+    //     1.274141, 1.246399, 1.268532, 1.288775,
+    //     -0.959213, -0.95265, -0.955833, -0.962246;
+
+    // Piel.MFE <<
+    //     0.998688, 0.983424, 0.998393, 0.98677,
+    //     1.300224, 1.26268, 1.289405, 1.312557,
+    //     -0.948915, -0.933013, -0.94374, -0.947871;
+
+    // Piel.FH <<
+    //     0.87377, 0.846863, 0.867401, 0.85856,
+    //     1.21064, 1.185322, 1.205837, 1.227225,
+    //     -0.936859, -0.937646, -0.937368, -0.93369;
+
+    // Piel.LM <<
+    //     1.068577, 0.990411, 1.041451, 1.029757,
+    //     0.991182, 0.909304, 0.958348, 1.03035,
+    //     -0.663538, -0.684616, -0.674172, -0.629145;
+
+    // Piel.MM <<
+    //     1.160969, 1.091492, 1.137375, 1.127268,
+    //     1.028383, 0.940144, 0.992311, 1.057997,
+    //     -0.733811, -0.745362, -0.741282, -0.696864;
+
+    // Piel.CAL <<
+    //     0.984366999999963, 0.987096, 1.059916, 1.053149,
+    //     0.963262999999927, 0.885379, 0.947322, 1.008945,
+    //     -0.679830000000038, -0.758732, -0.765965, -0.718059;
+
+    // Piel.MH1 <<
+    //     1.10293799999999, 1.107187, 1.112112, 1.091627,
+    //     0.975294000000019, 0.853177, 0.897411, 0.985896,
+    //     -0.49541499999998, -0.578819, -0.559538, -0.504014;
+
+    // Piel.MH5 <<
+    //     0.998428999999987, 1.018215, 1.017569, 0.997843,
+    //     0.980027000000007, 0.889765, 0.945738, 1.03938,
+    //     -0.448546999999991, -0.528978, -0.537976, -0.494923;
+
+    // Piel.Fext <<
+    //     0.984055701207706, 0.991114889982437, 0.991877875377595, 0.976891679071567,
+    //     1.03790007518413, 0.949808836209316, 0.992001247821963, 1.06767612577389,
+    //     -0.650543720667812, -0.692379943828314, -0.682209593218062, -0.631651551694311;
+
+
     AUXILIAR_ForceSensorin.Force <<
-        0.22196887348544, 12.278994778356, -3.89805690727794, 4.33142972673402,
-        95.3377414997786, -30.8715768146965, 51.3105360965565, 74.8833625505454,
-        23.0808269450729, -54.4707206629079, -3.86025931546142, 25.5973116884979;
+       10.0, 10.0, 10.0, 10.0,
+       40.0, 10.0, 30.0, 20.0,
+       10.0, 20.0, 10.0, 30.0;
 
     AUXILIAR_ForceSensorin.Torque <<
-        -3.35140884563206, -16.9072163835842, -10.3047041861824, 10.807649335197,
-        1.72294171615608, 3.02304501267983, 0.823035132584989, 0.639216624105116,
-        -0.219808524037625, 4.11242991780717, 2.74755888430851, -2.2637694719948;
+       30.0, 30.0, 20.0, 40.0,
+       50.0, 10.0, 40.0, 20.0,
+       60.0, 40.0, 70.0, 80.0;
 
     Piel.LASIS <<
-        1.164245, 1.164047, 1.164949, 1.164001,
-        1.335371, 1.335517, 1.331638, 1.332329,
-        -1.350255, -1.353063, -1.364925, -1.363151;
+        1.425703,1.386203,1.399197,1.39988,
+        1.632775,1.73522,1.637185,1.637016,
+        0.248424,0.247908,0.247984,0.249088;
 
     Piel.RASIS <<
-        0.829182, 0.829037, 0.830712, 0.829375,
-        1.33496, 1.334313, 1.336947, 1.336816,
-        -1.324737, -1.326898, -1.330643, -1.332763;
+        1.14512,1.103895,1.115958,1.116609,
+        1.642777,1.739549,1.647958,1.647989,
+        0.300747,0.290902,0.282975,0.283755;
+
 
     Piel.LPSIS <<
-        1.035284, 1.03566, 1.031021, 1.031988,
-        1.22817, 1.217651, 1.213356, 1.213734,
-        -1.502076, -1.497275, -1.503653, -1.503438;
-
+        1.300341,1.267173,1.280618,1.281304,
+        1.494288,1.596431,1.499438,1.499776,
+        0.135096,0.128296,0.126731,0.127258;
 
     Piel.RPSIS <<
-        0.945335, 0.945752, 0.941373, 0.942194,
-        1.225082, 1.214609, 1.212139, 1.212296,
-        -1.491387, -1.486225, -1.490374, -1.491204;
+        1.219792,1.18607,1.199005,1.199671,
+        1.491789,1.592231,1.497148,1.497529,
+        0.154731,0.145167,0.141366,0.141782;
 
     Piel.LFE <<
-        0.852027, 0.836302, 0.851037, 0.840061,
-        1.274141, 1.246399, 1.268532, 1.288775,
-        -0.959213, -0.95265, -0.955833, -0.962246;
+        1.21055496718149,1.16074343539714,1.18115310764473,1.17602362951347,
+        1.56471224428798,1.54990924681822,1.55795881680871,1.56226926991093,
+        0.725515248591669,0.718500832036875,0.711736537068311,0.711747726852371;
 
     Piel.MFE <<
-        0.998688, 0.983424, 0.998393, 0.98677,
-        1.300224, 1.26268, 1.289405, 1.312557,
-        -0.948915, -0.933013, -0.94374, -0.947871;
+        1.34778703281851,1.30529256460286,1.32104689235527,1.31610337048653,
+        1.51409975571202,1.52931075318178,1.51549618319129,1.52022273008907,
+        0.72414275140833,0.709703167963125,0.706961462931689,0.709318273147629;
 
     Piel.FH <<
-        0.87377, 0.846863, 0.867401, 0.85856,
-        1.21064, 1.185322, 1.205837, 1.227225,
-        -0.936859, -0.937646, -0.937368, -0.93369;
+        1.211182,1.169816,1.186291,1.185227,
+        1.491693,1.486665,1.484081,1.496168,
+        0.732356,0.723383,0.711503,0.743662;
 
     Piel.LM <<
-        1.068577, 0.990411, 1.041451, 1.029757,
-        0.991182, 0.909304, 0.958348, 1.03035,
-        -0.663538, -0.684616, -0.674172, -0.629145;
+        1.273208,1.267142,1.269149,1.267806,
+        1.113357,1.117279,1.11297,1.121341,
+        0.811238,0.808766,0.804348,0.820433;
 
     Piel.MM <<
-        1.160969, 1.091492, 1.137375, 1.127268,
-        1.028383, 0.940144, 0.992311, 1.057997,
-        -0.733811, -0.745362, -0.741282, -0.696864;
+        1.378265,1.369993,1.371052,1.369521,
+        1.133478,1.147104,1.141363,1.13886,
+        0.819795,0.815625,0.822358,0.791074;
 
     Piel.CAL <<
-        0.984366999999963, 0.987096, 1.059916, 1.053149,
-        0.963262999999927, 0.885379, 0.947322, 1.008945,
-        -0.679830000000038, -0.758732, -0.765965, -0.718059;
+        1.385065,1.383626,1.383516,1.383469,
+        1.02913,1.030013,1.02959,1.029614,
+        0.779284,0.779713,0.779089,0.779172;
 
     Piel.MH1 <<
-        1.10293799999999, 1.107187, 1.112112, 1.091627,
-        0.975294000000019, 0.853177, 0.897411, 0.985896,
-        -0.49541499999998, -0.578819, -0.559538, -0.504014;
+        1.282618,1.281516,1.281313,1.281115,
+        1.078424,1.077368,1.079049,1.079136,
+        1.005652,1.006646,1.005531,1.005533;
 
     Piel.MH5 <<
-        0.998428999999987, 1.018215, 1.017569, 0.997843,
-        0.980027000000007, 0.889765, 0.945738, 1.03938,
-        -0.448546999999991, -0.528978, -0.537976, -0.494923;
+        1.222225,1.221086,1.220971,1.22082,
+        1.053843,1.052871,1.053491,1.05352,
+        0.942467,0.943463,0.942686,0.942665;
 
     Piel.Fext <<
-        0.984055701207706, 0.991114889982437, 0.991877875377595, 0.976891679071567,
-        1.03790007518413, 0.949808836209316, 0.992001247821963, 1.06767612577389,
-        -0.650543720667812, -0.692379943828314, -0.682209593218062, -0.631651551694311;
+        1.24301492068812,1.24224288559155,1.24245318008152,1.242377603879,
+        1.00790921315322,1.00770144157314,1.00786049656636,1.00783837459542,
+        0.804213581304668,0.804758001387336,0.804330240885676,0.80432934634852;
+
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

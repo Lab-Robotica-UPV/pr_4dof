@@ -92,13 +92,13 @@ namespace pr_dmp
 
             // Maximum force applicable
             double max_force;
-            // Increment force applied on one iteration at most
-            double inc_force_jac, inc_force_OTS;
+            // Gain for calculation of force an rate scheduling
+            double gain_OTS=0, gain_jac=0, gain_rate;
             // Values for beta and decay
             double beta, decay;
             // Fuerza evasor
-            Eigen::Vector4d current_force_OTS = Eigen::Vector4d::Zero();
-            Eigen::Vector4d current_force_jac = Eigen::Vector4d::Zero(); 
+            Eigen::Vector4d force_OTS = Eigen::Vector4d::Zero();
+            Eigen::Vector4d force_jac = Eigen::Vector4d::Zero(); 
             Eigen::Vector4d force_evader = Eigen::Vector4d::Zero(); 
             
 

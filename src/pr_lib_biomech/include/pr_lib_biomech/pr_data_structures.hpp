@@ -111,8 +111,26 @@ namespace PRDataStructures{
 
         struct input_struct {
             Matrix<double, 6, Dynamic> forces;
-            Matrix<double, 3, Dynamic> robot_markers;
-            Matrix<double, 3, Dynamic> human_markers;
+            Matrix<double, 3, Dynamic> LASIS;
+            Matrix<double, 3, Dynamic> RASIS;
+            Matrix<double, 3, Dynamic> LPSIS;
+            Matrix<double, 3, Dynamic> RPSIS;
+            Matrix<double, 3, Dynamic> RLE;
+            Matrix<double, 3, Dynamic> RME;
+            Matrix<double, 3, Dynamic> RHF;
+            Matrix<double, 3, Dynamic> RLM;
+            Matrix<double, 3, Dynamic> RMM;
+            Matrix<double, 3, Dynamic> RCA;
+            Matrix<double, 3, Dynamic> RFM;
+            Matrix<double, 3, Dynamic> RVM;
+            Matrix<double, 3, Dynamic> P_Movil_1;
+            Matrix<double, 3, Dynamic> P_Movil_2;
+            Matrix<double, 3, Dynamic> P_Movil_3;
+            Matrix<double, 3, Dynamic> P_Fija_1;
+            Matrix<double, 3, Dynamic> P_Fija_2;
+            Matrix<double, 3, Dynamic> P_Fija_3;
+            // Matrix<double, 3, Dynamic> robot_markers;
+            // Matrix<double, 3, Dynamic> human_markers;
         };
 
         ang_struct ang;

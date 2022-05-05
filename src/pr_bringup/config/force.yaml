@@ -16,17 +16,18 @@ admittance_params:
   mass: [200.0, 200.0, 20.0, 20.0]
   damping: [894.0, 894.0, 89.4, 89.4]
 
-calibration: true
+calibration: false
 # Keep the noise_threshold in false if the boot compensation is used
 noise_threshold: false
 
 # For boot compensation and fixed frame
-boot_compensation: true
-fixed_frame_noise_threshold: true
+boot_compensation: false
+fixed_frame_noise_threshold: false
 boot_mass: 2.2816
 boot_cdg: [0.1201, 0.0007, 0.0453]
 
-ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/admittance/ref_Fent_TE0_CF1_VF1_z_2.txt"
+ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_Fent_TE0_CF1_VFS1.txt"
+# admittance/ref_Fent_TE0_CF1_VF1_z_2.txt"
 
 # data['force']
 # Has exact copy. Maybe it will be better to include the robot_name option

@@ -10,6 +10,8 @@
 
 #include "pr_msgs/msg/pr_array_h.hpp"
 
+#include "eigen3/Eigen/Dense"
+
 
 namespace pr_controllers
 {
@@ -18,6 +20,7 @@ namespace pr_controllers
         public:
             //PR_COONTROLLERS_PUBLIC
             explicit PDGController(const rclcpp::NodeOptions & options);
+            ~PDGController();
 
         protected:
 
@@ -52,6 +55,13 @@ namespace pr_controllers
 
             bool init_ref = false;
             bool init_grav = false;
+
+            // For calculation of performance indices
+            int iter = 0;
+            Eigen::Vector4d control_action_ant, e, control_action;
+            Eigen::Vector4d index_error = Eigen::Vector4d::Zero();
+            Eigen::Vector4d index_action = Eigen::Vector4d::Zero();
+            double Je, Ju;
     };
 }
 

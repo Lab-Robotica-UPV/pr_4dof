@@ -21,10 +21,8 @@ namespace pr_dmp
         this->declare_parameter<double>("ts", 0.01);
         this->declare_parameter<double>("lmin_FJac", 0.015);
         this->declare_parameter<double>("max_force", 150.0);
-        this->declare_parameter<double>("inc_force_jac", 1.0);
-        this->declare_parameter<double>("inc_force_OTS", 1.0);
-        this->declare_parameter<double>("beta", 5.0);
-        this->declare_parameter<double>("decay", 1.0/400.0);
+        this->declare_parameter<double>("gain_rate", 0.015);
+        this->declare_parameter<double>("beta", 0.1);
 
         this->get_parameter("robot_config_params", robot_params);
         this->get_parameter("iter_fk", iter_max);
@@ -35,10 +33,8 @@ namespace pr_dmp
         this->get_parameter("ts", ts);
         this->get_parameter("lmin_FJac", lmin_FJac);
         this->get_parameter("max_force", max_force);
-        this->get_parameter("inc_force_jac", inc_force_jac);
-        this->get_parameter("inc_force_OTS", inc_force_OTS);
+        this->get_parameter("gain_rate", gain_rate);
         this->get_parameter("beta", beta);
-        this->get_parameter("decay", decay);
 
         // Matriz de incrementos
         minc_des.resize(2,8);
@@ -137,44 +133,66 @@ namespace pr_dmp
                 // Fuerza debida al jacobiano
                 
                 if (abs(jac_det_med) < lmin_FJac){
-                    // current_force_jac(i_qind(0)) = repulsive_dir(0)*max_force*exp(-abs(jac_det_med)/lmin_FJac*beta);
-                    // current_force_jac(i_qind(1)) = repulsive_dir(1)*max_force*exp(-abs(jac_det_med)/lmin_FJac*beta);
-                    current_force_jac(i_qind(0)) += repulsive_dir(0)*inc_force_jac*exp(-abs(jac_det_med)/lmin_FJac*beta);
-                    current_force_jac(i_qind(1)) += repulsive_dir(1)*inc_force_jac*exp(-abs(jac_det_med)/lmin_FJac*beta);
-                }
-                else{
-                    current_force_jac = current_force_jac*exp(-decay);
+                    // Ganancia para el calculo de la fuerza
+                    gain_jac += gain_rate;
+                    // Fuerza de repulsión
+                    force_jac(i_qind(0)) = repulsive_dir(0)*gain_jac*exp(-abs(jac_det_med)/lmin_FJac*beta);
+                    force_jac(i_qind(1)) = repulsive_dir(1)*gain_jac*exp(-abs(jac_det_med)/lmin_FJac*beta);
                 }
 
                 // Fuerza debida al angulo OTS
-
                 if (minAng_OTS_med < lmin_Ang_OTS){
-                    //current_force_OTS(i_qind(0)) = repulsive_dir(0)*max_force*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
-                    //current_force_OTS(i_qind(1)) = repulsive_dir(1)*max_force*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
-                    current_force_OTS(i_qind(0)) += repulsive_dir(0)*inc_force_OTS*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
-                    current_force_OTS(i_qind(1)) += repulsive_dir(1)*inc_force_OTS*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
+                    // Ganancia para el calculo de la fuerza
+                    gain_OTS += gain_rate;
+                    // Fuerza de repulsión
+                    force_OTS(i_qind(0)) = repulsive_dir(0)*gain_OTS*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
+                    force_OTS(i_qind(1)) = repulsive_dir(1)*gain_OTS*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
                 }
-                else{
-                    current_force_OTS = current_force_OTS*exp(-decay);
-                } 
+                 
             }
 
             else{
                 // El pin se pone a true
                 sing_pin = true;
-
-                current_force_jac = current_force_jac*exp(-decay);
-                current_force_OTS = current_force_OTS*exp(-decay);
             }
+
+            if (abs(jac_det_med) >= lmin_FJac){
+                // Se rebaja la ganancia
+                gain_jac = std::max(0.0, gain_jac-gain_rate);
+                // Se define la fuerza para que sea menor (en módulo) que anteriormente, con la nueva ganancia
+                for (int i=0; i<4; i++){
+                    if (force_jac(i) >0){
+                        force_jac(i) = gain_jac*exp(-abs(jac_det_med)/lmin_FJac*beta);
+                    }
+                    else if (force_jac(i)<0){
+                        force_jac(i) = -gain_jac*exp(-abs(jac_det_med)/lmin_FJac*beta);
+                    }
+                }
+            }
+
+            if (minAng_OTS_med >= lmin_Ang_OTS){
+                // Se rebaja la ganancia
+                gain_OTS = std::max(0.0, gain_OTS-gain_rate);
+                // Se define la fuerza para que sea menor (en módulo) que anteriormente, con la nueva ganancia
+                for (int i=0; i<4; i++){
+                    if (force_OTS(i) >0){
+                        force_OTS(i) = gain_OTS*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
+                    }
+                    else if (force_OTS(i)<0){
+                        force_OTS(i) = -gain_OTS*exp(-minAng_OTS_med/lmin_Ang_OTS*beta);
+                    }
+                }
+            }
+
             for (int i=0; i<4; i++){
-                if (current_force_jac(i) > max_force) current_force_jac(i) = max_force;
-                if (current_force_jac(i) < -max_force) current_force_jac(i) = -max_force;
-                if (current_force_OTS(i) > max_force) current_force_OTS(i) = max_force;
-                if (current_force_OTS(i) < -max_force) current_force_OTS(i) = -max_force;
+                if (force_jac(i) > max_force) force_jac(i) = max_force;
+                if (force_jac(i) < -max_force) force_jac(i) = -max_force;
+                if (force_OTS(i) > max_force) force_OTS(i) = max_force;
+                if (force_OTS(i) < -max_force) force_OTS(i) = -max_force;
             }
 
             // Fuerza para enviar al DMP
-            force_evader = current_force_jac + current_force_OTS;
+            force_evader = force_jac + force_OTS;
 
 
             for(int i=0;i<4;i++)

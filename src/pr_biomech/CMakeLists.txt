@@ -56,7 +56,8 @@ add_library(streaming_gdlf SHARED
   src/CalTheta2Theta3.cpp
   src/DynamicsHerz_Pau.cpp
   src/MusForceOpt2_Anta_Coef_Guard_Red.cpp
-  src/CalLigForceAnta_Pau.cpp)
+  src/CalLigForceAnta_Pau.cpp
+  src/FOpt.cpp)
 
   target_link_libraries(streaming_gdlf "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/lib" NatNet)
 

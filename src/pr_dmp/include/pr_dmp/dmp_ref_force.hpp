@@ -64,8 +64,10 @@ namespace pr_dmp
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_q_;
             // Publisher of cart position (will be zeros if isCart and calcCart are both set to false)
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_x_;
-            // Publisher of the force trajectory
-            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_force_;
+            // Publisher of the init force trajectory
+            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_force_init_;
+            // Publisher of the changed force trajectory
+            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_force_changed_;
             // Publisher that ends the streaming
             rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisher_end_;
             
@@ -133,8 +135,10 @@ namespace pr_dmp
             VectorXd s, sd, s_updated;
             Vector4d s_pos;
             // Variables for force DMP 
-            VectorXd s_force, sd_force, s_updated_force;
-            Vector4d forces;
+            VectorXd s_force_changed, sd_force_changed, s_updated_force_changed;
+            Vector4d forces_changed;
+            VectorXd s_force_init, sd_force_init, s_updated_force_init;
+            Vector4d forces_init;
             // Gain of the slowdown
             double gain_slowdown;
             // Variable of slowdown of the phase variable

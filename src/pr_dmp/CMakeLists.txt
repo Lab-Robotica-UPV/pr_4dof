@@ -112,6 +112,42 @@ ament_target_dependencies(dmp_evader_force
 rclcpp_components_register_nodes(dmp_evader_force "pr_dmp::EvaderForce")
 set(node_plugins "${node_plugins}pr_dmp::EvaderForce;$<TARGET_FILE:dmp_evader_force>\n")
 
+### Dmp Evader Force Pid node ###
+
+add_library(dmp_evader_force_pid SHARED
+  src/dmp_evader_force_pid.cpp)
+
+target_compile_definitions(dmp_evader_force_pid
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_evader_force_pid
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(dmp_evader_force_pid "pr_dmp::EvaderForcePID")
+set(node_plugins "${node_plugins}pr_dmp::EvaderForcePID;$<TARGET_FILE:dmp_evader_force_pid>\n")
+
+### Dmp Evader Force cart node ###
+
+add_library(dmp_evader_force_cart SHARED
+  src/dmp_evader_force_cart.cpp)
+
+target_compile_definitions(dmp_evader_force_cart
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_evader_force_cart
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(dmp_evader_force_cart "pr_dmp::EvaderForceCart")
+set(node_plugins "${node_plugins}pr_dmp::EvaderForceCart;$<TARGET_FILE:dmp_evader_force_cart>\n")
+
 ### Dmp_ref_dmp_force node ###
 
 add_library(dmp_ref_force SHARED
@@ -161,8 +197,10 @@ install(TARGETS
   dmp_ref_gen
   dmp_admittance_force
   dmp_evader_force
+  dmp_evader_force_pid
   dmp_ref_force
   dmp_force_adapted
+  dmp_evader_force_cart
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
