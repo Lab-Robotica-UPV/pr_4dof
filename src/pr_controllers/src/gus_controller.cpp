@@ -49,19 +49,19 @@ namespace pr_controllers
 
         RCLCPP_INFO(this->get_logger(), "Creating communication");
 
-        //sub_ref.subscribe(this, "ref_pose");
-        sub_pos.subscribe(this, "joint_position");
-        sub_vel.subscribe(this, "joint_velocity");
+
+        sub_pos = this->create_subscription<pr_msgs::msg::PRArrayH>(
+            "joint_position",
+            1,
+            std::bind(&GusController::controller_callback, this, std::placeholders::_1)
+        );
+
 
         sub_ref = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "ref_pose",
             1,
             std::bind(&GusController::ref_callback, this, std::placeholders::_1)
         );
-
-        sync_.reset(new Synchronizer(SyncPolicy(1), sub_pos, sub_vel));
-        sync_->registerCallback(std::bind(&GusController::controller_callback, this, std::placeholders::_1, std::placeholders::_2));
-        //sync_->setMaxIntervalDuration(rclcpp::Duration(0, 1000000));
 
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("control_action", 1);
 
@@ -74,8 +74,7 @@ namespace pr_controllers
         init_ref = true;
     }   
 
-    void GusController::controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
-                                            const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg)
+    void GusController::controller_callback(const pr_msgs::msg::PRArrayH::SharedPtr pos_msg)
     {
         if (init_ref){
             // Control action message and init time
@@ -85,7 +84,8 @@ namespace pr_controllers
 
             
             PRUtils::ArRMsg2Eigen(pos_msg, pos);
-            PRUtils::ArRMsg2Eigen(vel_msg, vel);
+            
+            vel = (pos-q_ant)/ts;
             
             //Calculate control action
             up_1 = 1/ts*(ref -  k1*(ref_ant - q_ant)-q_ant);
@@ -100,7 +100,7 @@ namespace pr_controllers
             PRUtils::Eigen2ArMsg(ca, control_action_msg);
 
             control_action_msg.header.stamp = pos_msg->header.stamp;
-            control_action_msg.header.frame_id = pos_msg->header.frame_id + ", " + vel_msg->header.frame_id;
+            control_action_msg.header.frame_id = pos_msg->header.frame_id;
 
             control_action_msg.current_time = this->get_clock()->now();
             publisher_->publish(control_action_msg);

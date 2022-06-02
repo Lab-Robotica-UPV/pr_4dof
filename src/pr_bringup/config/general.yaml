@@ -15,8 +15,10 @@ robot_3ups_rpu:
 robot_5p:
   encoder_gearbox: [0.23077, 0.23077, 0.23077, 1.0]
   ref_path:
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRVAL1_CF1_5P_V1.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRVAL1_CF1_5P_V1.txt"
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRVAL1_CF1_5P_V1_TEST.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRVAL1_CF1_5P_V1_TEST.txt"
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRELIP_CF1_5P_Vrapida_larga.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRELIP_CF1_5P_Vrapida_larga.txt"
 
 #Iterations for direct kinematics
 dir_kin:

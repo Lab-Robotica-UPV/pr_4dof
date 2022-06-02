@@ -285,6 +285,7 @@ namespace pr_biomech
 
     StreamingGDLF::~StreamingGDLF() {
 
+        //Data.print_data();
         std::stringstream ss;
         ss << "{\"ang\":{\"cad\":{";
         vector2ss("FlxExt", Data.ang.cad.FlxExt, ss); ss << ",";
@@ -356,24 +357,39 @@ namespace pr_biomech
         // matrix2ss("human_markers", Data.input.human_markers, ss);
         ss << "}}";
 
-        Document d;
-        d.SetObject();
-        d.Parse(ss.str().c_str());
+        // std::cout << ss.str() << std::endl;
+
+        // Document d;
+        // d.SetObject();
+        // d.Parse(ss.str().c_str());
 
 
-        char filename[1000];// = Data.Date.c_str();//"Data_Jose" +Data.Date + ".txt";
-        snprintf(filename, sizeof(filename), "%s_%s.txt", output_data_file.c_str(), Data.Date.c_str());
+        //char filename[1000];// = Data.Date.c_str();//"Data_Jose" +Data.Date + ".txt";
+        //snprintf(filename, sizeof(filename), "%s_%s.txt", output_data_file.c_str(), Data.Date.c_str());
         
 
-        FILE* fp = fopen(filename, "wb"); // non-Windows use "w"
+        // FILE* fp = fopen(filename, "wb"); // non-Windows use "w"
 
-        char writeBuffer[65536];
-        FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
+        // char writeBuffer[65536];
+        // FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
 
-        Writer<FileWriteStream> writer(os);
-        d.Accept(writer);
+        // Writer<FileWriteStream> writer(os);
+        // d.Accept(writer);
 
-        fclose(fp);
+        // fclose(fp);
+
+        std::string filename_str = output_data_file + "_" + Data.Date + ".txt";
+        std::ofstream out_file;
+        out_file.open(filename_str);
+        if (out_file.is_open()){
+            out_file << ss.str();
+            out_file.close();
+            std::cout << "Writen Bio data in: " << filename_str << std::endl;
+        }
+        else {
+            std::cout << "Could not open file to save the data" << std::endl;
+        }
+
     }    
 }
 

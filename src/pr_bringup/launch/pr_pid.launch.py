@@ -20,6 +20,7 @@ def generate_launch_description():
     from load_data import data
 
     controller_params = data['pdg_pid']
+    print(data['general']['init_q'])
 
     pr_pid = ComposableNodeContainer(
             node_name='pr_container',

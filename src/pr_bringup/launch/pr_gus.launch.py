@@ -78,7 +78,7 @@ def generate_launch_description():
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("joint_position", "joint_position"),
-                        ("joint_velocity", "joint_velocity")
+                        # ("joint_velocity", "joint_velocity")
                     ],
                     parameters=[
                         {"k1": data['gus']['controller']['k1']},
@@ -88,19 +88,19 @@ def generate_launch_description():
                         {"initial_reference": data['general']['init_q']}
                     ]
                 ),
-                ComposableNode(
-                    package='pr_aux',
-                    node_plugin='pr_aux::Derivator',
-                    node_name='derivator',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("joint_velocity", "joint_velocity")
-                    ],
-                    parameters=[
-                        {"initial_value": data['general']['init_q']},
-                        {"ts": data['general']['ts']}
-                    ]
-                ),
+                # ComposableNode(
+                #     package='pr_aux',
+                #     node_plugin='pr_aux::Derivator',
+                #     node_name='derivator',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("joint_velocity", "joint_velocity")
+                #     ],
+                #     parameters=[
+                #         {"initial_value": data['general']['init_q']},
+                #         {"ts": data['general']['ts']}
+                #     ]
+                # ),
                 ComposableNode(
                     package='pr_ref_gen',
                     node_plugin='pr_ref_gen::RefPose',
@@ -114,6 +114,34 @@ def generate_launch_description():
                         {"ref_path": data['general']['ref_path']['q']},
                         {"is_cart": False},
                         {"robot_config_params": data['config_params']['geometry']}
+                    ]
+                ),
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocap',
+                    node_name='mocap',
+                    remappings=[
+                        ("x_coord_mocap", "x_coord_mocap")
+                    ],
+                    parameters=[
+                        {"server_address": data['mocap_server']["server_address"]},
+                        {"server_command_port": data['mocap_server']["server_command_port"]},
+                        {"server_data_port": data['mocap_server']["server_data_port"]},
+                        {"marker_names":  data['mocap_server']["marker_names"]},
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocapSynchronizer',
+                    node_name='mocap_synchronizer',
+                    remappings=[
+                        ("joint_position", "joint_position"),
+                        ("x_mocap_sync", "x_mocap_sync")
+                    ],
+                    parameters=[
+                        {"tol": 0.01}
                     ]
                 ),
                 ComposableNode(

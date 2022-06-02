@@ -140,8 +140,11 @@ namespace pr_sensors_actuators
 
 			//Fourth joint
 			pulsos[3] = udCounterCtrl3->getValue();
-			//position_msg.data[3] = pulsos[3]*0.000002325*gearbox_mult[3] + initial_position[3];
-			position_msg.data[3] = pulsos[3]*0.00000230571*gearbox_mult[3] + initial_position[3];
+			position_msg.data[3] = pulsos[3]*0.000002325*gearbox_mult[3] + initial_position[3];
+			//position_msg.data[3] = pulsos[3]*0.00000230571*gearbox_mult[3] + initial_position[3];
+
+			std::cout << pulsos[0] << " " << pulsos[1] << " " << pulsos[2] << " " << pulsos[3] << std::endl;
+			//std::cout << position_msg.data[0] << " " << position_msg.data[1] << " " << position_msg.data[2] << " " << position_msg.data[3] << std::endl; 
 
 			if (iter*ts/1000 == init_delay_sec){
 				// Brake deactivation
@@ -171,7 +174,7 @@ namespace pr_sensors_actuators
             //End flag activted
 			DOut[0]=0;
 	    	ret = instantDoCtrl->Write(0,1,DOut);
-			RCLCPP_INFO(this->get_logger(), "Brake disabled");
+			//RCLCPP_INFO(this->get_logger(), "Brake disabled");
 		}
 
 		

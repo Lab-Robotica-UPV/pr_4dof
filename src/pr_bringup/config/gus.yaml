@@ -3,13 +3,18 @@ robot_3ups_rpu:
   controller:
     k1: 0.75
     k2: 0.5
+  discretized_controller:
+    kxc: 10.0 #35.0
+    k2c: 40.0
 
 robot_5p:
-  vp_conversion:  [4.333333, 4.333333, 4.33333, 1.0]
+  vp_conversion:  [1.0, 1.0, 1.0, 1.0]
   controller:
-    k1: 0.75
-    k2: 0.5
-
+    k1: 0.6
+    k2: 0.4
+  discretized_controller:
+    kxc: 10.0 #35.0
+    k2c: 40.0
 # data['gus']
 # Includes only the data of the robot in hand
 # Exact copy

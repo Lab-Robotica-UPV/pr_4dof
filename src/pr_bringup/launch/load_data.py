@@ -59,6 +59,7 @@ gus_params = load_params('gus.yaml')
 data['gus'] = {}
 data['gus']['vp_conversion'] = gus_params[robot_name]['vp_conversion']
 data['gus']['controller'] = gus_params[robot_name]['controller']
+data['gus']['discretized_controller'] = gus_params[robot_name]['discretized_controller']
 
 # ILC
 ilc_params = load_params('ilc.yaml')

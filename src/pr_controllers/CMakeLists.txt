@@ -105,10 +105,30 @@ rclcpp_components_register_nodes(pid_controller "pr_controllers::PIDController")
 set(node_plugins "${node_plugins}pr_controllers::PIDController;$<TARGET_FILE:pid_controller>\n")
 
 
+### Gus Controller node ###
+
+add_library(gus_discretized_controller SHARED
+  src/gus_discretized_controller.cpp)
+
+target_compile_definitions(gus_discretized_controller
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(gus_discretized_controller
+  "rclcpp"
+  "rclcpp_components"
+  "message_filters"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(gus_discretized_controller "pr_controllers::GusDiscretizedController")
+set(node_plugins "${node_plugins}pr_controllers::GusDiscretizedController;$<TARGET_FILE:gus_discretized_controller>\n")
+
 install(TARGETS
   gus_controller
   pdg_controller
   pid_controller
+  gus_discretized_controller
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

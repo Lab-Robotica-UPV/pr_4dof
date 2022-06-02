@@ -23,26 +23,15 @@ namespace pr_controllers
 
         protected:
 
-            void controller_callback(const pr_msgs::msg::PRArrayH::ConstPtr& pos_msg,
-                                     const pr_msgs::msg::PRArrayH::ConstPtr& vel_msg);
+            void controller_callback(const pr_msgs::msg::PRArrayH::SharedPtr ref_msg);
 
             void ref_callback(const pr_msgs::msg::PRArrayH::SharedPtr ref_msg);
 
         private:
             
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_pos;
-            message_filters::Subscriber<pr_msgs::msg::PRArrayH> sub_vel;
+           
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr sub_ref;
-
-            
-            typedef message_filters::sync_policies::ApproximateTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            /*
-            typedef message_filters::sync_policies::ExactTime
-                    <pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH, pr_msgs::msg::PRArrayH> SyncPolicy;
-            */
-            typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-            std::shared_ptr<Synchronizer> sync_;
+            rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr sub_pos;
 
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_;
 
