@@ -36,6 +36,7 @@ namespace pr_mocap
             bool robot_5p;
             std::vector<std::string> markers_name{"P_Movil1_1", "P_Movil1_2", "P_Movil1_3", "P_Fija1_1", "P_Fija1_2", "P_Fija1_3"};
             int markers_pos[6] = {0, 1, 2, 3, 4, 5};
+            int iter=0;
 
         protected:
             int ConnectClient();

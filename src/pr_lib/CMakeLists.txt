@@ -23,6 +23,10 @@ find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pr_msgs REQUIRED)
 
+####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
+####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
+set(CMAKE_BUILD_TYPE "Release")
+
 include_directories(include)
 
 if(BUILD_TESTING)
@@ -43,7 +47,9 @@ add_library(pr_lib SHARED
   src/pr_model.cpp
   src/pr_utils.cpp
   src/pr_singularity.cpp
-  src/pr_limits.cpp)
+  src/pr_limits.cpp
+  src/pr_dmp_reversible.cpp
+  )
 
 ament_target_dependencies(pr_lib
   "Eigen3"

@@ -16,7 +16,7 @@ admittance_params:
   mass: [200.0, 200.0, 20.0, 20.0]
   damping: [894.0, 894.0, 89.4, 89.4]
 
-calibration: false
+calibration: true
 # Keep the noise_threshold in false if the boot compensation is used
 noise_threshold: false
 
@@ -26,7 +26,7 @@ fixed_frame_noise_threshold: false
 boot_mass: 2.2816
 boot_cdg: [0.1201, 0.0007, 0.0453]
 
-ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_Fent_TE0_CF1_VFS1.txt"
+ref_force_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_Fent_TE0_CF1_5P_V1.txt"
 # admittance/ref_Fent_TE0_CF1_VF1_z_2.txt"
 
 # data['force']

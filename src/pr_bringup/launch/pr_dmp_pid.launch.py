@@ -88,13 +88,14 @@ def generate_launch_description():
                         ("dmp_ref_gen_x", "ref_pose_x"),
                         ("dmp_force_accel", "dmp_force_accel"),
                         ("dmp_force_vel", "dmp_force_vel"),
-                        ("gka_traj","ref_force")
+                        ("gka_traj","ref_force"),
+                        ("dmp_phase","dmp_phase")
                     ],
                     parameters=[
                         {"ts": data['general']['ts']},
                         {"ref_path": data['general']['ref_path']['x']},
                         {"gka_path": ""},
-                        {"n_basis_functions": 200},
+                        {"n_basis_functions": 1000},
                         {"save_directory": ""},
                         {"isCart": True},
                         {"calcCart": True},

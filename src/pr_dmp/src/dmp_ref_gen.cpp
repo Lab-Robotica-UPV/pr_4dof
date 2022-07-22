@@ -78,6 +78,10 @@ namespace pr_dmp
         publisher_gka_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
 			"gka_traj", 
 			1);
+        // Publisher of the phase
+        publisher_phase_ = this->create_publisher<pr_msgs::msg::PRFloatH>(
+			"dmp_phase", 
+			1);
         // Publisher that ends the streaming
         publisher_end_ = this->create_publisher<std_msgs::msg::Bool>(
             "end_flag",
@@ -240,6 +244,8 @@ namespace pr_dmp
         ref_dmp_q_msg.init_time = this->get_clock()->now();
         auto ref_dmp_x_msg = pr_msgs::msg::PRArrayH();
         ref_dmp_x_msg.init_time = this->get_clock()->now();
+        auto phase_dmp_msg = pr_msgs::msg::PRFloatH();
+        phase_dmp_msg.init_time = this->get_clock()->now();
         // GKA message and init time
         auto gka_msg = pr_msgs::msg::PRArrayH();
         gka_msg.init_time = this->get_clock()->now();
@@ -294,6 +300,9 @@ namespace pr_dmp
 
             if (!end_task){
                 // s_pos can be either prismatic or cartesian according to "isCart". Now we obtain the other
+                // The fase is obtained via the following formula (borrowed from PHASE macro in DMP lib)
+                phase_current = s.segment(3*dmp->dim_orig()+0, 1);
+                phase_dmp_msg.data = phase_current[0];
 
                 if (isCart){
                     // We performe the inverse kinematics
@@ -340,6 +349,9 @@ namespace pr_dmp
                 ref_dmp_q_msg.header.stamp = pos_msg->header.stamp;
                 ref_dmp_q_msg.header.frame_id = pos_msg->header.frame_id;
 
+                phase_dmp_msg.header.stamp = pos_msg->header.stamp;
+                phase_dmp_msg.header.frame_id = pos_msg->header.frame_id;
+
                 ref_dmp_x_msg.header.stamp = pos_msg->header.stamp;
                 ref_dmp_x_msg.header.frame_id = pos_msg->header.frame_id;
                 
@@ -348,6 +360,9 @@ namespace pr_dmp
 
                 ref_dmp_x_msg.current_time = this->get_clock()->now();
                 publisher_x_->publish(ref_dmp_x_msg);
+
+                phase_dmp_msg.current_time = this->get_clock()->now();
+                publisher_phase_->publish(phase_dmp_msg);
             }
         }
         else

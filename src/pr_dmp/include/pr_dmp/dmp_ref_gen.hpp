@@ -3,6 +3,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "pr_msgs/msg/pr_array_h.hpp"
+#include "pr_msgs/msg/pr_float_h.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "pr_lib/pr_utils.hpp"
 #include "pr_lib/pr_model.hpp"
@@ -65,6 +66,8 @@ namespace pr_dmp
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_q_;
             // Publisher of cart position (will be zeros if isCart and calcCart are both set to false)
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_x_;
+            // Publisher of phase
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_phase_;
             // Publisher of the GKA trajectory
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_gka_;
             // Publisher that ends the streaming

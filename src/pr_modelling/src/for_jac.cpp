@@ -35,6 +35,10 @@ namespace pr_modelling
         publisher_jac_ = this->create_publisher<pr_msgs::msg::PRMatH>(
             "for_jac", 
             1);
+
+        publisher_jac_invT = this->create_publisher<pr_msgs::msg::PRMatH>(
+            "for_jac_invT", 
+            1);
     }
 
     void ForwardJacobian::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr x_msg)
@@ -47,20 +51,33 @@ namespace pr_modelling
         auto for_jac_msg = pr_msgs::msg::PRMatH();
         for_jac_msg.init_time = this->get_clock()->now();
 
+        // Forward Jacobian Inverse and Transpose message and Init time
+        auto for_jac_invT_msg = pr_msgs::msg::PRMatH();
+        for_jac_invT_msg.init_time = this->get_clock()->now();
+
         PRModel::ForwardJacobian(ForJac, x_msg->data, robot_params);
+        ForJac_InvT = ForJac.inverse().transpose();
 
         double for_jac_det = ForJac.determinant();
 
         for(int i=0; i<ForJac.rows(); i++)
         {
-            for(int j=0; j<ForJac.cols(); j++)
+            for(int j=0; j<ForJac.cols(); j++){
                 for_jac_msg.data.push_back(ForJac(i,j));
+                for_jac_invT_msg.data.push_back(ForJac_InvT(i,j));
+            }
         }
         for_jac_msg.rows = ForJac.rows();
         for_jac_msg.cols = ForJac.cols();
 
+        for_jac_invT_msg.rows = ForJac.rows();
+        for_jac_invT_msg.cols = ForJac.cols();
+
         for_jac_msg.header.stamp = x_msg->header.stamp;
         for_jac_msg.header.frame_id = x_msg->header.frame_id;
+
+        for_jac_invT_msg.header.stamp = x_msg->header.stamp;
+        for_jac_invT_msg.header.frame_id = x_msg->header.frame_id;
 
 
         for_jac_det_msg.data = for_jac_det;
@@ -69,9 +86,11 @@ namespace pr_modelling
 
         for_jac_det_msg.current_time = this->get_clock()->now();
         for_jac_msg.current_time = this->get_clock()->now();
+        for_jac_invT_msg.current_time = this->get_clock()->now();
 
         publisher_det_->publish(for_jac_det_msg);
         publisher_jac_->publish(for_jac_msg);
+        publisher_jac_invT->publish(for_jac_invT_msg);
     }
 }
 

@@ -25,6 +25,10 @@ find_package(Eigen3 REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
+####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
+set(CMAKE_BUILD_TYPE "Release")
+
 find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/lib NatNet)
 
 include_directories(include)

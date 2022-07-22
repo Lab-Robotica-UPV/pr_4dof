@@ -29,6 +29,10 @@ find_package(pr_lib REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
+####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
+set(CMAKE_BUILD_TYPE "Release")
+
 include_directories(include)
 
 set(node_plugins "")

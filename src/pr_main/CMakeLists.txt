@@ -26,6 +26,10 @@ find_package(pr_ref_gen REQUIRED)
 find_package(pr_controllers REQUIRED)
 find_package(pr_modelling REQUIRED)
 
+####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
+####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
+set(CMAKE_BUILD_TYPE "Release")
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

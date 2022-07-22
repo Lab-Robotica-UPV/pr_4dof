@@ -31,6 +31,10 @@ find_package(Eigen3 REQUIRED)
 
 find_library(BIODAQ_LIBRARY NAMES biodaq)
 
+####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
+####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
+set(CMAKE_BUILD_TYPE "Release")
+
 include_directories(include)
 
 set(node_plugins "")

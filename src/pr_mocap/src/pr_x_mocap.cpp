@@ -294,6 +294,40 @@ namespace pr_mocap
                     pr_x_mocap->MarkersMatrix(2,j) = marker.z;
                 }
             }
+            // if (pr_x_mocap->iter%200 == 0){
+            //     std::cout << "Marker 1: ";
+            //     for (int k=0; k<3; k++){
+            //         std::cout << pr_x_mocap->MarkersMatrix(k,0) << " ";
+            //     }
+            //     std::cout << std::endl;
+            //     std::cout << "Marker 2: ";
+            //     for (int k=0; k<3; k++){
+            //         std::cout << pr_x_mocap->MarkersMatrix(k,1) << " ";
+            //     }
+            //     std::cout <<std::endl;
+            //     std::cout << "Marker 3: ";
+            //     for (int k=0; k<3; k++){
+            //         std::cout << pr_x_mocap->MarkersMatrix(k,2) << " ";
+            //     }
+            //     std::cout << std::endl;
+            //     std::cout << "Marker 4: ";
+            //     for (int k=0; k<3; k++){
+            //         std::cout << pr_x_mocap->MarkersMatrix(k,3) << " ";
+            //     }
+            //     std::cout << std::endl;
+            //     std::cout << "Marker 5: ";
+            //     for (int k=0; k<3; k++){
+            //         std::cout << pr_x_mocap->MarkersMatrix(k,4) << " ";
+            //     }
+            //     std::cout << std::endl;
+            //     std::cout << "Marker 6: ";
+            //     for (int k=0; k<3; k++){
+            //         std::cout << pr_x_mocap->MarkersMatrix(k,5) << " ";
+            //     }
+            //     std::cout << std::endl;
+            //     //std::cout << sqrt(pow(pr_x_mocap->MarkersMatrix(0,0)-pr_x_mocap->MarkersMatrix(0,1),2) + pow(pr_x_mocap->MarkersMatrix(1,0)-pr_x_mocap->MarkersMatrix(1,1),2) + pow(pr_x_mocap->MarkersMatrix(2,0)-pr_x_mocap->MarkersMatrix(2,1),2)) << std::endl;
+            // }
+            pr_x_mocap->iter++;
         }
 
         //Get coordinates from the markers

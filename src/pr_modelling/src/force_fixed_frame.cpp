@@ -43,6 +43,8 @@ namespace pr_modelling
 
         // Publisher for the compensated force in the fixed platform
         publisher_f_fixed = this->create_publisher<pr_msgs::msg::PRForceState>("force_state_fixed", 1);
+        // Publisher for the compensated force in the fixed platform with the components X, Z, Theta, Psi
+        publisher_f_fixed_4comp = this->create_publisher<pr_msgs::msg::PRArrayH>("force_state_fixed_4comp", 1);
 
         // Initialization of std_noise
         std_noise.resize(6);
@@ -64,6 +66,9 @@ namespace pr_modelling
             // fixed frame force msg and init time
             auto force_state_fixed_msg = pr_msgs::msg::PRForceState();
             force_state_fixed_msg.init_time = this->get_clock()->now();
+            // fixed frame force with 4 components (X, Z, Theta, Psi) msg and init time
+            auto force_state_fixed_4comp_msg = pr_msgs::msg::PRArrayH();
+            force_state_fixed_4comp_msg.init_time = this->get_clock()->now();
 
             // Data from msgs to vectors
             Eigen::Vector3d Fent_m, Tent_m;
@@ -117,15 +122,24 @@ namespace pr_modelling
             force_state_fixed_msg.momentum[0] = Tent_f(0);
             force_state_fixed_msg.momentum[1] = Tent_f(1);
             force_state_fixed_msg.momentum[2] = Tent_f(2);
+            // Message with 4 components (X, Z, Theta, Psi)
+            force_state_fixed_4comp_msg.data[0] = Fent_f(0);
+            force_state_fixed_4comp_msg.data[1] = Fent_f(2);
+            force_state_fixed_4comp_msg.data[2] = Tent_f(1);
+            force_state_fixed_4comp_msg.data[3] = Tent_f(2);
 
             // Header configuration
             force_state_fixed_msg.header.frame_id = f_msg->header.frame_id;
             force_state_fixed_msg.header.stamp = f_msg->header.stamp;
+            force_state_fixed_4comp_msg.header.frame_id = f_msg->header.frame_id;
+            force_state_fixed_4comp_msg.header.stamp = f_msg->header.stamp;
 
             // Current time of the topic
             force_state_fixed_msg.current_time = this->get_clock()->now();
+            force_state_fixed_4comp_msg.current_time = this->get_clock()->now();
             // Publication of the topic
             publisher_f_fixed->publish(force_state_fixed_msg);
+            publisher_f_fixed_4comp->publish(force_state_fixed_4comp_msg);
         }
     }
 

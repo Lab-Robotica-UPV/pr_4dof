@@ -88,7 +88,8 @@ def generate_launch_description():
                         ("dmp_ref_gen_x", "ref_pose_x"),
                         ("dmp_force_accel", "adm_force"),
                         ("dmp_force_vel", "dmp_force_vel"),
-                        ("gka_traj","ref_force")
+                        ("gka_traj","ref_force"),
+                        ("dmp_phase","dmp_phase")
                     ],
                     parameters=[
                         {"ts": data['general']['ts']},

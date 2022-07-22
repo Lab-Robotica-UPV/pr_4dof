@@ -73,6 +73,7 @@ namespace pr_sensors_actuators
 		ret=udCounterCtrl1->setCountingType(AbPhaseX1);
 		ret=udCounterCtrl2->setCountingType(AbPhaseX1);
 		ret=udCounterCtrl3->setCountingType(AbPhaseX1);
+		//ret=udCounterCtrl3->setCountingType(PulseDirection);
 
 		ret=udCounterCtrl0->setEnabled(true);
 		ret=udCounterCtrl1->setEnabled(true);
@@ -129,6 +130,7 @@ namespace pr_sensors_actuators
 			//First joint
 			pulsos[0] = udCounterCtrl0->getValue();
 			position_msg.data[0] = pulsos[0]*0.00002*gearbox_mult[0] + initial_position[0]; //pulsos[0]*0.00002*3.0/13.0 + initial_position[0];
+			// La constante 0.00002 sale de aplicar 1/(pulsosporvueltaencoder/pasoactuador*1000)
 
 			//Second joint
 			pulsos[1] = udCounterCtrl1->getValue();
@@ -140,8 +142,9 @@ namespace pr_sensors_actuators
 
 			//Fourth joint
 			pulsos[3] = udCounterCtrl3->getValue();
-			position_msg.data[3] = pulsos[3]*0.000002325*gearbox_mult[3] + initial_position[3];
+			//position_msg.data[3] = pulsos[3]*0.000002325*gearbox_mult[3] + initial_position[3];
 			//position_msg.data[3] = pulsos[3]*0.00000230571*gearbox_mult[3] + initial_position[3];
+			position_msg.data[3] = pulsos[3]*0.00001*gearbox_mult[3] + initial_position[3];
 
 			std::cout << pulsos[0] << " " << pulsos[1] << " " << pulsos[2] << " " << pulsos[3] << std::endl;
 			//std::cout << position_msg.data[0] << " " << position_msg.data[1] << " " << position_msg.data[2] << " " << position_msg.data[3] << std::endl; 

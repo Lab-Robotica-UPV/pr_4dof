@@ -27,6 +27,10 @@ find_package(pr_lib REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
+####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
+set(CMAKE_BUILD_TYPE "Release")
+
 #Finds boost components
 include(ConfigExtras.cmake)
 
@@ -36,8 +40,14 @@ include_directories ( ${Boost_INCLUDE_DIRS} )
 find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib dmp)
 find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib dynamicalsystems)
 find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib functionapproximators)
+find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib gmr)
+find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib Macros)
+find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib Matrix)
+find_library(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib Vector)
+
 
 include_directories(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/include)
+include_directories(/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/include)
 include_directories(include)
 
 set(node_plugins "")
@@ -191,6 +201,54 @@ ament_target_dependencies(dmp_force_adapted
 rclcpp_components_register_nodes(dmp_force_adapted "pr_dmp::ForceAdapted")
 set(node_plugins "${node_plugins}pr_dmp::ForceAdapted;$<TARGET_FILE:dmp_force_adapted>\n")
 
+### dmp_rev node ###
+
+add_library(dmp_rev SHARED
+  src/dmp_reversible.cpp)
+
+target_link_libraries(dmp_rev ${Boost_LIBRARIES})
+target_link_libraries(dmp_rev "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib" dmp)
+target_link_libraries(dmp_rev "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib" dynamicalsystems)
+target_link_libraries(dmp_rev "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/DMP/lib_ros/lib" functionapproximators)
+
+target_compile_definitions(dmp_rev
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_rev
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "Eigen3"
+  "pr_lib"
+  "Boost")
+
+rclcpp_components_register_nodes(dmp_rev "pr_dmp::DmpRev")
+set(node_plugins "${node_plugins}pr_dmp::DmpRev;$<TARGET_FILE:dmp_rev>\n")
+
+### dmp_rev node ###
+
+add_library(dmp_rev_gmr SHARED
+  src/dmp_reversible_gmr.cpp)
+
+target_link_libraries(dmp_rev_gmr "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" gmr)
+target_link_libraries(dmp_rev_gmr "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" Macros)
+target_link_libraries(dmp_rev_gmr "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" Matrix)
+target_link_libraries(dmp_rev_gmr "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" Vector)
+
+
+target_compile_definitions(dmp_rev_gmr
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_rev_gmr
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "Eigen3"
+  "pr_lib")
+
+rclcpp_components_register_nodes(dmp_rev_gmr "pr_dmp::DmpRevGMR")
+set(node_plugins "${node_plugins}pr_dmp::DmpRevGMR;$<TARGET_FILE:dmp_rev_gmr>\n")
+
 # Installation
 
 install(TARGETS
@@ -201,6 +259,8 @@ install(TARGETS
   dmp_ref_force
   dmp_force_adapted
   dmp_evader_force_cart
+  dmp_rev
+  dmp_rev_gmr
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin

@@ -26,8 +26,10 @@ namespace pr_modelling
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_det_;
             rclcpp::Publisher<pr_msgs::msg::PRMatH>::SharedPtr publisher_jac_;
+            rclcpp::Publisher<pr_msgs::msg::PRMatH>::SharedPtr publisher_jac_invT;
 
             Eigen::Matrix<double, 4, 4> ForJac = Eigen::Matrix<double, 4, 4>::Zero();
+            Eigen::Matrix<double, 4, 4> ForJac_InvT = Eigen::Matrix<double, 4, 4>::Zero();
             std::vector<double> robot_params;
     };
 }

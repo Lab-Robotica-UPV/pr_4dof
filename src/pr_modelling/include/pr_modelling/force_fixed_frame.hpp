@@ -37,6 +37,7 @@ namespace pr_modelling
 
             
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_f_fixed;
+            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_f_fixed_4comp;
 
             // Boolean for first iteration and message for x_msg
             bool init_x = false, first_iter = true;

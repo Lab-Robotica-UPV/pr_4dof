@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "eigen3/Eigen/Dense"
+#include "eigen3/Eigen/LU"
 #include "pr_msgs/msg/pr_mat_h.hpp"
 #include "pr_msgs/msg/pr_array_h.hpp"
 
