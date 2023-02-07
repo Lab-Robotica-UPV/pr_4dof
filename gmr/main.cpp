@@ -30,17 +30,19 @@ int main(int argc, char *argv[])
 { 
 
   // Directorio con los datos
-  const std::string directory = "Rafa_der_joint";
+  const std::string directory = "Rafa_der";
   // Number of files
   const int n_files = 5;
   // If offset_removal is true, the data will be subtracted the first row
   const bool offset_removal = true;
   // Number of temporal samples to use for regression (the data will be interpolated)
-  const unsigned int nbData = 620;
+  const unsigned int nbData = 430;
   // Number of states of the GMM
   const int n_states = 10;
   // Include norm of the signal?
   const bool include_norm = true;
+  // Include scaling factor for moments (length)
+  const float scaling_factor = 0.5;
 
   GaussianMixture g;
 
@@ -69,6 +71,11 @@ int main(int argc, char *argv[])
                 row[0] = 0.0;
                 rawData[i](j,rawData[i].ColumnSize()-1) = row.Norm();
             }  
+    }
+    // Scaling factor for 3rd and 4th components
+    for (int j=0; j<rawData[i].RowSize(); j++){
+        rawData[i](j,3) /= scaling_factor;
+        rawData[i](j,4) /= scaling_factor;
     }
   }
   // nbData = (int)(nbData/NBSAMPLES);

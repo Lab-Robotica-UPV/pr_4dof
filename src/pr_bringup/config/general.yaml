@@ -12,15 +12,34 @@ robot_3ups_rpu:
     q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_qinde_TE0_CF1_VFS1.txt" #ref_qinde_TRR15_CF1_VS1.txt" #admittance/ref_qinde_TE0_CF1_VF1.txt"
     x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_cart_TE0_CF1_VFS1.txt" #ref_cart_TRR15_CF1_VS1.txt" #admittance/ref_cart_TE0_CF1_VF1.txt"
 
+
 robot_5p:
   encoder_gearbox: [0.230769230769231, 0.230769230769231, 0.230769230769231, 0.230769230769231]
   ref_path:
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRVAL2_CF1_5P_V1_TEST.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRVAL2_CF1_5P_V1_TEST.txt"
-    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRDEMO_CF1_5P_V1.txt"
-    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRDEMO_CF1_5P_V1.txt"
+    #PAU APP TEST
+    # q: "/home/paralelo4dofnew/SharedFolder/TrayMME/Pauza2_TestPatas.txt"
+    # x: "/home/paralelo4dofnew/SharedFolder/TrayMME/Pauza2_TestCart.txt"
+
+    #PAUMID
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauMid/ref_qinde_TRRPauMid_CF1_5P_V1.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauMid/ref_cart_TRRPauMid_CF1_5P_V1.txt"
+    
+    #Static trajectory for force control in the new robot
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauFree/ref_qinde_TE0Pau_CF1_5P_V1.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauFree/ref_cart_TE0Pau_CF1_5P_V1.txt"
+
+     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRDEMO_CF1_5P_V1.txt"
+     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRDEMO_CF1_5P_V1.txt"
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_qinde_TE0_CF1_5P_V1.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_cart_TE0_CF1_5P_V1.txt"
+
+    # GMR
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_gmr_rev.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_gmr_rev.txt"
+
+    # References Pau123
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Pau123/Pau123_Patas_Est.txt" #ref_qinde_TRR15_CF1_VS1.txt" #admittance/ref_qinde_TE0_CF1_VF1.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Pau123/Pau123_Cart_Est.txt" #ref_cart_TRR15_CF1_VS1.txt" #admittance/ref_cart_TE0_CF1_VF1.txt"
 
 #Iterations for direct kinematics
 dir_kin:

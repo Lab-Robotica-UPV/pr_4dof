@@ -237,6 +237,24 @@ ament_target_dependencies(admittance
 rclcpp_components_register_nodes(admittance "pr_modelling::Admittance")
 set(node_plugins "${node_plugins}pr_modelling::Admittance;$<TARGET_FILE:admittance>\n")
 
+### Admittance Euler Model node ###
+
+add_library(admittance_euler SHARED
+  src/admittance_euler.cpp)
+
+target_compile_definitions(admittance_euler
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(admittance_euler
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(admittance_euler "pr_modelling::AdmittanceEuler")
+set(node_plugins "${node_plugins}pr_modelling::AdmittanceEuler;$<TARGET_FILE:admittance_euler>\n")
+
 ### Inverse Differential Kinematics Model node ###
 
 add_library(inv_diff_kin SHARED
@@ -289,6 +307,7 @@ install(TARGETS
   ang_ots
   for_jac
   admittance
+  admittance_euler
   inv_diff_kin
   force_fixed_frame
   ARCHIVE DESTINATION lib

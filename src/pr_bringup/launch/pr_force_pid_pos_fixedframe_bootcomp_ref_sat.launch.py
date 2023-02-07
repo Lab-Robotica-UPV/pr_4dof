@@ -8,6 +8,9 @@ import os
 from numpy import fromstring, pi
 import yaml
 
+
+from datetime import datetime
+
 def generate_launch_description():
 
     # Load data dictionary
@@ -108,8 +111,8 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package='pr_modelling',
-                    node_plugin='pr_modelling::Admittance',
-                    node_name='admittance',
+                    node_plugin='pr_modelling::AdmittanceEuler',
+                    node_name='admittance_euler',
                     remappings=[
                         ("force_state", "force_state_fixed"),
                         ("ref_force", "ref_force"),
@@ -249,6 +252,29 @@ def generate_launch_description():
                         {"tol": 0.01}
                     ]
                 ),
+
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocapRecorder',
+                    node_name='ref_x_mocap_recorder',
+                    remappings=[
+                        ("end_flag", "end_flag"),
+                        ("joint_position", "joint_position")
+                    ],
+                    parameters=[
+                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Pau123_Fuerza"}
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_joy',
+                    node_plugin='pr_joy::JoyStop',
+                    node_name='joy_stop',
+                    remappings=[
+                        ("joy", "joy"),
+                        ("joy_stop", "joy_stop")
+                    ],
+                ),   
 
                 ComposableNode(
                     package='pr_sensors_actuators',

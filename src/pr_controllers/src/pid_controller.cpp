@@ -48,20 +48,24 @@ namespace pr_controllers
 
         sub_ref = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "ref_pos",
-            1,
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
             std::bind(&PIDController::ref_callback, this, std::placeholders::_1)
         );
 
         sub_pos = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "pos",
-            1,
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
             std::bind(&PIDController::controller_callback, this, std::placeholders::_1)
         );
 
-        publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("control_action", 1);
-        publisher_proportional_ = this->create_publisher<pr_msgs::msg::PRArrayH>("proportional_action", 1);
-        publisher_derivative_ = this->create_publisher<pr_msgs::msg::PRArrayH>("derivative_action", 1);
-        publisher_integral_ = this->create_publisher<pr_msgs::msg::PRArrayH>("integral_action", 1);
+        publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("control_action", 1// rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+        publisher_proportional_ = this->create_publisher<pr_msgs::msg::PRArrayH>("proportional_action", 1// rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+        publisher_derivative_ = this->create_publisher<pr_msgs::msg::PRArrayH>("derivative_action", 1// rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+        publisher_integral_ = this->create_publisher<pr_msgs::msg::PRArrayH>("integral_action", 1// rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
 
     }
 

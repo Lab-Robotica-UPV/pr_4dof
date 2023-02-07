@@ -153,7 +153,9 @@ namespace pr_dmp
             // Error to evalaute
             double error = 0.0;
             // How many times to surpass the standard deviation for the error
-            double relative_error_limit = 10.0;
+            double relative_error_limit = 5.0;
+            // Scaling factor for the moments to obtain force (F=M/l)
+            double scaling_factor = 0.5;
 
     };
 }

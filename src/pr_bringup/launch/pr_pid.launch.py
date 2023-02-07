@@ -87,7 +87,8 @@ def generate_launch_description():
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position")
+                        ("joint_position", "joint_position"),
+                        ("external_stop", "joy_stop")
                     ],
                     parameters=[
                         {"ref_path": data['general']['ref_path']['q']},
@@ -140,80 +141,123 @@ def generate_launch_description():
                 #     ]
                 # ),
 
-                ComposableNode(
-                    package='pr_sensors_actuators',
-                    node_plugin='pr_sensors_actuators::ForceSensor',
-                    node_name='force_sensor',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("force_state", "force_state"),
-                        ("force_state_sync", "force_state_sync"),
-                        ("force_state_accelstamped", "force_state_accelstamped")
-                    ],
-                    parameters=[
-                        {"calibration": data['force']['calibration']},
-                        {"noise_threshold": data['force']['noise_threshold']}
-                    ]
-                ),
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapRecorder',
+                #     node_name='ref_x_mocap_recorder',
+                #     remappings=[
+                #         ("end_flag", "end_flag"),
+                #         ("joint_position", "joint_position")
+                #     ],
+                #     parameters=[
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_PauMid"}
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_sensors_actuators',
+                #     node_plugin='pr_sensors_actuators::ForceSensor',
+                #     node_name='force_sensor',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("force_state", "force_state"),
+                #         ("force_state_sync", "force_state_sync"),
+                #         ("force_state_std", "force_state_std")
+                #     ],
+                #     parameters=[
+                #         {"calibration": data['force']['calibration']},
+                #         {"noise_threshold": data['force']['noise_threshold']}
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_modelling',
+                #     node_plugin='pr_modelling::ForceFixedFrame',
+                #     node_name='force_fixed_frame',
+                #     remappings=[
+                #         ("force_state", "force_state_sync"),
+                #         ("x_coord", "x_coord"),
+                #         ("force_state_fixed", "force_state_fixed"),
+                #         ("force_state_fixed_4comp", "force_state_fixed_4comp")
+                #     ],
+                #     parameters=[
+                #         {"boot_mass": data['force']['boot_mass']},
+                #         {"boot_cdg": data['force']['boot_cdg']},
+                #         {"boot_compensation": data['force']['boot_compensation']},
+                #         {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_modelling',
+                #     node_plugin='pr_modelling::ForwardKinematics',
+                #     node_name='for_kin',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("x_coord", "x_coord"),
+                #     ],
+                #     parameters=[
+                #         {"robot_config_params": data['config_params']['geometry']},
+                #         {"initial_position": data['general']['init_x']},
+                #         {"tol": data['general']['dir_kin']['tol']},
+                #         {"iter": data['general']['dir_kin']['iter']},
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_modelling',
+                #     node_plugin='pr_modelling::ForwardJacobian',
+                #     node_name='for_jac_med',
+                #     remappings=[
+                #         ("x_coord", "x_coord"),
+                #         ("for_jac_det", "for_jac_det_med"),
+                #         ("for_jac", "for_jac"),
+                #         ("for_jac_invT","for_jac_invT")
+                #     ],
+                #     parameters=[
+                #         {"robot_config_params": data['config_params']['geometry']},
+                #     ]
+                # ),
+                # ComposableNode(
+                #     package='pr_aux',
+                #     node_plugin='pr_aux::MatrixMult',
+                #     node_name='multiplier',
+                #     remappings=[
+                #         ("input_vector", "force_state_fixed_4comp"),
+                #         ("input_matrix", "for_jac_invT"),
+                #         ("output_vector", "force_joints")
+                #     ],
+                # ),
 
                 ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::ForceFixedFrame',
-                    node_name='force_fixed_frame',
+                    package='pr_joy',
+                    node_plugin='pr_joy::JoyStop',
+                    node_name='joy_stop',
                     remappings=[
-                        ("force_state", "force_state_sync"),
-                        ("x_coord", "x_coord"),
-                        ("force_state_fixed", "force_state_fixed"),
-                        ("force_state_fixed_4comp", "force_state_fixed_4comp")
+                        ("joy", "joy"),
+                        ("joy_stop", "joy_stop")
                     ],
-                    parameters=[
-                        {"boot_mass": data['force']['boot_mass']},
-                        {"boot_cdg": data['force']['boot_cdg']},
-                        {"boot_compensation": data['force']['boot_compensation']},
-                        {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
-                    ]
-                ),
+                ),   
+                
+                ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='array_to_quaternion_pos_q',
+                    remappings=[
+                        ("array_topic", "joint_position"),
+                        ("quaternion_topic", "joint_position_std")
+                    ],
+                ),  
 
                 ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::ForwardKinematics',
-                    node_name='for_kin',
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='array_to_quaternion_ref_q',
                     remappings=[
-                        ("joint_position", "joint_position"),
-                        ("x_coord", "x_coord"),
+                        ("array_topic", "ref_pose"),
+                        ("quaternion_topic", "ref_pose_std")
                     ],
-                    parameters=[
-                        {"robot_config_params": data['config_params']['geometry']},
-                        {"initial_position": data['general']['init_x']},
-                        {"tol": data['general']['dir_kin']['tol']},
-                        {"iter": data['general']['dir_kin']['iter']},
-                    ]
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::ForwardJacobian',
-                    node_name='for_jac_med',
-                    remappings=[
-                        ("x_coord", "x_coord"),
-                        ("for_jac_det", "for_jac_det_med"),
-                        ("for_jac", "for_jac"),
-                        ("for_jac_invT","for_jac_invT")
-                    ],
-                    parameters=[
-                        {"robot_config_params": data['config_params']['geometry']},
-                    ]
-                ),
-                ComposableNode(
-                    package='pr_aux',
-                    node_plugin='pr_aux::MatrixMult',
-                    node_name='multiplier',
-                    remappings=[
-                        ("input_vector", "force_state_fixed_4comp"),
-                        ("input_matrix", "for_jac_invT"),
-                        ("output_vector", "force_joints")
-                    ],
-                ),
+                ),  
 
                 ComposableNode(
                     package='pr_sensors_actuators',

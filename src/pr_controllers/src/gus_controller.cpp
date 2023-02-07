@@ -52,18 +52,19 @@ namespace pr_controllers
 
         sub_pos = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "joint_position",
-            1,
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
             std::bind(&GusController::controller_callback, this, std::placeholders::_1)
         );
 
 
         sub_ref = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "ref_pose",
-            1,
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
             std::bind(&GusController::ref_callback, this, std::placeholders::_1)
         );
 
-        publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("control_action", 1);
+        publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>("control_action", 1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
 
 
     }
@@ -81,7 +82,11 @@ namespace pr_controllers
             auto control_action_msg = pr_msgs::msg::PRArrayH();
             control_action_msg.init_time = this->get_clock()->now();
             //Conversión, crear función para esto:
-
+            /////////// BORRAR
+            // auto a = control_action_msg.init_time;
+            // auto b = pos_msg->header.stamp;
+            // std::cout << (a.sec+a.nanosec*1e-9 -b.sec-b.nanosec*1e-9)*1000.0 << std::endl;
+            ///////////////////////////
             
             PRUtils::ArRMsg2Eigen(pos_msg, pos);
             
@@ -104,7 +109,6 @@ namespace pr_controllers
 
             control_action_msg.current_time = this->get_clock()->now();
             publisher_->publish(control_action_msg);
-
             /*RCLCPP_INFO(this->get_logger(), "I heard: %f, %f, %f, %f", control_action_msg.data[0],
                                                                     control_action_msg.data[1],
                                                                     control_action_msg.data[2],

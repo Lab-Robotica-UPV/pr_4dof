@@ -16,7 +16,7 @@
 #include "pr_msgs/msg/pr_array.hpp"
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/pr_force_state.hpp"
-#include "geometry_msgs/msg/accel_stamped.hpp"
+#include "geometry_msgs/msg/wrench_stamped.hpp"
 #include "eigen3/Eigen/Dense"
 
 #define PORT 49152 /* Port the Net F/T always uses */
@@ -49,7 +49,7 @@ namespace pr_sensors_actuators
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_;
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_sync_;
-            rclcpp::Publisher<geometry_msgs::msg::AccelStamped>::SharedPtr publisher_accelstamped_;
+            rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr publisher_wrenchstamped_;
             rclcpp::TimerBase::SharedPtr timer_;
             int socketHandle;
             uint8_t request[8];	/* The request data sent to the Net F/T. */

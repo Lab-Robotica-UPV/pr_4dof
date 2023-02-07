@@ -164,7 +164,8 @@ namespace pr_dmp
         // if (force_accel.norm() < 20.0) forward=1.0;
         // else forward = -1.0;
         // force_accel.fill(0.0);
-        
+        force[2] /= scaling_factor;
+        force[3] /= scaling_factor;
         norm_f = force.norm();
         input_gmr(0,0) = -dmp->get_tau()/a_x*log(x_dmp);
         mean_gmr = gmr.doRegression(input_gmr,sigma_gmr,inC,outC);
@@ -174,7 +175,7 @@ namespace pr_dmp
         error = (norm_f-mean_gmr(0, gmr.get_dim()-2))/sqrt(sigma_gmr[0](gmr.get_dim()-2, gmr.get_dim()-2));
                 // std::cout << "Error: " << error << std::endl;
         if (error > relative_error_limit){
-            speed = max(speed-0.005*pow(speed,2)-0.001*(error-relative_error_limit), -1.0);
+            speed = max(speed-0.05*pow(speed,2)-0.01*(error-relative_error_limit), -1.0);
         }  
         else{
             speed = min(speed+0.005*pow(speed,2)+0.001, 1.0);

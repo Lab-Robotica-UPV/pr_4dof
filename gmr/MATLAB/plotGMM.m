@@ -40,8 +40,8 @@ elseif display_mode==2
   plot(Mu(1,:), Mu(2,:), '-', 'lineWidth', 3, 'color', color);
 elseif display_mode==3
   for j=1:nbData
-    ymax(j) = Mu(2,j) + 3*sqrtm(Sigma(1,1,j));
-    ymin(j) = Mu(2,j) - 3*sqrtm(Sigma(1,1,j));
+    ymax(j) = Mu(2,j) + 4*sqrtm(Sigma(1,1,j));
+    ymin(j) = Mu(2,j) - 4*sqrtm(Sigma(1,1,j));
   end
   patch([Mu(1,1:end) Mu(1,end:-1:1)], [ymax(1:end) ymin(end:-1:1)], lightcolor, 'LineStyle', 'none');
   plot(Mu(1,:), Mu(2,:), '-', 'lineWidth', 3, 'color', color); 

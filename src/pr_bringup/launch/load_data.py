@@ -95,5 +95,9 @@ data['sing']['t_activation_releaser'] = sing_params['t_activation_releaser']
 dmp_params = load_params('dmp.yaml')
 data['dmp'] = dmp_params
 
+# Joy
+# joy_params = load_params('joy_config.yaml')
+# data['joy'] = joy_params
+
 # import json
 # print(json.dumps(data, indent=4))

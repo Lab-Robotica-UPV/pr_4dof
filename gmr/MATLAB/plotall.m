@@ -9,7 +9,7 @@ clc
 %close all
 
 % Directory name
-directory = 'Rafa_izq_joint';
+directory = 'Rafa_der';
 % Number of files
 n_files=5;
 

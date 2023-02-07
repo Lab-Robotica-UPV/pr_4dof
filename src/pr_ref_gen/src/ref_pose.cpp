@@ -75,23 +75,29 @@ namespace pr_ref_gen
         //Create communication
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
             "ref_pose",
-            1
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
         );
 
         publisher_x_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
             "ref_pose_x",
-            1
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
         );
 
         publisher_end_ = this->create_publisher<std_msgs::msg::Bool>(
             "end_flag",
-            1
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
         );
 
         subscription_ = this->create_subscription<pr_msgs::msg::PRArrayH>(
             "joint_position",
-            1,
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
             std::bind(&RefPose::topic_callback, this, _1)
+        );
+
+        subscription_external_stop_ = this->create_subscription<std_msgs::msg::Bool>(
+            "external_stop",
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
+            std::bind(&RefPose::external_stop_callback, this, _1)
         );
 
         
@@ -99,7 +105,7 @@ namespace pr_ref_gen
 
     void RefPose::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg)
     {
-        if(idx<n_ref)
+        if ((idx<n_ref) && !external_stop)
         {
             //Ref message and init time
             auto ref_msg_q = pr_msgs::msg::PRArrayH();
@@ -136,7 +142,15 @@ namespace pr_ref_gen
         std::cout << idx << std::endl;
     }
 
+    void RefPose::external_stop_callback(const std_msgs::msg::Bool::SharedPtr external_stop_msg)
+    {
+        if (!external_stop)
+            external_stop = external_stop_msg->data;
+    }
+
 }
+
+    
 
 #include "rclcpp_components/register_node_macro.hpp"
 

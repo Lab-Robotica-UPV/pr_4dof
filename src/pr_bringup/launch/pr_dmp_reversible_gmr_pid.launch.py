@@ -106,7 +106,7 @@ def generate_launch_description():
                         {"mass": data['dmp']['mass']},
                         {"speed": data['dmp']['speed']},
                         {"gain_slowdown": data['dmp']['gain_slowdown']},
-                        {"gmr_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/gmr/Rafa_izq_cart/outdata/gmm.txt"},
+                        {"gmr_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/gmr/Rafa_der/outdata/gmm.txt"},
                     ]
                 ),
                 ComposableNode(

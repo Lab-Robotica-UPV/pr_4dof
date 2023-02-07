@@ -37,12 +37,17 @@ namespace pr_sensors_actuators
         //Position publisher
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>(
 			"joint_position", 
-			1);
+			1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+			);
         //End signal subscription
         subscription_end_ = this->create_subscription<std_msgs::msg::Bool>(
             "end_flag",
-            1,
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
             std::bind(&Encoders::end_callback, this, _1));
+
+		// for (auto topic : rclcpp::Node::get_node_names()){
+		// 	std::cout << topic << std::endl;
+		// 	}
 
         //Encoder channels initialization
 		DeviceInformation devInfo(deviceDescription);

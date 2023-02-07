@@ -133,7 +133,7 @@ namespace pr_sensors_actuators
         timer_ = this->create_wall_timer(5ms, std::bind(&ForceSensor::timer_callback, this));
         
         publisher_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state", 1);
-        publisher_accelstamped_ = this->create_publisher<geometry_msgs::msg::AccelStamped>("force_state_accelstamped", 1);
+        publisher_wrenchstamped_ = this->create_publisher<geometry_msgs::msg::WrenchStamped>("force_state_std", 1);
         publisher_sync_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state_sync", 1);
 
         RCLCPP_INFO(this->get_logger(), "Sensor configurado");
@@ -196,18 +196,18 @@ namespace pr_sensors_actuators
 
         publisher_->publish(force_msg);
 
-        auto force_msg_as = geometry_msgs::msg::AccelStamped();
+        auto force_msg_ws = geometry_msgs::msg::WrenchStamped();
 
         // Subtract bias. If not calibrated, bias will remain 0
-        force_msg_as.accel.linear.x = 1.0*resp.FTData[0]/1000000.0 - bias(0);
-        force_msg_as.accel.linear.y = 1.0*resp.FTData[1]/1000000.0 - bias(1);
-        force_msg_as.accel.linear.z = 1.0*resp.FTData[2]/1000000.0 - bias(2);
-        force_msg_as.accel.angular.x = 1.0*resp.FTData[3]/1000000.0 - bias(3);
-        force_msg_as.accel.angular.y = 1.0*resp.FTData[4]/1000000.0 - bias(4);
-        force_msg_as.accel.angular.z = 1.0*resp.FTData[5]/1000000.0 - bias(5);
+        force_msg_ws.wrench.force.x = 1.0*resp.FTData[0]/1000000.0 - bias(0);
+        force_msg_ws.wrench.force.y = 1.0*resp.FTData[1]/1000000.0 - bias(1);
+        force_msg_ws.wrench.force.z = 1.0*resp.FTData[2]/1000000.0 - bias(2);
+        force_msg_ws.wrench.torque.x = 1.0*resp.FTData[3]/1000000.0 - bias(3);
+        force_msg_ws.wrench.torque.y = 1.0*resp.FTData[4]/1000000.0 - bias(4);
+        force_msg_ws.wrench.torque.z = 1.0*resp.FTData[5]/1000000.0 - bias(5);
 
-        force_msg_as.header.stamp = this->get_clock()->now();
-        publisher_accelstamped_->publish(force_msg_as);
+        force_msg_ws.header.stamp = this->get_clock()->now();
+        publisher_wrenchstamped_->publish(force_msg_ws);
 
         // RCLCPP_INFO(this->get_logger(), "Sensor: %f %f %f %f %f %f",force_msg.force[0], 
         //                                                             force_msg.force[1], 
