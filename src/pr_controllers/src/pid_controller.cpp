@@ -23,12 +23,16 @@ namespace pr_controllers
         this->declare_parameter<std::vector<double>>("kp_gain", {27190.0, 27190.0, 27190.0, 361023.0});
         this->declare_parameter<std::vector<double>>("kv_gain", {114.27, 114.27, 114.27, 491.32});
         this->declare_parameter<std::vector<double>>("ki_gain", {0.0, 0.0, 0.0, 0.0});
+        this->declare_parameter<std::vector<double>>("vp_conversion", {28.4628, 28.4628, 28.4628, 246.6779});
+        this->declare_parameter<double>("max_v", 9.5);
 
         this->declare_parameter<double>("ts", 0.01);
 
         this->get_parameter("kp_gain", Kp);
         this->get_parameter("kv_gain", Kv);
         this->get_parameter("ki_gain", Ki);
+        this->get_parameter("vp_conversion", vp_conversion);
+        this->get_parameter("max_v", max_v);
 
         this->get_parameter("ts", ts);
 
@@ -42,7 +46,14 @@ namespace pr_controllers
             Ki_mat(i,i) = Ki[i];
         }
         integ = Eigen::Vector4d::Zero(4);
+        integ_ant = Eigen::Vector4d::Zero(4);
         e_ant = Eigen::Vector4d::Zero(4);
+
+        // Calculate the maximum force that can be done with the controller
+        max_force = Eigen::Vector4d::Zero(4);
+        for (int i=0;i<4;i++){
+            max_force[i] = max_v*vp_conversion[i];
+        }
 
         RCLCPP_INFO(this->get_logger(), "Creating communication");
 
@@ -112,13 +123,14 @@ namespace pr_controllers
 
             PRUtils::ArRMsg2Eigen(pos_msg, pos);
 
+
             e = pos-ref;
             if (first_iter){
                 pos_ant = pos;
                 first_iter = false;
             }
             vel = PRUtils::derivation(pos, pos_ant, ts);
-            integ = PRUtils::integration_forward_euler(e, e_ant, integ, ts);
+            integ = PRUtils::integration_forward_euler(e, e_ant, integ_ant, ts);
             pos_ant = pos;
             e_ant = e;
 
@@ -127,6 +139,14 @@ namespace pr_controllers
             derivative_action = -Kv_mat*vel;
             integral_action = -Ki_mat*integ;
             control_action = proportional_action + derivative_action + integral_action;
+
+            // Check saturation with antiwindup
+            for (int i=0;i<4;i++){
+                if (control_action[i] > max_force[i]) control_action[i] = max_force[i];
+                else if (control_action[i] < -max_force[i]) control_action[i] = -max_force[i];
+                else integ_ant[i] = integ[i];
+            }  
+
 
             PRUtils::Eigen2ArMsg(control_action, control_action_msg);
             PRUtils::Eigen2ArMsg(proportional_action, proportional_action_msg);

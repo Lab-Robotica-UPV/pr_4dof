@@ -53,6 +53,12 @@ namespace pr_modelling
             std::bind(&AdmittanceEuler::activation_pin_callback, this, std::placeholders::_1)
         );
 
+        saturation_pin_sub = this->create_subscription<pr_msgs::msg::PRBoolH>(
+            "saturation_pin",
+            1,
+            std::bind(&AdmittanceEuler::saturation_pin_callback, this, std::placeholders::_1)
+        );
+
         // sync_.reset(new Synchronizer(SyncPolicy(1), sub_Fref, sub_F));
         // sync_->registerCallback(std::bind(&Admittance::topic_callback, this, std::placeholders::_1, std::placeholders::_2));
         // sync_->setMaxIntervalDuration(rclcpp::Duration(0, 1000000));
@@ -62,12 +68,16 @@ namespace pr_modelling
 
         // Initialize velocity and position vectors
         vel.resize(damping.size());
+        aux_pos.resize(damping.size());
+        aux_vel.resize(damping.size());
         pos.resize(damping.size());  
         dvel.resize(damping.size()); 
         dpos.resize(damping.size());
 
         std::fill(vel.begin(), vel.end(), 0.0);
         std::fill(pos.begin(), pos.end(), 0.0);
+        std::fill(aux_vel.begin(), aux_vel.end(), 0.0);
+        std::fill(aux_pos.begin(), aux_pos.end(), 0.0);
         std::fill(dvel.begin(), dvel.end(), 0.0);
         std::fill(dpos.begin(), dpos.end(), 0.0);
     }
@@ -99,8 +109,16 @@ namespace pr_modelling
                 dvel[i] = 1/mass[i]*(-stiffness[i]*pos[i] - damping[i]*vel[i] - force_error(i));
                 dpos[i] = vel[i];
 
-                vel[i]=vel[i]+dvel[i]*ts;
-                pos[i]=pos[i]+dpos[i]*ts;
+                aux_vel[i]=vel[i]+dvel[i]*ts;
+                aux_pos[i]=pos[i]+dpos[i]*ts;
+
+                if (saturation_pin && (abs(aux_pos[i])>abs(pos[i]))){
+                    vel[i] = 0;
+                }
+                else{
+                    vel[i] = aux_vel[i];
+                    pos[i] = aux_pos[i];
+                }
             }
 
             // Output msgs
@@ -149,6 +167,12 @@ namespace pr_modelling
     {
         // Update the activation pin
         activation_pin = activation_pin_msg->data;
+    }
+
+    void AdmittanceEuler::saturation_pin_callback(const pr_msgs::msg::PRBoolH::SharedPtr saturation_pin_msg)
+    {
+        // Update the saturation pin
+        saturation_pin = saturation_pin_msg->data;
     }
 }
 

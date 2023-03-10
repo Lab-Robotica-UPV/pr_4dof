@@ -22,6 +22,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(pr_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pr_lib REQUIRED)
@@ -63,6 +64,7 @@ ament_target_dependencies(pr_x_mocap
   "rclcpp"
   "rclcpp_components"
   "pr_msgs"
+  "std_msgs"
   "pr_lib"
   "Eigen3"
 )
@@ -99,6 +101,7 @@ ament_target_dependencies(pr_x_mocap_recorder
   "rclcpp"
   "rclcpp_components"
   "pr_msgs"
+  "Eigen3"
 )
 
 rclcpp_components_register_nodes(pr_x_mocap_recorder "pr_mocap::PRXMocapRecorder")

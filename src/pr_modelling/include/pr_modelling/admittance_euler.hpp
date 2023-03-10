@@ -22,12 +22,13 @@ namespace pr_modelling
             void ref_force_callback(const pr_msgs::msg::PRArrayH::SharedPtr f_ref_msg);
             void force_callback(const pr_msgs::msg::PRForceState::SharedPtr f_msg);
             void activation_pin_callback(const pr_msgs::msg::PRBoolH::SharedPtr activation_pin_msg);
-
+            void saturation_pin_callback(const pr_msgs::msg::PRBoolH::SharedPtr saturation_pin_msg);
         private:
 
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr f_ref_sub;
             rclcpp::Subscription<pr_msgs::msg::PRForceState>::SharedPtr f_sub;
             rclcpp::Subscription<pr_msgs::msg::PRBoolH>::SharedPtr activation_pin_sub;
+            rclcpp::Subscription<pr_msgs::msg::PRBoolH>::SharedPtr saturation_pin_sub;
             
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_pos_;
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_vel_;
@@ -35,14 +36,17 @@ namespace pr_modelling
             std::vector<double> mass, damping, stiffness;
             double ts;
 
-            std::vector<double> vel, pos, dvel, dpos;
+            std::vector<double> vel, pos, dvel, dpos, aux_pos, aux_vel;
 
             Eigen::Vector4d force_error;
 
             pr_msgs::msg::PRForceState msgForce;
             bool init_f = false;
             bool activation_pin = true;
-            // By default, this pin is in true, which means that if no program changes it, the admittance
+            // By default, activation_pin is in true, which means that if no program changes it, the admittance
+            // will be computed as expected
+            bool saturation_pin = false;
+            // By default, saturation_pin is in false, which means that if no program changes it, the admittance
             // will be computed as expected
     };
 

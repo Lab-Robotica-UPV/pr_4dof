@@ -4,7 +4,7 @@ ts: 0.01
 robot:
   robot_name: 'robot_5p' #'robot_3ups_rpu' #'robot_5p'
   config: 1
-  v_sat: 9.5
+  v_sat: 5.0
 
 robot_3ups_rpu: 
   encoder_gearbox: [1.0, 1.0, 1.0, 0.230769230769231]
@@ -28,8 +28,8 @@ robot_5p:
     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauFree/ref_qinde_TE0Pau_CF1_5P_V1.txt"
     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauFree/ref_cart_TE0Pau_CF1_5P_V1.txt"
 
-     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRDEMO_CF1_5P_V1.txt"
-     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRDEMO_CF1_5P_V1.txt"
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRDEMO_CF1_5P_V1.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRDEMO_CF1_5P_V1.txt"
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_qinde_TE0_CF1_5P_V1.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_cart_TE0_CF1_5P_V1.txt"
 
@@ -37,9 +37,21 @@ robot_5p:
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_gmr_rev.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_gmr_rev.txt"
 
-    # References Pau123
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Pau123/Pau123_Patas_Est.txt" #ref_qinde_TRR15_CF1_VS1.txt" #admittance/ref_qinde_TE0_CF1_VF1.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Pau123/Pau123_Cart_Est.txt" #ref_cart_TRR15_CF1_VS1.txt" #admittance/ref_cart_TE0_CF1_VF1.txt"
+    # References Fisio
+
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayIniPatas.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayIniCart.txt"
+
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayPatas_MVC1.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayCart_MVC1.txt"
+
+
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayPatas.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayCart.txt"
+   
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/EstaticoPatas.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/EstaticoCart.txt"
+
 
 #Iterations for direct kinematics
 dir_kin:

@@ -7,6 +7,8 @@
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "std_msgs/msg/bool.hpp"
 
+#include <cmath>
+
 using namespace Automation::BDaq;
 using std::placeholders::_1;
 
@@ -38,6 +40,11 @@ namespace pr_sensors_actuators
         RCLCPP_INFO(this->get_logger(), "This is actuator number %d", n_motor);
 
         //Create communication
+        publisher_end_ = this->create_publisher<std_msgs::msg::Bool>(
+            "end_flag",
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+
         subscription_=this->create_subscription<pr_msgs::msg::PRArrayH>(
             "control_action",
                         1,
@@ -74,10 +81,30 @@ namespace pr_sensors_actuators
             sat_ca(volts, max_v);
             if (abs(volts) > 3.33) std::cout << "Actuador: " << n_motor+1 << " " << volts << std::endl;
             //std::cout << n_motor << " " << volts << " ";
-               
+
+            // Time control
+            // This message is auxiliar to get the time
+            auto end_time_msg = pr_msgs::msg::PRArrayH();
+            end_time_msg.current_time = this->get_clock()->now();
+            auto end_time = end_time_msg.current_time;
+            auto init_time = control_action_msg->header.stamp;
+            auto duration_ms = (end_time.sec + end_time.nanosec*1e-9 - init_time.sec - init_time.nanosec*1e-9 )*1000;
+            //std::cout << "Duration (ms): " << (a.sec+a.nanosec*1e-9 -b.sec-b.nanosec*1e-9)*1000.0 << std::endl;
+            if (n_motor==1){
+                std::cout << "Duration: " << duration_ms << std::endl;  
+            }
+            // std::cout << "Init time sec: " << init_time.sec << " Final time sec: " << end_time.sec << std::endl;
+
+
             //RCLCPP_INFO(this->get_logger(), "Control action %f", volts);
-               
-            pci1720->Write(n_motor, 1, &volts);
+            // Check nan
+            if (std::isnan(volts)){
+                auto end_msg = std_msgs::msg::Bool();
+                end_msg.data = true;
+                publisher_end_->publish(end_msg);
+                std::cout << "Control action " << n_motor+1 << " with NaN!" << std::endl;
+            } 
+            else pci1720->Write(n_motor, 1, &volts);
         }
     }
 

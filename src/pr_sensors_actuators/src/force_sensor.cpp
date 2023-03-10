@@ -133,6 +133,10 @@ namespace pr_sensors_actuators
         timer_ = this->create_wall_timer(5ms, std::bind(&ForceSensor::timer_callback, this));
         
         publisher_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state", 1);
+        publisher_end_ = this->create_publisher<std_msgs::msg::Bool>(
+            "end_flag",
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
         publisher_wrenchstamped_ = this->create_publisher<geometry_msgs::msg::WrenchStamped>("force_state_std", 1);
         publisher_sync_ = this->create_publisher<pr_msgs::msg::PRForceState>("force_state_sync", 1);
 
@@ -158,11 +162,13 @@ namespace pr_sensors_actuators
         //RCLCPP_INFO(this->get_logger(), "Sending request");
         if (send(socketHandle, request, 8, 0 )<0) {
           std::cout << "Time out request!!" << std::endl;
+          disconnect_callback();
           return;
         }
 
         if (recv(socketHandle, response, 36, 0 )<0) {
           std::cout << "Time out response!!" << std::endl;
+          disconnect_callback();
           return;
         }
         resp.rdt_sequence = ntohl(*(uint32_t*)&response[0]);
@@ -171,6 +177,8 @@ namespace pr_sensors_actuators
         for( i_fuerza = 0; i_fuerza < 6; i_fuerza++ ) {
             resp.FTData[i_fuerza] = ntohl(*(int32_t*)&response[12 + i_fuerza * 4]);
         }
+
+        iter_disconnected = 0;
 
         // Subtract bias. If not calibrated, bias will remain 0
         force_msg.force[0] = 1.0*resp.FTData[0]/1000000.0 - bias(0);
@@ -236,6 +244,15 @@ namespace pr_sensors_actuators
       publisher_sync_->publish(force_msg_sync);
 
     }
+
+    void ForceSensor::disconnect_callback(){
+      iter_disconnected++;
+      if (iter_disconnected >= 5){
+          auto end_msg = std_msgs::msg::Bool();
+          end_msg.data = true;
+          publisher_end_->publish(end_msg);
+      }
+    } 
 
 }
 

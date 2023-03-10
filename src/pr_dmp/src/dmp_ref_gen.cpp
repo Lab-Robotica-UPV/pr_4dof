@@ -87,6 +87,7 @@ namespace pr_dmp
             "end_flag",
             1
         );
+        
 
         // Subscriptor for the acceleration force for the DMP (will be added in the term of the acceleration)
         subscription_force_accel_ = this->create_subscription<pr_msgs::msg::PRArrayH>(
@@ -103,6 +104,12 @@ namespace pr_dmp
             "joint_position",
             1,
             std::bind(&DmpRefGen::pos_callback, this, _1));
+        // Subscriber for external stop
+        subscription_external_stop_ = this->create_subscription<std_msgs::msg::Bool>(
+            "external_stop",
+            1,//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_sensor_data),
+            std::bind(&DmpRefGen::external_stop_callback, this, _1)
+        );
 
         // Trajectory generation for DMP
         Trajectory trajectory_dmp = Trajectory::readFromPosFile(ref_path, ts);
@@ -236,6 +243,12 @@ namespace pr_dmp
             force_vel[i] = force_vel_msg->data[i];
     }
 
+    void DmpRefGen::external_stop_callback(const std_msgs::msg::Bool::SharedPtr external_stop_msg)
+    {
+        if (!external_stop)
+            external_stop = external_stop_msg->data;
+    }
+
     // Callback for the joint position
     void DmpRefGen::pos_callback(const pr_msgs::msg::PRArrayH::SharedPtr pos_msg)
     {
@@ -250,8 +263,8 @@ namespace pr_dmp
         auto gka_msg = pr_msgs::msg::PRArrayH();
         gka_msg.init_time = this->get_clock()->now();
 
-        // Make sure we read the trajectory
-        if (ref_read){
+        // Make sure we read the trajectory and we didn't press the joy stop
+        if (ref_read && !external_stop){
 
             // If this is the first iter, we make the first integration of the system
             if (first_iter){

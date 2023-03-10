@@ -27,6 +27,11 @@ namespace pr_mocap
             1
         );
 
+        publisher_end_ = this->create_publisher<std_msgs::msg::Bool>(
+            "end_flag",
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+
         subscription_mocap_ = this->create_subscription<pr_msgs::msg::PRMocap>(
             "x_coord_mocap",
             1,
@@ -38,11 +43,15 @@ namespace pr_mocap
             std::bind(&PRXMocapSynchronizer::sampling_callback, this, _1));
 
         is_connected = false;
+
+        x_ant = Eigen::Vector4d::Zero();
+        x_current = Eigen::Vector4d::Zero();
     }
 
     void PRXMocapSynchronizer::mocap_callback(const pr_msgs::msg::PRMocap::SharedPtr x_mocap_msg)
     {
         is_connected = true;
+        iter_disconnected = 0;
         x_mocap.x_coord.data = x_mocap_msg->x_coord.data;
         x_mocap.latency = x_mocap_msg->latency;
     }
@@ -58,9 +67,32 @@ namespace pr_mocap
             x_mocap_msg.header.stamp = x_sampling_msg->header.stamp;
             x_mocap_msg.current_time = this->get_clock()->now();
 
-            publisher_mocap_->publish(x_mocap_msg);
+            if (first_iter){
+                x_ant[0] = x_mocap_msg.data[0];
+                x_ant[1] = x_mocap_msg.data[1];
+                x_ant[2] = x_mocap_msg.data[2];
+                x_ant[3] = x_mocap_msg.data[3];
+                first_iter = false;
+            }
+            x_current[0] = x_mocap_msg.data[0];
+            x_current[1] = x_mocap_msg.data[1];
+            x_current[2] = x_mocap_msg.data[2];
+            x_current[3] = x_mocap_msg.data[3];
+            distance = (x_current-x_ant).norm();
 
+            iter_disconnected++;
+            x_ant = x_current;
+            publisher_mocap_->publish(x_mocap_msg);
         }
+        if (!is_connected || iter_disconnected >= 20 || distance > 0.1 || std::isnan(distance)){
+            auto end_msg = std_msgs::msg::Bool();
+            end_msg.data = true;
+            publisher_end_->publish(end_msg);
+            if (!is_connected) std::cout << "Cameras initially disconnected!" << std::endl;
+            if (iter_disconnected >= 20) std::cout << "Cameras disconnected for very long!" << std::endl;
+            if (distance > 0.1) std::cout << "No consistent measurements from cameras!" << std::endl;
+            if (std::isnan(distance)) std::cout << "NaN values for cameras!" << std::endl;
+        }  
 
     }
     

@@ -3,7 +3,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "pr_msgs/msg/pr_array_h.hpp"
-#include "std_msgs/msg/bool.hpp"
+#include "pr_msgs/msg/pr_bool_h.hpp"
 
 #include <array>
 #include <vector>
@@ -22,6 +22,7 @@ namespace pr_aux
         private:
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_;
+            rclcpp::Publisher<pr_msgs::msg::PRBoolH>::SharedPtr publisher_pin_sat_;
             std::vector<double> min_val;
             std::vector<double> max_val;
     };

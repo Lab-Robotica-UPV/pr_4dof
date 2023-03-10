@@ -57,7 +57,7 @@ namespace pr_ref_gen
         x_med_prev_vec.resize(4);
 
         //Vector of maximum velocities
-        Xp_max << 0.01, 0.01, 2*M_PI/180, 2*M_PI/180;
+        Xp_max << 0.05, 0.05, 10*M_PI/180, 10*M_PI/180;
 
         //Condicion inicial para el contador de desviaciones
 

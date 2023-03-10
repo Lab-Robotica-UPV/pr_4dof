@@ -35,7 +35,9 @@ namespace pr_aux
             1,
             std::bind(&Saturator::topic_callback, this, _1));
 
-        
+        publisher_pin_sat_ = this->create_publisher<pr_msgs::msg::PRBoolH>(
+			"saturation_pin", 
+		1);
     }
 
     void Saturator::topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr var_msg)
@@ -43,22 +45,38 @@ namespace pr_aux
         //Saturator message and init time
         auto var_sat_msg = pr_msgs::msg::PRArrayH();
         var_sat_msg.init_time = this->get_clock()->now();
+        auto pin_sat_msg = pr_msgs::msg::PRBoolH();
+        pin_sat_msg.init_time = this->get_clock()->now();
+        pin_sat_msg.data = false;
+            
 
         for(int i=0; i<4; i++)
         {
-            if (var_msg->data[i] > max_val[i])
+            if (var_msg->data[i] > max_val[i]){
                 var_sat_msg.data[i] = max_val[i];
-            else if (var_msg->data[i] < min_val[i])
+                pin_sat_msg.data = true;
+                std::cout << "Pata " << i+1 << " saturada en el máximo!" << std::endl;
+            }
+            else if (var_msg->data[i] < min_val[i]){
                 var_sat_msg.data[i] = min_val[i];
+                pin_sat_msg.data = true;
+                std::cout << "Pata " << i+1 << " saturada en el mínimo!" << std::endl;
+            }
             else
                 var_sat_msg.data[i] = var_msg->data[i];
         }
 
         var_sat_msg.header.stamp = var_msg->header.stamp;
         var_sat_msg.header.frame_id = var_msg->header.frame_id;
+
+        pin_sat_msg.header.stamp = var_msg->header.stamp;
+        pin_sat_msg.header.frame_id = var_msg->header.frame_id;
         
         var_sat_msg.current_time = this->get_clock()->now();
         publisher_->publish(var_sat_msg);
+
+        pin_sat_msg.current_time = this->get_clock()->now();
+        publisher_pin_sat_->publish(pin_sat_msg);
     }
 
     

@@ -3,9 +3,12 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include <chrono>
 
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "std_msgs/msg/bool.hpp"
+
+
 
 #include "bdaqctrl.h"
 #define deviceDescription L"PCI-1720,BID#15"
@@ -27,6 +30,7 @@ namespace pr_sensors_actuators
             void sat_ca(double &control_action, const double &sat);
         
         private:
+            rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisher_end_;
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_end_;
             int n_motor;

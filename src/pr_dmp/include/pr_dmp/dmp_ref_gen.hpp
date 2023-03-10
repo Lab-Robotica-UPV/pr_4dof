@@ -52,6 +52,8 @@ namespace pr_dmp
             void force_vel_callback(const pr_msgs::msg::PRArrayH::SharedPtr force_vel_msg);
             // Callback for the joint position    
             void pos_callback(const pr_msgs::msg::PRArrayH::SharedPtr pos_msg);
+            // Callback for the external stop
+            void external_stop_callback(const std_msgs::msg::Bool::SharedPtr external_stop_msg);
 
         private:
 
@@ -62,6 +64,9 @@ namespace pr_dmp
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_force_vel_;
             // Subscription to the joint position
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_pos_;
+            // Subscription of external stop
+            rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_external_stop_;
+
             // Publisher of joint position
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_q_;
             // Publisher of cart position (will be zeros if isCart and calcCart are both set to false)
@@ -150,6 +155,9 @@ namespace pr_dmp
             std::vector<double> x_dir_kin;
             // Complete solution of the inverse kinematics
             Eigen::Matrix<double, 4, 3> q_inv_kin;
+
+            // External stop
+            bool external_stop = false;
     };
 }
 

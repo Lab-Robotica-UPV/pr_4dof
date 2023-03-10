@@ -120,6 +120,7 @@ ament_target_dependencies(force_sensor
   "rclcpp"
   "rclcpp_components"
   "pr_msgs"
+  "std_msgs"
   "geometry_msgs"
   "Eigen3")
 

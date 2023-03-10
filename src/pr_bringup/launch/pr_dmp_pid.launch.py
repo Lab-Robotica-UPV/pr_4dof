@@ -89,7 +89,8 @@ def generate_launch_description():
                         ("dmp_force_accel", "dmp_force_accel"),
                         ("dmp_force_vel", "dmp_force_vel"),
                         ("gka_traj","ref_force"),
-                        ("dmp_phase","dmp_phase")
+                        ("dmp_phase","dmp_phase"),
+                        ("external_stop", "joy_stop")
                     ],
                     parameters=[
                         {"ts": data['general']['ts']},
@@ -122,6 +123,17 @@ def generate_launch_description():
                         {"ki_gain": controller_params['controller']['ki']}
                     ]
                 ),
+
+                ComposableNode(
+                    package='pr_joy',
+                    node_plugin='pr_joy::JoyStop',
+                    node_name='joy_stop',
+                    remappings=[
+                        ("joy", "joy"),
+                        ("joy_stop", "joy_stop")
+                    ],
+                ),  
+
                 ComposableNode(
                     package='pr_sensors_actuators',
                     node_plugin='pr_sensors_actuators::Encoders',

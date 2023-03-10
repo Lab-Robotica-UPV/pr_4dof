@@ -117,7 +117,8 @@ def generate_launch_description():
                         ("force_state", "force_state_fixed"),
                         ("ref_force", "ref_force"),
                         ("vel_admittance", "vel_admittance"),
-                        ("pos_admittance", "pos_admittance")
+                        ("pos_admittance", "pos_admittance"),
+                        ("saturation_pin","saturation_pin")
                     ],
                     parameters=[
                         {"mass": data['force']['admittance_params']['mass']},
@@ -134,7 +135,8 @@ def generate_launch_description():
                         ("ref_pose", "ref_pose"),
                         ("ref_pose_x", "ref_pose_x"),
                         ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position")
+                        ("joint_position", "joint_position"),
+                        ("external_stop", "joy_stop")
                     ],
                     parameters=[
                         {"ref_path": data['general']['ref_path']['x']},
@@ -148,9 +150,10 @@ def generate_launch_description():
                     node_name='ref_force_gen',
                     remappings=[
                         ("ref_pose", "ref_force"),
-                        ("end_flag", "end_flag_force"),
+                        ("end_flag", "end_flag"),
                         ("joint_position", "joint_position"),
-                        ("ref_pose_x", "useless_topic")
+                        ("ref_pose_x", "useless_topic"),
+                        ("external_stop", "joy_stop")
                     ],
                     parameters=[
                         {"ref_path": data['force']['ref_force_path']},
@@ -190,7 +193,8 @@ def generate_launch_description():
                     node_name='saturator',
                     remappings=[
                         ("signal_init", "ref_sum_not_sat"),
-                        ("signal_saturated", "ref_sum")
+                        ("signal_saturated", "ref_sum"),
+                        ("saturation_pin","saturation_pin")
                     ],
                     parameters=[
                         {"min_val": data['config_params']['q_lim']['min']},
@@ -220,7 +224,9 @@ def generate_launch_description():
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']}
+                        {"ki_gain": controller_params['controller']['ki']},
+                        {"vp_conversion": controller_params['vp_conversion']},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
                        
@@ -246,25 +252,46 @@ def generate_launch_description():
                     node_name='mocap_synchronizer',
                     remappings=[
                         ("joint_position", "joint_position"),
-                        ("x_mocap_sync", "x_mocap_sync")
+                        ("x_mocap_sync", "x_mocap_sync"),
+                        ("end_flag", "end_flag")
                     ],
                     parameters=[
                         {"tol": 0.01}
                     ]
                 ),
 
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocapRecorder',
-                    node_name='ref_x_mocap_recorder',
-                    remappings=[
-                        ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position")
-                    ],
-                    parameters=[
-                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Pau123_Fuerza"}
-                    ]
-                ),
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapRecorder',
+                #     node_name='ref_x_mocap_recorder',
+                #     remappings=[
+                #         ("end_flag", "end_flag"),
+                #         ("joint_position", "joint_position")
+                #     ],
+                #     parameters=[
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Jose"}
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_topic_forwarding',
+                #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                #     node_name='pos_x_std',
+                #     remappings=[
+                #         ("array_topic", "x_mocap_sync"),
+                #         ("quaternion_topic", "pos_x_std")
+                #     ],
+                # ),
+
+                # ComposableNode(
+                #     package='pr_topic_forwarding',
+                #     node_plugin='pr_topic_forwarding::ForceStateToWrench',
+                #     node_name='force_std',
+                #     remappings=[
+                #         ("force_topic", "force_state_fixed"),
+                #         ("wrench_topic", "force_std")
+                #     ],
+                # ),
 
                 ComposableNode(
                     package='pr_joy',

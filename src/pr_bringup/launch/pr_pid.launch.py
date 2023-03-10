@@ -86,6 +86,7 @@ def generate_launch_description():
                     node_name='ref_pose_gen',
                     remappings=[
                         ("ref_pose", "ref_pose"),
+                        ("ref_pose_x", "useless_topic"),
                         ("end_flag", "end_flag"),
                         ("joint_position", "joint_position"),
                         ("external_stop", "joy_stop")
@@ -108,7 +109,9 @@ def generate_launch_description():
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']}
+                        {"ki_gain": controller_params['controller']['ki']},
+                        {"vp_conversion": controller_params['vp_conversion']},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
 
@@ -242,22 +245,38 @@ def generate_launch_description():
                 ComposableNode(
                     package='pr_topic_forwarding',
                     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='array_to_quaternion_pos_q',
+                    node_name='pos_q_std',
                     remappings=[
                         ("array_topic", "joint_position"),
-                        ("quaternion_topic", "joint_position_std")
+                        ("quaternion_topic", "pos_q_std")
                     ],
                 ),  
 
                 ComposableNode(
                     package='pr_topic_forwarding',
                     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='array_to_quaternion_ref_q',
+                    node_name='ref_x_std',
                     remappings=[
-                        ("array_topic", "ref_pose"),
-                        ("quaternion_topic", "ref_pose_std")
+                        ("array_topic", "ref_x"),
+                        ("quaternion_topic", "ref_x_std")
                     ],
                 ),  
+
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::ForwardKinematics',
+                    node_name='for_kin',
+                    remappings=[
+                        ("joint_position", "ref_pose"),
+                        ("x_coord", "ref_x"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"initial_position": data['general']['init_x']},
+                        {"tol": data['general']['dir_kin']['tol']},
+                        {"iter": data['general']['dir_kin']['iter']},
+                    ]
+                ),
 
                 ComposableNode(
                     package='pr_sensors_actuators',

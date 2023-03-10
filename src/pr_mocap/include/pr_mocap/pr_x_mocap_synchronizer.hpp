@@ -4,7 +4,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "pr_msgs/msg/pr_array_h.hpp"
 #include "pr_msgs/msg/pr_mocap.hpp"
+#include "std_msgs/msg/bool.hpp"
 
+#include "eigen3/Eigen/Dense"
 #include <array>
 #include <vector>
 
@@ -24,10 +26,19 @@ namespace pr_mocap
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_sampling_;
             rclcpp::Subscription<pr_msgs::msg::PRMocap>::SharedPtr subscription_mocap_;
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_mocap_;
+            rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisher_end_;
 
             double tol;
-            bool is_connected;
+            bool is_connected = false;
+            int iter_disconnected = 0;
             pr_msgs::msg::PRMocap x_mocap;
+
+            // Check differences
+            Eigen::Vector4d x_ant;
+            Eigen::Vector4d x_current;
+            bool first_iter = true;
+            // Distance between consecutive samples
+            double distance = 0;
     };
 }
 

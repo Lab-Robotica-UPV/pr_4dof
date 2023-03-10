@@ -89,9 +89,11 @@ def generate_launch_description():
                     parameters=[
                         {"kp_gain": controller_params['controller']['kp']},
                         {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']}
+                        {"ki_gain": controller_params['controller']['ki']},
+                        {"vp_conversion": controller_params['vp_conversion']},
+                        {"max_v": data['general']['robot']['v_sat']}
                     ]
-                ), 
+                ),
 
                 ComposableNode(
                     package='pr_ref_gen',
@@ -144,6 +146,21 @@ def generate_launch_description():
                         {"server_data_port": data['mocap_server']["server_data_port"]},
                         {"marker_names":  data['mocap_server']["marker_names"]},
                         {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocapSynchronizer',
+                    node_name='mocap_synchronizer',
+                    remappings=[
+                        ("joint_position", "joint_position_zeros"),
+                        ("x_mocap_sync", "x_mocap_sync"),
+                        ("x_coord_mocap", "x_coord_mocap"),
+                        ("end_flag", "end_flag")
+                    ],
+                    parameters=[
+                        {"tol": 0.01}
                     ]
                 ),
 

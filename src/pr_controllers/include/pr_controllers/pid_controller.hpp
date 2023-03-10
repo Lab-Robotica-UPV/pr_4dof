@@ -41,6 +41,7 @@ namespace pr_controllers
             Eigen::Vector4d pos_ant;
             Eigen::Vector4d ref, pos, vel;
             Eigen::Vector4d integ; // Integrator term
+            Eigen::Vector4d integ_ant;
             Eigen::Vector4d e, e_ant;
             Eigen::Vector4d control_action;
             Eigen::Matrix4d Kp_mat, Kv_mat, Ki_mat;
@@ -60,6 +61,11 @@ namespace pr_controllers
             Eigen::Vector4d index_error = Eigen::Vector4d::Zero();
             Eigen::Vector4d index_action = Eigen::Vector4d::Zero();
             double Je, Ju;
+
+            // For saturation of the control action
+            double max_v;
+            std::vector<double> vp_conversion;
+            Eigen::Vector4d max_force;
     };
 }
 

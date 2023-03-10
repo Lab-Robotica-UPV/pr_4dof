@@ -18,6 +18,7 @@
 #include "pr_msgs/msg/pr_force_state.hpp"
 #include "geometry_msgs/msg/wrench_stamped.hpp"
 #include "eigen3/Eigen/Dense"
+#include "std_msgs/msg/bool.hpp"
 
 #define PORT 49152 /* Port the Net F/T always uses */
 #define COMMAND 2 /* Command code 2 starts streaming */
@@ -35,6 +36,8 @@ namespace pr_sensors_actuators
         protected:
             //Change for a topic callback to sync with encoder
             void timer_callback();
+            // To check disconnection
+            void disconnect_callback();
             //Synchronize with the encoder
             void topic_callback(const pr_msgs::msg::PRArrayH::SharedPtr q_msg);
 
@@ -50,6 +53,7 @@ namespace pr_sensors_actuators
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_;
             rclcpp::Publisher<pr_msgs::msg::PRForceState>::SharedPtr publisher_sync_;
             rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr publisher_wrenchstamped_;
+            rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisher_end_;
             rclcpp::TimerBase::SharedPtr timer_;
             int socketHandle;
             uint8_t request[8];	/* The request data sent to the Net F/T. */
@@ -76,6 +80,9 @@ namespace pr_sensors_actuators
             bool noise_threshold; // Parameter
             std::vector<double> std_noise; // Std noise calculated from experiment
             pr_msgs::msg::PRForceState force_msg;
+
+            // check disconnection
+            int iter_disconnected = 0;
     };
 
 }   // Namespace pr_sensors_actuators
