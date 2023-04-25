@@ -260,38 +260,48 @@ def generate_launch_description():
                     ]
                 ),
 
-                # ComposableNode(
-                #     package='pr_mocap',
-                #     node_plugin='pr_mocap::PRXMocapRecorder',
-                #     node_name='ref_x_mocap_recorder',
-                #     remappings=[
-                #         ("end_flag", "end_flag"),
-                #         ("joint_position", "joint_position")
-                #     ],
-                #     parameters=[
-                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Jose"}
-                #     ]
-                # ),
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocapRecorder',
+                    node_name='ref_x_mocap_recorder',
+                    remappings=[
+                        ("end_flag", "end_flag"),
+                        ("joint_position", "joint_position")
+                    ],
+                    parameters=[
+                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_FE_JL_1"}
+                    ]
+                ),
+
+                ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='pos_x_std',
+                    remappings=[
+                        ("array_topic", "x_mocap_sync"),
+                        ("quaternion_topic", "pos_x_std")
+                    ],
+                ),
 
                 # ComposableNode(
                 #     package='pr_topic_forwarding',
                 #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
                 #     node_name='pos_x_std',
                 #     remappings=[
-                #         ("array_topic", "x_mocap_sync"),
-                #         ("quaternion_topic", "pos_x_std")
+                #         ("array_topic", "ref_sum_x"),
+                #         ("quaternion_topic", "ref_x_std")
                 #     ],
                 # ),
 
-                # ComposableNode(
-                #     package='pr_topic_forwarding',
-                #     node_plugin='pr_topic_forwarding::ForceStateToWrench',
-                #     node_name='force_std',
-                #     remappings=[
-                #         ("force_topic", "force_state_fixed"),
-                #         ("wrench_topic", "force_std")
-                #     ],
-                # ),
+                ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ForceStateToWrench',
+                    node_name='force_std',
+                    remappings=[
+                        ("force_topic", "force_state_fixed"),
+                        ("wrench_topic", "force_std")
+                    ],
+                ),
 
                 ComposableNode(
                     package='pr_joy',

@@ -9,8 +9,8 @@ robot:
 robot_3ups_rpu: 
   encoder_gearbox: [1.0, 1.0, 1.0, 0.230769230769231]
   ref_path:
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_qinde_TE0_CF1_VFS1.txt" #ref_qinde_TRR15_CF1_VS1.txt" #admittance/ref_qinde_TE0_CF1_VF1.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_cart_TE0_CF1_VFS1.txt" #ref_cart_TRR15_CF1_VS1.txt" #admittance/ref_cart_TE0_CF1_VF1.txt"
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_qinde_TRR8_CF1_VS1.txt" #ref_qinde_TRR15_CF1_VS1.txt" #admittance/ref_qinde_TE0_CF1_VF1.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/singular/ref_cart_TRR8_CF1_VS1.txt" #ref_cart_TRR15_CF1_VS1.txt" #admittance/ref_cart_TE0_CF1_VF1.txt"
 
 
 robot_5p:
@@ -39,8 +39,8 @@ robot_5p:
 
     # References Fisio
 
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayIniPatas.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayIniCart.txt"
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayIniPatas.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayIniCart.txt"
 
     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayPatas_MVC1.txt"
     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayCart_MVC1.txt"
@@ -51,6 +51,9 @@ robot_5p:
    
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/EstaticoPatas.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/EstaticoCart.txt"
+
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayPatas_Cal_JL_1.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayCart_Cal_JL_1.txt"
 
 
 #Iterations for direct kinematics

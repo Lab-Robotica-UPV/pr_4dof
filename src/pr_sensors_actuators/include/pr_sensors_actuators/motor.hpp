@@ -6,6 +6,7 @@
 #include <chrono>
 
 #include "pr_msgs/msg/pr_array_h.hpp"
+#include "pr_msgs/msg/pr_float_h.hpp"
 #include "std_msgs/msg/bool.hpp"
 
 
@@ -31,6 +32,8 @@ namespace pr_sensors_actuators
         
         private:
             rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisher_end_;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_mean_;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_var_;
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr subscription_;
             rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_end_;
             int n_motor;
@@ -40,6 +43,13 @@ namespace pr_sensors_actuators
             double max_v;
             bool is_finished = false;
             double vp_conversion;
+
+            // This variables are to study the oscillations in the control action
+            double running_mean;
+            double running_var = 0;
+            double alpha = 0.9;
+            bool init_sample = true;
+            double threshold_var = 5;
     };
 
 }   // Namespace pr_sensors_actuators

@@ -45,6 +45,16 @@ namespace pr_sensors_actuators
             1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
         );
 
+        publisher_mean_ = this->create_publisher<pr_msgs::msg::PRFloatH>(
+            "mean_u_"+std::to_string(n_motor+1),
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+
+         publisher_var_ = this->create_publisher<pr_msgs::msg::PRFloatH>(
+            "var_u_"+std::to_string(n_motor+1),
+            1//rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST,5), rmw_qos_profile_default)
+        );
+
         subscription_=this->create_subscription<pr_msgs::msg::PRArrayH>(
             "control_action",
                         1,
@@ -82,6 +92,35 @@ namespace pr_sensors_actuators
             if (abs(volts) > 3.33) std::cout << "Actuador: " << n_motor+1 << " " << volts << std::endl;
             //std::cout << n_motor << " " << volts << " ";
 
+            // The following code allows to track the mean and variance of the control action
+            // Incremental calculation of weighted mean and variance (Tony Finch)
+            if (init_sample){
+                running_mean = volts;
+                init_sample = false;
+            }
+            running_var = alpha*(running_var+(1-alpha)*pow(volts-running_mean,2));
+            running_mean = running_mean + (1-alpha)*(volts - running_mean);
+            auto running_mean_msg = pr_msgs::msg::PRFloatH();
+            auto running_var_msg = pr_msgs::msg::PRFloatH();
+
+            running_mean_msg.init_time = this->get_clock()->now();
+            running_var_msg.init_time = this->get_clock()->now();
+
+            running_mean_msg.data = running_mean;
+            running_var_msg.data = running_var;
+
+            running_mean_msg.header.stamp = control_action_msg->header.stamp;
+            running_mean_msg.header.frame_id = control_action_msg->header.frame_id;
+            
+            running_var_msg.header.stamp = control_action_msg->header.stamp;
+            running_var_msg.header.frame_id = control_action_msg->header.frame_id;
+
+            running_mean_msg.current_time = this->get_clock()->now();
+            publisher_mean_->publish(running_mean_msg);
+            running_var_msg.current_time = this->get_clock()->now();
+            publisher_var_->publish(running_var_msg);
+
+
             // Time control
             // This message is auxiliar to get the time
             auto end_time_msg = pr_msgs::msg::PRArrayH();
@@ -98,11 +137,15 @@ namespace pr_sensors_actuators
 
             //RCLCPP_INFO(this->get_logger(), "Control action %f", volts);
             // Check nan
-            if (std::isnan(volts)){
+            if (std::isnan(volts) || running_var>threshold_var)
+            {
                 auto end_msg = std_msgs::msg::Bool();
                 end_msg.data = true;
                 publisher_end_->publish(end_msg);
-                std::cout << "Control action " << n_motor+1 << " with NaN!" << std::endl;
+                if (std::isnan(volts))
+                    std::cout << "Control action " << n_motor+1 << " with NaN!" << std::endl;
+                if (running_var>threshold_var)
+                    std::cout << "Control action " << n_motor+1 << "oscillatory!" << std::endl;
             } 
             else pci1720->Write(n_motor, 1, &volts);
         }

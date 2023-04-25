@@ -153,59 +153,59 @@ def generate_launch_description():
                 #         ("joint_position", "joint_position")
                 #     ],
                 #     parameters=[
-                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_PauMid"}
+                #         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Val_JL_4"}
                 #     ]
                 # ),
 
-                # ComposableNode(
-                #     package='pr_sensors_actuators',
-                #     node_plugin='pr_sensors_actuators::ForceSensor',
-                #     node_name='force_sensor',
-                #     remappings=[
-                #         ("joint_position", "joint_position"),
-                #         ("force_state", "force_state"),
-                #         ("force_state_sync", "force_state_sync"),
-                #         ("force_state_std", "force_state_std")
-                #     ],
-                #     parameters=[
-                #         {"calibration": data['force']['calibration']},
-                #         {"noise_threshold": data['force']['noise_threshold']}
-                #     ]
-                # ),
+                ComposableNode(
+                    package='pr_sensors_actuators',
+                    node_plugin='pr_sensors_actuators::ForceSensor',
+                    node_name='force_sensor',
+                    remappings=[
+                        ("joint_position", "joint_position"),
+                        ("force_state", "force_state"),
+                        ("force_state_sync", "force_state_sync"),
+                        ("force_state_std", "force_state_std")
+                    ],
+                    parameters=[
+                        {"calibration": data['force']['calibration']},
+                        {"noise_threshold": data['force']['noise_threshold']}
+                    ]
+                ),
 
-                # ComposableNode(
-                #     package='pr_modelling',
-                #     node_plugin='pr_modelling::ForceFixedFrame',
-                #     node_name='force_fixed_frame',
-                #     remappings=[
-                #         ("force_state", "force_state_sync"),
-                #         ("x_coord", "x_coord"),
-                #         ("force_state_fixed", "force_state_fixed"),
-                #         ("force_state_fixed_4comp", "force_state_fixed_4comp")
-                #     ],
-                #     parameters=[
-                #         {"boot_mass": data['force']['boot_mass']},
-                #         {"boot_cdg": data['force']['boot_cdg']},
-                #         {"boot_compensation": data['force']['boot_compensation']},
-                #         {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
-                #     ]
-                # ),
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::ForceFixedFrame',
+                    node_name='force_fixed_frame',
+                    remappings=[
+                        ("force_state", "force_state_sync"),
+                        ("x_coord", "x_coord"),
+                        ("force_state_fixed", "force_state_fixed"),
+                        ("force_state_fixed_4comp", "force_state_fixed_4comp")
+                    ],
+                    parameters=[
+                        {"boot_mass": data['force']['boot_mass']},
+                        {"boot_cdg": data['force']['boot_cdg']},
+                        {"boot_compensation": data['force']['boot_compensation']},
+                        {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
+                    ]
+                ),
 
-                # ComposableNode(
-                #     package='pr_modelling',
-                #     node_plugin='pr_modelling::ForwardKinematics',
-                #     node_name='for_kin',
-                #     remappings=[
-                #         ("joint_position", "joint_position"),
-                #         ("x_coord", "x_coord"),
-                #     ],
-                #     parameters=[
-                #         {"robot_config_params": data['config_params']['geometry']},
-                #         {"initial_position": data['general']['init_x']},
-                #         {"tol": data['general']['dir_kin']['tol']},
-                #         {"iter": data['general']['dir_kin']['iter']},
-                #     ]
-                # ),
+                ComposableNode(
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::ForwardKinematics',
+                    node_name='for_kin',
+                    remappings=[
+                        ("joint_position", "joint_position"),
+                        ("x_coord", "x_coord"),
+                    ],
+                    parameters=[
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"initial_position": data['general']['init_x']},
+                        {"tol": data['general']['dir_kin']['tol']},
+                        {"iter": data['general']['dir_kin']['iter']},
+                    ]
+                ),
 
                 # ComposableNode(
                 #     package='pr_modelling',
@@ -242,25 +242,45 @@ def generate_launch_description():
                     ],
                 ),   
                 
+                # ComposableNode(
+                #     package='pr_topic_forwarding',
+                #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                #     node_name='pos_q_std',
+                #     remappings=[
+                #         ("array_topic", "joint_position"),
+                #         ("quaternion_topic", "pos_q_std")
+                #     ],
+                # ),  
+
+                # ComposableNode(
+                #     package='pr_topic_forwarding',
+                #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                #     node_name='ref_x_std',
+                #     remappings=[
+                #         ("array_topic", "ref_x"),
+                #         ("quaternion_topic", "ref_x_std")
+                #     ],
+                # ),  
+
                 ComposableNode(
                     package='pr_topic_forwarding',
                     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='pos_q_std',
+                    node_name='pos_x_std',
                     remappings=[
-                        ("array_topic", "joint_position"),
-                        ("quaternion_topic", "pos_q_std")
+                        ("array_topic", "x_coord"),
+                        ("quaternion_topic", "pos_x_std")
                     ],
                 ),  
 
                 ComposableNode(
                     package='pr_topic_forwarding',
-                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='ref_x_std',
+                    node_plugin='pr_topic_forwarding::ForceStateToWrench',
+                    node_name='force_std',
                     remappings=[
-                        ("array_topic", "ref_x"),
-                        ("quaternion_topic", "ref_x_std")
+                        ("force_topic", "force_state_fixed"),
+                        ("wrench_topic", "force_std")
                     ],
-                ),  
+                ),
 
                 ComposableNode(
                     package='pr_modelling',
