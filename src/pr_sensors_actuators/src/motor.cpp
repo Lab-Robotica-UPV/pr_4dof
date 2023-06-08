@@ -137,17 +137,18 @@ namespace pr_sensors_actuators
 
             //RCLCPP_INFO(this->get_logger(), "Control action %f", volts);
             // Check nan
-            if (std::isnan(volts) || running_var>threshold_var)
-            {
-                auto end_msg = std_msgs::msg::Bool();
-                end_msg.data = true;
-                publisher_end_->publish(end_msg);
-                if (std::isnan(volts))
-                    std::cout << "Control action " << n_motor+1 << " with NaN!" << std::endl;
-                if (running_var>threshold_var)
-                    std::cout << "Control action " << n_motor+1 << "oscillatory!" << std::endl;
-            } 
-            else pci1720->Write(n_motor, 1, &volts);
+            // if (std::isnan(volts) || running_var>threshold_var)
+            // {
+            //     auto end_msg = std_msgs::msg::Bool();
+            //     end_msg.data = true;
+            //     publisher_end_->publish(end_msg);
+            //     if (std::isnan(volts))
+            //         std::cout << "Control action " << n_motor+1 << " with NaN!" << std::endl;
+            //     if (running_var>threshold_var)
+            //         std::cout << "Control action " << n_motor+1 << "oscillatory!" << std::endl;
+            // } 
+            // else pci1720->Write(n_motor, 1, &volts);
+            pci1720->Write(n_motor, 1, &volts);
         }
     }
 

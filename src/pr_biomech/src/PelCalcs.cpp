@@ -7,6 +7,6 @@ void pr_biomech::StreamingGDLF::PelCalcs() {
 	Vector3d G_u_z_ACSpelvis = unit((G_r_G.RASIS - G_r_G.LASIS));
 	Vector3d G_u_y_ACSpelvis = unit((G_r_G.MPSIS - G_r_G.MASIS).cross(G_r_G.RASIS - G_r_G.MASIS));
 	Vector3d G_u_x_ACSpelvis = G_u_y_ACSpelvis.cross(G_u_z_ACSpelvis);
-	R.G_R_ACSpelvis << G_u_x_ACSpelvis, G_u_y_ACSpelvis, G_u_z_ACSpelvis;
-	HJC.col(GlobalCnt) = R.G_R_ACSpelvis * cal_data->ACSpelvis_r_PelAvg_ACSpelvis + ACSpelvis;
+	R.Pelvis << G_u_x_ACSpelvis, G_u_y_ACSpelvis, G_u_z_ACSpelvis;
+	G_r_G.Pelvis = R.Pelvis * cal_data->ACSpelvis_r_PelAvg_ACSpelvis + ACSpelvis;
 }

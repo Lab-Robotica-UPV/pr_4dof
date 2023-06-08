@@ -269,7 +269,7 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_FE_JL_1"}
+                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_jose"}
                     ]
                 ),
 
@@ -283,15 +283,15 @@ def generate_launch_description():
                     ],
                 ),
 
-                # ComposableNode(
-                #     package='pr_topic_forwarding',
-                #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                #     node_name='pos_x_std',
-                #     remappings=[
-                #         ("array_topic", "ref_sum_x"),
-                #         ("quaternion_topic", "ref_x_std")
-                #     ],
-                # ),
+                ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='ref_x_std',
+                    remappings=[
+                        ("array_topic", "ref_pose_x"),
+                        ("quaternion_topic", "ref_x_std")
+                    ],
+                ),
 
                 ComposableNode(
                     package='pr_topic_forwarding',
@@ -300,6 +300,16 @@ def generate_launch_description():
                     remappings=[
                         ("force_topic", "force_state_fixed"),
                         ("wrench_topic", "force_std")
+                    ],
+                ),
+
+                ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='ref_force_std',
+                    remappings=[
+                        ("array_topic", "ref_force"),
+                        ("quaternion_topic", "ref_force_std")
                     ],
                 ),
 

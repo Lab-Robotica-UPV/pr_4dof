@@ -53,8 +53,7 @@ add_library(pr_lib_biomech SHARED
   src/pr_data_structures.cpp
   src/pr_json_calibration.cpp
   src/pr_json_gdlf.cpp
-  src/pr_mocap.cpp
-  src/pr_biomech_fun.cpp)
+  src/pr_mocap.cpp)
 
 target_link_libraries(pr_lib_biomech "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/lib" NatNet)
 

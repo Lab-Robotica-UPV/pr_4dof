@@ -9,57 +9,70 @@ namespace PRJsonData{
 
     namespace PRJsonCal{
 
-        struct Calibration_data_struct;
-        struct TibColLig_struct;
-        struct FibColLig_struct;
-        struct O6_r_O6_struct;
-        struct Plane4Bar_struct;
-        struct Widths_struct;
+        struct Plane4Bar;
+        struct r_Local;
+        struct R_local;
 
-        struct O6_r_O6_struct{
-            Eigen::Vector3d LM2;
-            Eigen::Vector3d MM2;
-            Eigen::Vector3d SCS_Tib;
+        struct Plane4Bar_struct {
+            Eigen::Vector3d LMO4_u;
+            Eigen::Matrix <double,6,1> L;
+            double DELTA;
+            Eigen::Matrix3d u_R_LMO4;
+            double ThetaL1X3;
+            double ThetaL3X5;
             void print_data(); 
         };
 
+        struct r_Local_struct {
+            struct Fem_struct {
+                Eigen::Vector3d CoM;
+                Eigen::Vector3d LFE;
+                Eigen::Vector3d MFE;
+                Eigen::Vector3d O3;
+            };
+            struct Tib_struct {
+                Eigen::Vector3d CoM;
+                Eigen::Vector3d LM;
+                Eigen::Vector3d MM;
+                Eigen::Vector3d FH;
+                Eigen::Vector3d O5;
+            };
+            struct Pie_struct {
+                Eigen::Vector3d CoM;
+                Eigen::Vector3d MH1;
+                Eigen::Vector3d MH5;
+                Eigen::Vector3d CAL;
+                Eigen::Vector3d O7;
+            };
+            struct Pel_struct {
+                Eigen::Vector3d LASIS;
+                Eigen::Vector3d LPSIS;
+                Eigen::Vector3d RASIS;
+                Eigen::Vector3d RPSIS;
+            };
 
-        struct Plane4Bar_struct{
-            Eigen::Vector3d LMO4_u;
-            Eigen::Matrix<double,6, 1> L;
-            Eigen::Vector2d A;
-            double theta0;
-            double DELTA;
-            Eigen::Matrix3d u_R_LMO4;
+            Fem_struct Fem;
+            Tib_struct Tib;
+            Pie_struct Pie;
+            Pel_struct Pel;            
+
             void print_data();
         };
 
-
-        struct Widths_struct{
-            double Fem;
-            double Tib;
+        struct R_local_struct{
+            Eigen::Matrix3d Femur_O3;
+            Eigen::Matrix3d Tibia_O5;
+            Eigen::Matrix3d Pie_O7;
             void print_data();
         };
 
         struct Calibration_data_struct : public Data_struct{
 
             Eigen::Vector3d ACSpelvis_r_PelAvg_ACSpelvis;
-            Eigen::Matrix3d O6_R_SCS_Tib;
-            O6_r_O6_struct O6_r_O6;
             Plane4Bar_struct Plane4Bar;
-            Eigen::Vector3d SCS_Tib_CPL_Tib;
-            Eigen::Vector3d SCS_Tib_CPM_Tib;
-            Eigen::Vector3d SCS_Tib_rg;
-            Eigen::Vector3d SCSpie_r_SCSpie_Gpie;
-            Widths_struct Widths;
-            double ang_cad_AbdAduc_i;
-            double ang_cad_FlxExt_i;
-            double ang_pie_FlxExt_i;
-            double ang_rod_FlxExt_i;
-            Eigen::Matrix<double,6,1> m;
-            double m_pie;
-            Eigen::Matrix<double,3,6> rg;
-            Eigen::Vector3d G_g;
+            r_Local_struct r_Local;
+            R_local_struct R_local;
+            Eigen::Matrix <double, 8, 4> DH_parameters;
 
             bool correct_reading = true;
             std::vector<std::string> non_correct;

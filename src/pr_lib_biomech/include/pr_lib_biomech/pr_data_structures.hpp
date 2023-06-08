@@ -23,91 +23,48 @@ namespace PRDataStructures{
             Vector3d CylCent;
             Vector3d CylDir;
         }; 
-
-        Vector3d ACSpelvis;
-        Vector3d AJC;
-        Vector3d AJC2;
-        Vector3d CAL;
-        Vector3d CPL;
-        Vector3d CPM;
-        Vector3d Cal2;
-        Ext_struct Ext;
-        Vector3d FH;
-        Vector3d FH2;
-        Vector3d Fem_Cent;
-        Vector3d Fext;
-        Vector3d Fext_r;
-        Vector3d Fext_u;
-        Vector3d FibColLigTib;
-        Vector3d FibColLigTib_un;
-        Vector3d Gpie;
-        Vector3d Gpie_r;
-        Vector3d HJC;
-        Vector3d IC;
-        Vector3d KJC;
+        
+        //Marcadores Optitrack
         Vector3d LASIS;
-        Vector3d LFE;
-        Vector3d LM;
-        Vector3d LM2;
-        Vector3d LMO4;
-        Vector3d LPSIS;
-        Vector3d MASIS;
-        Vector3d MFE;
-        Vector3d MH1;
-        Vector3d MH1_2;
-        Vector3d MH5;
-        Vector3d MH5_2;
-        Vector3d MHmid;
-        Vector3d MM;
-        Vector3d MM2;
-        Vector3d MPSIS;
-        Vector3d O1;
-        Vector3d O4;
-        Vector3d O5;
-        Vector3d P1;
-        Vector3d P2;
-        Vector3d P3;
-        Vector3d P4;
-        Vector3d Pie_Cent;
         Vector3d RASIS;
+        Vector3d LPSIS;
         Vector3d RPSIS;
-        Vector3d SCS_Fem;
-        Vector3d SCS_Tib;
-        Vector3d SCSpie;
-        Vector3d TibColLigTib;
-        Vector3d TibColLigTib_un;
-        Vector3d Tib_Cent;
-        ViaPtsViaContours_struct ViaPtsViaContours;
-        Vector3d g4;
-        Vector3d g6;
-
+        Vector3d LFE;
+        Vector3d MFE;
+        Vector3d LM;
+        Vector3d MM;
+        Vector3d FH;
+        Vector3d CAL;
+        Vector3d MH1;
+        Vector3d MH5;
+        Vector3d Fext;
+        // Posiciones calcualdas
+        Vector3d MidFE      ;
+        Vector3d MidM       ;
+        Vector3d MidDM      ;
+        Vector3d MASIS      ;
+        Vector3d MPSIS      ;
+        Vector3d Pelvis     ;
+        Vector3d Femur      ;
+        Vector3d Tibia      ;
+        Vector3d Pie        ;
+        Vector3d IC         ;
         void print_data();
         
     };
 
     struct R_struct {
-        Matrix3d u_R_LMO4, LMO4_R_u, G_R_ACSpelvis, G_R_SCSpie, G_R_LMO4, LMO4_R_G, G_R_SCS_Tib;
+        // Matrices de rotacion segmentos
+        Matrix3d Pelvis, Femur, Tibia, Pie, G_R_LMO4;
+        // Matrices de rotacion intermedios
+        Matrix3d O0_O3, Tibia_Pie, O3_O5, O5_O7;
+        // Matrices de rotacion Rodilla
+        Matrix3d u_R_LMO4;
         void print_data();
     };
 
     // Struct with relevant data to check after experiment
     struct Data_struct {
-
-        struct cad_struct {
-            VectorXd FlxExt, AbdAduc, IntExt;
-        };
-        struct rod_struct {
-            VectorXd FlxExt;
-        };
-        struct pie_struct {
-            VectorXd FlxExt;
-        };
-
-        struct ang_struct {
-            cad_struct cad;
-            rod_struct rod;
-            pie_struct pie;
-        };
 
         struct input_struct {
             Matrix<double, 6, Dynamic> forces;
@@ -133,18 +90,16 @@ namespace PRDataStructures{
             // Matrix<double, 3, Dynamic> human_markers;
         };
 
-        ang_struct ang;
         VectorXd Time;
         std::string Date;
-        VectorXd GenForceHipFlxExt, GenForceKneeFlxExtGrav, GenForceKneeFlxExtFext, GenForceKneeFlxExtMext, GenForceKneeFlxExt;
-        Matrix<double,6,Dynamic> q;
-        VectorXd BicFemCB, GastLat, GastMed, BicFemCL, SemTend, SemMem, Sat, Gra;
-        VectorXd VasInt123, VasMedInf12, VasMedMed12, VasMedSup34, VasLatSup12, VasInt456, VasLatInf4;
-        VectorXd RecFem12_1, RecFem12_2, TenFacLat;
-        Matrix<double,8,Dynamic> FlxCoefMatRed;
-        Matrix<double,10,Dynamic> ExtCoefMatRed;
-        VectorXd F_OnTibUc, F_OnTibUt, F_ACL, F_PCL;
-        VectorXi Frame;
+        Matrix<double, 3, Dynamic> G_Fext;
+        Matrix<double, 3, Dynamic> G_Mext;
+        Matrix<double,73,Dynamic> MuscleForce;
+        Matrix<double, 3, Dynamic> F_Knee;
+        Matrix<double, 3, Dynamic> M_Knee;
+        Matrix<double, 8, Dynamic> q;
+        VectorXd PatForce, PosKnee;
+        Matrix<double, 6, Dynamic> TauMus;
         input_struct input;
 
         void print_data();
@@ -152,7 +107,7 @@ namespace PRDataStructures{
 
     // Struct with data from human makers
     struct Piel_struct {
-        Matrix<double, 3, Dynamic> LASIS; 
+        Matrix<double, 3, Dynamic> LASIS;
         Matrix<double, 3, Dynamic> RASIS;
         Matrix<double, 3, Dynamic> LPSIS;
         Matrix<double, 3, Dynamic> RPSIS;
@@ -199,6 +154,8 @@ namespace PRDataStructures{
         
         void print_data();
     };
+
+
 
     // AUXILIARY Struct with input data from force sensor (remove in ROS)
     struct AUXILIAR_ForceSensorin_struct {

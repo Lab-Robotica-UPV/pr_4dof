@@ -25,6 +25,7 @@ find_package(pr_msgs REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pr_lib_biomech REQUIRED)
+find_package(pr_lib REQUIRED)
 
 ####### PONER ESTA LÍNEA SIEMPRE EN LOS CMAKE!!!!!!#########
 ####### AUMENTA MUCHO LA VELOCIDAD!!!!! ############
@@ -55,13 +56,11 @@ endif()
 
 add_library(streaming_gdlf SHARED
   src/streaming_gdlf.cpp
+  src/Cinematica.cpp
+  src/Dinamica.cpp
   src/PelCalcs.cpp
-  src/CalConst_Pau2.cpp
   src/CalTheta2Theta3.cpp
-  src/DynamicsHerz_Pau.cpp
-  src/MusForceOpt2_Anta_Coef_Guard_Red.cpp
-  src/CalLigForceAnta_Pau.cpp
-  src/FOpt.cpp)
+  )
 
   target_link_libraries(streaming_gdlf "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/NatNet/lib_ros/lib" NatNet)
 
@@ -77,10 +76,29 @@ ament_target_dependencies(streaming_gdlf
 )
 
 rclcpp_components_register_nodes(streaming_gdlf "pr_biomech::StreamingGDLF")
-set(node_plugins "${node_plugins}pr_biomech::StreamingGDLF;$<TARGET_FILE:pr_biomech>\n")
+set(node_plugins "${node_plugins}pr_biomech::StreamingGDLF;$<TARGET_FILE:streaming_gdlf>\n")
+
+### Algorithm assistance node ###
+
+add_library(algorithm_assistance SHARED
+  src/algorithm_assistance.cpp)
+
+target_compile_definitions(algorithm_assistance
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(algorithm_assistance
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(algorithm_assistance "pr_biomech::AlgorithmAssistance")
+set(node_plugins "${node_plugins}pr_biomech::AlgorithmAssistance;$<TARGET_FILE:algorithm_assistance>\n")
 
 install(TARGETS
 streaming_gdlf
+algorithm_assistance
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

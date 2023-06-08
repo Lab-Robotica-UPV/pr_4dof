@@ -52,8 +52,14 @@ robot_5p:
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/EstaticoPatas.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/EstaticoCart.txt"
 
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayPatas_Cal_JL_1.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayCart_Cal_JL_1.txt"
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayPatas_Cal_JL_1.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Fisio/TrayCart_Cal_JL_1.txt"
+
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_Test/JoseTest2_StaticPatas.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_Test/JoseTest2_StaticCart.txt"
+
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230601/PatasSegFuerza2.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230601/TrayectoriaSegFuerza2.txt"
 
 
 #Iterations for direct kinematics

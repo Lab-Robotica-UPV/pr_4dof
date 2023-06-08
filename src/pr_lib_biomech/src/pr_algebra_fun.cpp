@@ -5,42 +5,85 @@ VectorXd unit(VectorXd v) {
 	return v / v.norm();
 }
 
+// Matrix3d GetRotMat(Vector3d P1, Vector3d P2, Vector3d P3, int P2P3axis, int NormToPlaneAxis, int ThrdAxis) {
+// 	/*
+// 	This function calculates the rotation matrix from 3 points.The first
+// 	axis is defined from P2 to P3, the second from the direction normal to
+// 	the plane that contains the three points.And the third from the right
+// 	hand rule.
+// 					P1
+// 				   /  \
+// 		          /    \
+// 		         /      \
+// 		        /        \      NormToPlaneAxis is calculated from : unit(cross2(P2 - P1, P3 - P1))
+// 		       /          \
+// 		      /            \
+// 		     /              \
+// 		P2-> > -P2P3axis-> > P3
+// 		*/
+// 	// The index of the columns are subtracted 1 to match the difference between Matlab (starts from 1) and C++ (starts from 0)
+// 	// This way the function is used in a Matlab-indexing way
+// 	Matrix3d R = Matrix3d::Zero();
+// 	R.col(P2P3axis-1) = unit(P3 - P2);
+// 	if (NormToPlaneAxis < 0) {
+// 		NormToPlaneAxis = -NormToPlaneAxis;
+// 		R.col(NormToPlaneAxis - 1) = -unit((P2 - P1).cross(P3 - P1));
+// 	}
+// 	else {
+// 		R.col(NormToPlaneAxis - 1) = unit((P2 - P1).cross(P3 - P1));
+// 	}
+
+// 	if (NormToPlaneAxis == (P2P3axis + 1) || (P2P3axis == 3 && NormToPlaneAxis == 1)) {
+// 		R.col(ThrdAxis-1) = R.col(P2P3axis-1).cross(R.col(NormToPlaneAxis-1));
+// 	}
+// 	else {
+// 		R.col(ThrdAxis-1) = -R.col(P2P3axis-1).cross(R.col(NormToPlaneAxis-1));
+// 	}
+
+// 	return R;
+// }
+
 Matrix3d GetRotMat(Vector3d P1, Vector3d P2, Vector3d P3, int P2P3axis, int NormToPlaneAxis, int ThrdAxis) {
-	/*
-	This function calculates the rotation matrix from 3 points.The first
-	axis is defined from P2 to P3, the second from the direction normal to
-	the plane that contains the three points.And the third from the right
-	hand rule.
-					P1
-				   /  \
-		          /    \
-		         /      \
-		        /        \      NormToPlaneAxis is calculated from : unit(cross2(P2 - P1, P3 - P1))
-		       /          \
-		      /            \
-		     /              \
-		P2-> > -P2P3axis-> > P3
-		*/
-	// The index of the columns are subtracted 1 to match the difference between Matlab (starts from 1) and C++ (starts from 0)
-	// This way the function is used in a Matlab-indexing way
-	Matrix3d R = Matrix3d::Zero();
-	R.col(P2P3axis-1) = unit(P3 - P2);
+	// R = GetRotMat(P1,P2,P3,P2P3axis,NormToPlaneAxis,ThrdAxis)
+	// This function caluclates the rotation matrix from 3 points. The first
+	// axis is defined from P2 to P3, the second from the direction normal to
+	// the plane that contains the three points. And the third from the right
+	// hand rule.
+	//                 P1
+	//                /  \
+	//               /    \
+	//              /      \
+	//             /        \      NormToPlaneAxis is calculated from: unit(cross2(P2-P1,P3-P1))
+	//            /          \
+	//           /            \
+	//          /              \
+	//        P2->>-P2P3axis->> P3
+	
+	P2P3axis--;
+	NormToPlaneAxis--;
+	ThrdAxis--;
+
+
+	Matrix3d R_temp;
+	R_temp.col(P2P3axis) = unit(P3 - P2);
+
 	if (NormToPlaneAxis < 0) {
 		NormToPlaneAxis = -NormToPlaneAxis;
-		R.col(NormToPlaneAxis - 1) = -unit((P2 - P1).cross(P3 - P1));
+		R_temp.col(NormToPlaneAxis) = -unit((P2-P1).cross(P3-P1));
 	}
 	else {
-		R.col(NormToPlaneAxis - 1) = unit((P2 - P1).cross(P3 - P1));
+		R_temp.col(NormToPlaneAxis) = unit((P2 - P1).cross(P3 - P1));
+
 	}
 
-	if (NormToPlaneAxis == (P2P3axis + 1) || (P2P3axis == 3 && NormToPlaneAxis == 1)) {
-		R.col(ThrdAxis-1) = R.col(P2P3axis-1).cross(R.col(NormToPlaneAxis-1));
+	if ( (P2P3axis == 0 &&  NormToPlaneAxis == 1) || (P2P3axis == 1 && NormToPlaneAxis == 2) || (P2P3axis == 2 && NormToPlaneAxis == 0)) {
+		R_temp.col(ThrdAxis) = R_temp.col(P2P3axis).cross(R_temp.col(NormToPlaneAxis));
 	}
 	else {
-		R.col(ThrdAxis-1) = -R.col(P2P3axis-1).cross(R.col(NormToPlaneAxis-1));
+		R_temp.col(ThrdAxis) = -R_temp.col(P2P3axis).cross(R_temp.col(NormToPlaneAxis));
 	}
 
-	return R;
+	return R_temp;
 }
 
 int Sol4BarGivenTheta3(double Theta3, double L1, double L2, double L3, double L4, double &Theta2, double &Theta4) {

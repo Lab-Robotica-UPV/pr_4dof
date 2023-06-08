@@ -46,6 +46,10 @@ namespace PRJsonData{
         template<typename D, typename Derived>
         void assign_value(const D &doc, const Value::ConstMemberIterator &itr, Eigen::MatrixBase<Derived> &var);
 
+        // Function overloading if the var is a vector of double Eigen Matrices
+        template<typename D, int rows, int cols>
+        void assign_value(const D& doc, const Value::ConstMemberIterator& itr, std::vector<Eigen::Matrix<double, rows, cols>>& var);
+
         // Function overload if the Eigen matrix is of integers
         void assign_value(int &var, const Value &val);
 
@@ -70,7 +74,7 @@ namespace PRJsonData{
             file.close();
             // document parses all JSON content
             if (document.Parse(json_string.c_str()).HasParseError()){
-                std::cout << "Error while parsing JSON string" << std::endl;
+                std::cout << "Error while parsing JSON string " << std::endl;
                 correct_reading = false;
                 throw std::string("Error while parsing JSON string");
             }
@@ -78,13 +82,13 @@ namespace PRJsonData{
     }
 
     // Prints all the data
-    inline void Data_struct::print_data(){
-        
+    inline void Data_struct::print_data() {
+
         std::cout << "correct_reading: " << correct_reading << std::endl;
-        std::cout << "non correct: "; 
-        for (int i=0; i<non_correct.size(); i++) std::cout <<  non_correct[i] << " "; 
+        std::cout << "non correct: ";
+        for (int i = 0; i < non_correct.size(); i++) std::cout << non_correct[i] << " ";
         std::cout << "\n";
-    }
+    };
 
     // Generic function that reads from a rapidjson document or value (substructure) and a generic var
     template<typename D, typename T>
@@ -142,6 +146,30 @@ namespace PRJsonData{
 
     }
 
+    // Function overloading if the var is a vector of double Eigen Matrices
+    template<typename D, int rows, int cols>
+    inline void Data_struct::assign_value(const D& doc, const Value::ConstMemberIterator& itr, std::vector<Eigen::Matrix<double, rows, cols>>& var) {
+        const Value& vec = itr->value.GetArray();
+        int dim1 = itr->value.Size();
+        const Value& vec2 = vec[0].GetArray();
+        int dim2 = vec2.Size();
+        const Value& vec3 = vec2[0].GetArray();
+        int dim3 = vec3.Size();
+
+        assert(dim2 == rows && dim3 == cols);
+
+        Eigen::Matrix<double, rows, cols> mat;
+
+        for (int i = 0; i < dim1; i++) {
+            for (int j = 0; j < dim2; j++) {
+                for (int k = 0; k < dim3; k++) {
+                    assign_value(mat(j, k), vec[i].GetArray()[j].GetArray()[k]);
+                }
+            }
+            var.push_back(mat);
+        }
+    }
+
     // Function overload if the Eigen matrix is of integers
     inline void Data_struct::assign_value(int &var, const Value &val){
         var = val.GetInt();
@@ -162,6 +190,8 @@ namespace PRJsonData{
         const Value& val = doc[member.c_str()];
         return val;
     }
+
+    
 
 }
 
