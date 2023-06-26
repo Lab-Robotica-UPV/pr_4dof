@@ -19,7 +19,11 @@ namespace pr_biomech
         this->declare_parameter<int>("robot_option",2);
         this->declare_parameter<int>("force_sensor_option",1);
         this->declare_parameter<bool>("human_option",true);
-        //this->declare_parameter<std::string>("musculo_Obj","");
+        this->declare_parameter<int>("n_mus",5);
+        this->declare_parameter<double>("length_tibia", 0.5);
+        this->declare_parameter<double>("length_foot", 0.25);
+        this->declare_parameter<double>("ref_muscle_force", 0);
+
 
 
         this->get_parameter("num_samples", num_samples);
@@ -29,7 +33,10 @@ namespace pr_biomech
         this->get_parameter("robot_option", robot_option);
         this->get_parameter("force_sensor_option", force_sensor_option);
         this->get_parameter("human_option", human_option);
-        //this->get_parameter("musculo_Obj",musculo_Obj);
+        this->get_parameter("n_mus",n_mus);
+        this->get_parameter("length_tibia", length_tibia);
+        this->get_parameter("length_foot", length_foot);
+        this->get_parameter("ref_muscle_force", ref_muscle_force);
 
         try{
             mocap_object = std::make_unique<PRMocap::Mocap>(robot_option, force_sensor_option, human_option);
@@ -49,7 +56,10 @@ namespace pr_biomech
             std::bind(&StreamingGDLF::force_callback, this, _1)
         );
 
-        publisher_gen_force_knee = this->create_publisher<pr_msgs::msg::PRFloatH>("generalized_force_knee", 1);
+        pub_gen_force_knee = this->create_publisher<pr_msgs::msg::PRFloatH>("gen_force_knee", 1);
+        pub_muscle_force = this->create_publisher<pr_msgs::msg::PRFloatH>("muscle_force", 1);
+        pub_ref_muscle_force = this->create_publisher<pr_msgs::msg::PRFloatH>("ref_muscle_force", 1);
+        pub_muscle_dir = this->create_publisher<pr_msgs::msg::PRArrayH>("muscle_dir", 1);
         //publisher_F_opt_ref = this->create_publisher<pr_msgs::msg::PRArrayH>("f_opt_ref", 1);
 
         // Load Cal data
@@ -85,9 +95,19 @@ namespace pr_biomech
 
     void StreamingGDLF::force_callback(const pr_msgs::msg::PRForceState::SharedPtr force_state_msg){
 
-        // Ref mod message and init time
+        // Messages and init times
         auto gen_force_knee_msg = pr_msgs::msg::PRFloatH();
         gen_force_knee_msg.init_time = this->get_clock()->now();
+
+        auto muscle_force_msg = pr_msgs::msg::PRFloatH();
+        muscle_force_msg.init_time = this->get_clock()->now();
+
+        auto ref_muscle_force_msg = pr_msgs::msg::PRFloatH();
+        ref_muscle_force_msg.init_time = this->get_clock()->now();
+
+        auto muscle_dir_msg = pr_msgs::msg::PRArrayH();
+        muscle_dir_msg.init_time = this->get_clock()->now();
+
 
         // rclcpp::Time init = this->get_clock()->now();
 
@@ -238,17 +258,15 @@ namespace pr_biomech
             PatCoef = Interpol(q[4], q5_int, gdlf_data->AllPatCoef.middleCols(n_q5[0], 2));
             KneeCoef = Interpol_3D(q[4], q5_int, gdlf_data->AllKneeCoef[n_q5[0]], gdlf_data->AllKneeCoef[n_q5[1]]);
             // Cálculo la Tau que debe compensar´los músculos
-            TauMus = -TauGrav - Tau;
+            TauMus = - Tau; // -TauGrav;
             //std::cout << "TauMus: " << TauMus << std::endl;
             // Cálculo de las fuerzas músculares para compensar la Tau
             MusForce(); // Validado
             // Cálculo de las fuerzas de reacción en la rodilla
             //gdlf_data->r_Local.print_data();
             CalcKneeForces();
-
-            gen_force_knee_msg.header.stamp = force_state_msg->header.stamp;
-            gen_force_knee_msg.header.frame_id = force_state_msg->header.frame_id;
-            gen_force_knee_msg.data = 0.0; // Change
+            // Obtain direction to exercise muscle n_mus
+            muscle_dir = VectDir();
 
             // Fill data
             Data.Time(GlobalCnt) = gen_force_knee_msg.init_time.sec*1000 + gen_force_knee_msg.init_time.nanosec*1e-6 - Tiempo_0;
@@ -261,13 +279,49 @@ namespace pr_biomech
             Data.PatForce(GlobalCnt) = PatForce;
             Data.TauMus.col(GlobalCnt) = TauMus;
             Data.PosKnee(GlobalCnt) = PosKnee;
+            Data.muscle_dir.col(GlobalCnt) = muscle_dir;
+            
             
             GlobalCnt++;
             // Ponemos a 0 el origen
             O0.setZero(3, 1);
 
+            // Fill msgs
+            gen_force_knee = Tau(3);
+            muscle_force = MuscleForce(n_mus);
+
+            gen_force_knee_msg.data = gen_force_knee;
+            muscle_force_msg.data = muscle_force;
+            ref_muscle_force_msg.data = ref_muscle_force;
+            muscle_dir_msg.data[0] = muscle_dir(0);
+            muscle_dir_msg.data[1] = muscle_dir(1);
+            muscle_dir_msg.data[2] = muscle_dir(2);
+            muscle_dir_msg.data[3] = muscle_dir(3);
+
+
+            gen_force_knee_msg.header.stamp = force_state_msg->header.stamp;
+            gen_force_knee_msg.header.frame_id = force_state_msg->header.frame_id;
+
             gen_force_knee_msg.current_time = this->get_clock()->now();
-            publisher_gen_force_knee->publish(gen_force_knee_msg);
+            pub_gen_force_knee->publish(gen_force_knee_msg);
+
+            muscle_force_msg.header.stamp = force_state_msg->header.stamp;
+            muscle_force_msg.header.frame_id = force_state_msg->header.frame_id;
+
+            muscle_force_msg.current_time = this->get_clock()->now();
+            pub_muscle_force->publish(muscle_force_msg);
+
+            ref_muscle_force_msg.header.stamp = force_state_msg->header.stamp;
+            ref_muscle_force_msg.header.frame_id = force_state_msg->header.frame_id;
+
+            ref_muscle_force_msg.current_time = this->get_clock()->now();
+            pub_ref_muscle_force->publish(ref_muscle_force_msg);
+
+            muscle_dir_msg.header.stamp = force_state_msg->header.stamp;
+            muscle_dir_msg.header.frame_id = force_state_msg->header.frame_id;
+
+            muscle_dir_msg.current_time = this->get_clock()->now();
+            pub_muscle_dir->publish(muscle_dir_msg);
 
             // f_opt_ref_msg.current_time = this->get_clock()->now();
             // publisher_F_opt_ref->publish(f_opt_ref_msg);
@@ -289,6 +343,8 @@ namespace pr_biomech
             // std::cout << "dur4 " << dur4 << std::endl;
             // std::cout << "dur5 " << dur5 << std::endl;
             // std::cout << "dur6 " << dur6 << std::endl;
+
+            std::cout << "Nodo streaming finalizado" << std::endl;
         }
 
     }
@@ -306,6 +362,7 @@ namespace pr_biomech
         vector2ss("PatForce", Data.PatForce, ss); ss << ",";
         vector2ss("PosKnee", Data.PosKnee, ss); ss << ",";
         matrix2ss("TauMus", Data.TauMus, ss); ss << ",";
+        matrix2ss("muscle_dir", Data.muscle_dir, ss); ss << ",";
 
         ss << "\"input\":{";
         matrix2ss("forces", Data.input.forces, ss); ss << ",";
@@ -462,6 +519,7 @@ void pr_biomech::StreamingGDLF::initialization() {
     Data.PatForce = Eigen::VectorXd::Zero(num_samples);
     Data.PosKnee = Eigen::VectorXd::Zero(num_samples);
     Data.TauMus = Eigen::MatrixXd::Zero(6, num_samples);
+    Data.muscle_dir = Eigen::MatrixXd::Zero(4, num_samples);
 
     Data.input.forces = Eigen::MatrixXd::Zero(6, num_samples);
     Data.input.LASIS = Eigen::MatrixXd::Zero(3, num_samples);

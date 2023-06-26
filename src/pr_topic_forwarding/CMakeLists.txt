@@ -26,6 +26,7 @@ find_package(message_filters REQUIRED)
 
 find_package(pr_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(pr_lib REQUIRED)
 
 find_package(eigen3_cmake_module REQUIRED)
@@ -124,11 +125,31 @@ ament_target_dependencies(force_state_to_wrench
 rclcpp_components_register_nodes(force_state_to_wrench "pr_topic_forwarding::ForceStateToWrench")
 set(node_plugins "${node_plugins}pr_topic_forwarding::ForceStateToWrench;$<TARGET_FILE:force_state_to_wrench>\n")
 
+### Float to float node ###
+
+add_library(float_to_float SHARED
+  src/float_to_float.cpp)
+
+target_compile_definitions(float_to_float
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(float_to_float
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "std_msgs"
+)
+
+rclcpp_components_register_nodes(float_to_float "pr_topic_forwarding::FloatToFloat")
+set(node_plugins "${node_plugins}pr_topic_forwarding::FloatToFloat;$<TARGET_FILE:float_to_float>\n")
+
+
 install(TARGETS
 topic_forwarding
 array_to_quaternion
 array_to_wrench
 force_state_to_wrench
+float_to_float
 
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

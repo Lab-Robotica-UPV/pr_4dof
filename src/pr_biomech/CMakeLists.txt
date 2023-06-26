@@ -96,9 +96,47 @@ ament_target_dependencies(algorithm_assistance
 rclcpp_components_register_nodes(algorithm_assistance "pr_biomech::AlgorithmAssistance")
 set(node_plugins "${node_plugins}pr_biomech::AlgorithmAssistance;$<TARGET_FILE:algorithm_assistance>\n")
 
+### Admittance Euler biomech node ###
+
+add_library(admittance_euler_biomech SHARED
+  src/admittance_euler_biomech.cpp)
+
+target_compile_definitions(admittance_euler_biomech
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(admittance_euler_biomech
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(admittance_euler_biomech "pr_biomech::AdmittanceEulerBiomech")
+set(node_plugins "${node_plugins}pr_biomech::AdmittanceEulerBiomech;$<TARGET_FILE:admittance_euler_biomech>\n")
+
+### Model Pau sim node ###
+
+add_library(model_pau_sim SHARED
+  src/model_pau_sim.cpp)
+
+target_compile_definitions(model_pau_sim
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(model_pau_sim
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(model_pau_sim "pr_biomech::ModelPauSim")
+set(node_plugins "${node_plugins}pr_biomech::ModelPauSim;$<TARGET_FILE:model_pau_sim>\n")
+
 install(TARGETS
 streaming_gdlf
 algorithm_assistance
+admittance_euler_biomech
+model_pau_sim
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

@@ -148,54 +148,57 @@ Matrix <double, 6, 11>  pr_biomech::StreamingGDLF::Interpol_3D(double x, Matrix 
 }
 
 
-void pr_biomech::StreamingGDLF::FindQ(Matrix <double, Dynamic, 1> Q5, double q5, Matrix<int, 2, 1>& n_q5) {
-	int n = 0;
-	bool Stop_while = true;
+void pr_biomech::StreamingGDLF::FindQ(VectorXd Q5, double q5, Matrix<int, 2, 1>& n_q5) {
+        int n = 0;
+        bool Stop_while = true;
 
-	//std::cout << "Tamaño Q5: " << Q5.size() << std::endl;
+        //std::cout << "Tamaño Q5: " << Q5.size() << std::endl;
 
-	// Si q5 es mayor que el máximo de Q5:
-	if (q5 > Q5.maxCoeff()) {
-		n_q5[0] = Q5.size()+1;
-		n_q5[1] = Q5.size()+1;
-		Stop_while = false;
-	}
-	// Si q5 es menor que el mínimo de Q5
-	if (q5 < Q5.minCoeff()) {
-		n_q5[0] = -1;
-		n_q5[1] = -1;
-		Stop_while = false;
-	}
-	// Si q5 es igual al máximo
-	if (q5 == Q5.maxCoeff()) {
-		n_q5[0] = Q5.size() - 2;
-		n_q5[1] = Q5.size() - 1;
-	};
-	// Si q5 es al mínimo
-	if (q5 == Q5.minCoeff()) {
-		n_q5[0] = 0;
-		n_q5[1] = 1;
-		Stop_while = false;
-	}
+        // Si q5 es mayor que el máximo de Q5:
+        if (q5 >= Q5.maxCoeff()) {
+                n_q5[0] = Q5.size() - 2;
+                n_q5[1] = Q5.size() - 1;
+                Stop_while = false;
+        }
+        // Si q5 es menor que el mínimo de Q5
+        if (q5 <= Q5.minCoeff()) {
+                n_q5[0] = 0;
+                n_q5[1] = 1;
+                Stop_while = false;
+        }
+        // Si q5 es igual al máximo
+        //if (q5 == Q5.maxCoeff()) {
+        //        n_q5[0] = Q5.size() - 2;
+        //        n_q5[1] = Q5.size() - 1;
+        //        Stop_while = false;
+        //};
+        // Si q5 es al mínimo
+        //if (q5 == Q5.minCoeff()) {
+        //        n_q5[0] = 0;
+        //        n_q5[1] = 1;
+        //        Stop_while = false;
+        //}
 
-	// Si q5 se encuentra dentro de Q5 se procede al while
-	while (n < Q5.size() && Stop_while) {
-		if (n != Q5.size() - 1 && Q5[n] > q5) {
-			//std::cout << "n es: " << n << std::endl;
-			n_q5[0] = n;
-			n_q5[1] = n + 1;
-			// Paramos el bucle While
-			Stop_while = false;
-		}
-		else {
-			// Si llegamos al último valor se guardan la posiciones penúltima y última
-			n_q5[0] = Q5.size() - 2;
-			n_q5[1] = Q5.size() - 1;
-		};
+        // Si q5 se encuentra dentro de Q5 se procede al while
+        while (n < Q5.size() && Stop_while) {
+                if (n != Q5.size() - 1 && Q5[n] > q5) {
+                        //std::cout << "n es: " << n << std::endl;
+                        n_q5[0] = n;
+                        n_q5[1] = n + 1;
+                        // Paramos el bucle While
+                        Stop_while = false;
+                }
+                else {
+                        if (n >= Q5.size()){
+                                // Si llegamos al último valor se guardan la posiciones penúltima y última
+                                n_q5[0] = Q5.size() - 2;
+                                n_q5[1] = Q5.size() - 1;
+                        }
+                };
 
-		// Sumamos uno al contador
-		n++;
-	};
+                // Sumamos uno al contador
+                n++;
+        };
 
 
 };

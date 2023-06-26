@@ -37,6 +37,8 @@ void PRMocap::Robot_data::print_data(){
         std::cout << markers_name[i] << ": " << markers[i] << std::endl;
     }
     std::cout << "Robot Cartesian coordinates:\n" << XCoords << std::endl;
+    std::cout << "Matrix Rlf:\n" << Rlf << std::endl;
+    std::cout << "Matrix Rfl:\n" << Rfl << std::endl;
     std::cout << "robot_5p: " << robot_5p << std::endl;
 }
 
@@ -292,6 +294,8 @@ void PRMocap::Mocap::robot_origin(){
         rdm_m << 0,0.2,-0.1605;
     }
             
+    robot_data->Rfl = Rfl;
+    robot_data->Rlf = Rlf;
     robot_data->XCoords.col(0) = Rfl*(mm1 + Rlm*rdm_m - (mf1 + Rlf*rdf_f));
 }
 

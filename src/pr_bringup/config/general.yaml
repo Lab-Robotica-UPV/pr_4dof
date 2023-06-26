@@ -58,9 +58,17 @@ robot_5p:
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_Test/JoseTest2_StaticPatas.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_Test/JoseTest2_StaticCart.txt"
 
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230601/PatasSegFuerza2.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230601/TrayectoriaSegFuerza2.txt"
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230601/PatasSegFuerza.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230601/TrayectoriaSegFuerza.txt"
 
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayPatas_Mus12_Jose_long.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayCarte_Mus12_Jose_long.txt"
+
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayPatas_Mus12_Estatica_Jose.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayCarte_Mus12_Estatica_Jose.txt"
+
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230627/TrayPatasVal.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230627/TrayCartVal.txt"
 
 #Iterations for direct kinematics
 dir_kin:
@@ -70,6 +78,11 @@ dir_kin:
 # Use of displayer
 displayer:
   data_path: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/pauses/ind_pause_TRR8_CF1_IDHolgV1_ext.txt"
+
+# Lenghts of tibia and foot
+patient_data:
+  length_tibia: 0.3960
+  length_foot: 0.1182
 
 # data['general']
 # Includes all this data and also init_q and init_x

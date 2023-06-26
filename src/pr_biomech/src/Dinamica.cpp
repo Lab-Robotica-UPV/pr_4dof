@@ -14,18 +14,12 @@ void pr_biomech::StreamingGDLF::Inv_Dynamics() {
     for (int i = 0; i < 6; i++)
     {
         if (i <= 3) {
-            for (int j = 0; j < 6 + 1; j++)
-            {
-                uJ.col(i) = R.Pelvis * i_R_j[0][i].col(2);
-                rJ.col(i) = R.Pelvis * i_r_Oi_Oj[0][i] + G_r_G.Pelvis;
-            }
+            uJ.col(i) = R.Pelvis * i_R_j[0][i].col(2);
+            rJ.col(i) = R.Pelvis * i_r_Oi_Oj[0][i] + G_r_G.Pelvis;
         }
         else {
-            for (int j = 0; j < 6 + 1; j++)
-            {
-                uJ.col(i) = R.Pelvis * i_R_j[0][i + 1].col(2);
-                rJ.col(i) = R.Pelvis * i_r_Oi_Oj[0][i + 1] + G_r_G.Pelvis;
-            }
+            uJ.col(i) = R.Pelvis * i_R_j[0][i + 1].col(2);
+            rJ.col(i) = R.Pelvis * i_r_Oi_Oj[0][i + 1] + G_r_G.Pelvis;
         }
         //std::cout << rJ.col(i).transpose() << std::endl;
     }
@@ -204,6 +198,11 @@ void pr_biomech::StreamingGDLF::MusForce() {
             // Igualamos la matriz A a la original
             A = A_origin;
         };
+
+        if (n > 100) {
+            TensNeg = false;
+            std::cout << "Bucle while de cálculo de las tensiones musculares ha fallado\n";
+        };
         
     }; // Fin del While
 
@@ -280,4 +279,71 @@ void pr_biomech::StreamingGDLF::CalcKneeForces() {
     //std::cout << "M_Knee Fext " << M_Knee << std::endl;
     //AUXILIAR_ForceSensorin.Force.cross(G_r_G.Fext - G_r_G.Femur);
     //(G_r_G.Fext - G_r_G.Femur).cross(AUXILIAR_ForceSensorin.Force.col(GlobalCnt));
+};
+
+// Cálculo del vector director de la fuerza
+Vector4d pr_biomech::StreamingGDLF::VectDir() {
+
+    // Calculamos el punto de giro
+    L_O3_IC = Plane4Bar.L(1) / sin(theta4 - theta2) * sin(PI - theta4);
+    G_r_G.IC = (R.Pelvis * i_r_Oi_Oj[0][4] + G_r_G.Pelvis) + R.Pelvis * i_R_j[0][4].col(0) * (L_O3_IC - Plane4Bar.L(2));
+
+    // Cálculamos los ejes de giro y los puntos de las articulaciones
+    Matrix <double, 3, 6> uJ; // Ejes de giro
+    Matrix <double, 3, 6> rJ; // Punto de giro       
+    for (int i = 0; i < 6; i++)
+    {
+        if (i <= 3) {
+            for (int j = 0; j < 6 + 1; j++)
+            {
+                uJ.col(i) = R.Pelvis * i_R_j[0][i].col(2);
+                rJ.col(i) = R.Pelvis * i_r_Oi_Oj[0][i] + G_r_G.Pelvis;
+            }
+        }
+        else {
+            for (int j = 0; j < 6 + 1; j++)
+            {
+                uJ.col(i) = R.Pelvis * i_R_j[0][i + 1].col(2);
+                rJ.col(i) = R.Pelvis * i_r_Oi_Oj[0][i + 1] + G_r_G.Pelvis;
+            }
+        }
+        //std::cout << rJ.col(i).transpose() << std::endl;
+    }
+    rJ.col(3) = G_r_G.IC;
+
+    // Calculamos el jacobiano de la fuerza externa
+    Matrix <double, 6, 6> J_ext;
+    for (int i = 0; i < 6; i++) {
+        J_ext.col(i).topRows(3) = (uJ.col(i)).cross(G_r_G.Fext - rJ.col(i));
+        J_ext.col(i).bottomRows(3) = uJ.col(i);
+    }
+    Eigen::Matrix <double, 6, 6> J_ext_inv;
+    J_ext_inv = J_ext.inverse().transpose();
+    // Cálculo de la Tau
+    Matrix <double, 6, 1> Tau;
+    Tau[0] = CoefMus1[n_mus] * 1e5;
+    Tau[1] = CoefMus2[n_mus] * 1e5;
+    Tau[2] = CoefMus3[n_mus] * 1e5;
+    Tau[3] = CoefMus4[n_mus] * 1e5;
+    Tau[4] = CoefMus5[n_mus] * 1e5;
+    Tau[5] = CoefMus6[n_mus] * 1e5;
+    // Cálculo de la fuerza externa
+    Eigen::Matrix <double, 6, 1> Fext;
+    Fext = J_ext_inv * Tau;
+    // Pasamos el vector al sistema local de la plataforma fija
+    Fext.head(3) = mocap_object->robot_data->Rfl * Fext.head(3);
+    Fext.tail(3) = mocap_object->robot_data->Rfl * Fext.tail(3);
+    // Transformamos los momentos a las fuerzas
+    Fext[4] = Fext[4] / length_tibia;
+    Fext[5] = Fext[5] / length_foot;
+    // Guardamos los datos que necesita el vector de fuerzas unitario
+    Eigen::Vector4d FextRobot;
+    FextRobot[0] = Fext[0];
+    FextRobot[1] = Fext[2];
+    FextRobot[2] = Fext[4];
+    FextRobot[3] = 0*Fext[5];
+    // Pasamos a unitario
+    FextRobot = unit(FextRobot);
+    // Devolvemos el resultado.
+    return FextRobot;
 };

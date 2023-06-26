@@ -59,6 +59,7 @@ namespace pr_biomech
             void Inv_Dynamics();
             void MusForce();
             void CalcKneeForces();
+            Vector4d VectDir();
             //void CalLigForceAnta_Pau(); // Calculation of ligaments
             //
             ////Calculos de dinamica
@@ -79,9 +80,16 @@ namespace pr_biomech
         private:
 
             rclcpp::Subscription<pr_msgs::msg::PRForceState>::SharedPtr subscription_;
-            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr publisher_gen_force_knee;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_gen_force_knee;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_muscle_force;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_ref_muscle_force;
+            rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr pub_muscle_dir;
             //rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_F_opt_ref;
 
+            // Variables to publish
+            double gen_force_knee, muscle_force, ref_muscle_force;
+            Eigen::Vector4d muscle_dir;
+            
             // PARAMETERS
             // Archivos de lectura y escritura de la struct Data
             std::string cal_data_file, gdlf_data_file;
@@ -231,6 +239,15 @@ namespace pr_biomech
             // Variables for Forces and Moments
             Eigen::Vector3d G_Fext;
             Eigen::Vector3d G_Mext;
+
+            // Musculo objetivo de control
+            int n_mus;
+
+            // Length of tibia and foot
+            double length_tibia, length_foot;
+
+            // Unit vector of muscle
+            //Eigen::Vector4d u_m;
     };
 
 }

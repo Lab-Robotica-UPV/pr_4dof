@@ -30,6 +30,8 @@ data['general']['encoder_gearbox'] = general_params[robot_name]['encoder_gearbox
 data['general']['ref_path'] = general_params[robot_name]['ref_path']
 data['general']['dir_kin'] = general_params['dir_kin']
 data['general']['displayer'] = general_params['displayer']
+data['general']['length_tibia'] = general_params['patient_data']['length_tibia']
+data['general']['length_foot'] = general_params['patient_data']['length_foot']
 
 # First references
 with open(general_params[robot_name]['ref_path']['x'], 'r') as f:

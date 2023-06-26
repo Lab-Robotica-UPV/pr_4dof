@@ -61,6 +61,7 @@ void Data_struct::print_data() {
 	cout << "q: " << q.col(0).transpose() << endl;
 	cout << "PatForce: " << PatForce(0) << endl;
 	cout << "TauMus: " << TauMus.col(0).transpose()  << endl;
+	cout << "muscle_dir: " << muscle_dir.col(0).transpose()  << endl;
 	cout << "PosKnee: " << PosKnee(0) << endl;
 	cout << "input.forces: " << input.forces.col(0).transpose() << endl;
 	cout << "input.LASIS: " << input.LASIS.col(0).transpose() << endl;

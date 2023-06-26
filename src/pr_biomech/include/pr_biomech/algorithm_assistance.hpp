@@ -49,6 +49,10 @@ namespace pr_biomech
             rclcpp::Subscription<pr_msgs::msg::PRArrayH>::SharedPtr sub_muscle_dir;
 
             rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr pub_ass_force;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_ass_force_prop;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_ass_force_der;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_ass_force_filt;
+            rclcpp::Publisher<pr_msgs::msg::PRFloatH>::SharedPtr pub_ass_alpha;
             //rclcpp::Publisher<pr_msgs::msg::PRArrayH>::SharedPtr publisher_F_opt_ref;
 
             // PARAMETERS
@@ -56,6 +60,8 @@ namespace pr_biomech
             double ts;
             // Proportional constant of PID
             double kp, ki, kd;
+            // Geometry limb
+            double length_tibia, length_foot;
 
 
             // Booleans of first iteration
@@ -65,8 +71,22 @@ namespace pr_biomech
             Eigen::Vector4d force_state, muscle_dir;
             double gen_force_knee, muscle_force, ref_muscle_force;
 
-            // Variable for the publisher
+            // Assistive force (vector and norm)
             Eigen::Vector4d ass_force;
+            double ass_force_scalar; 
+            
+            // Reduction factor of the error
+            double alpha = 0, alpha_desired, alpha_inc = 0.01; // alpha is the reduction factor of the assistive force
+
+            // Angle between force_state_dir and muscle_dir
+            Eigen::Vector4d force_state_dir;
+            double force_state_norm;
+            double force_angle, force_angle_lim = M_PI/4;
+
+            // Variables for controller
+            double e, e_ant=0, ud, ud_ant=0, c_filt;
+            // Auxiliar variables for visualization
+            double ass_force_prop, ass_force_der, ass_force_filt;
 
 
     };

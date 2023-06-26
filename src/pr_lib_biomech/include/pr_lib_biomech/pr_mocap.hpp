@@ -48,6 +48,8 @@ namespace PRMocap{
     struct Robot_data : Data{
         bool robot_5p; // False if robot is 3ups_rpu
         Eigen::Matrix<double, 3, 2> XCoords;
+        Eigen::Matrix<double, 3, 3> Rlf;
+        Eigen::Matrix<double, 3, 3> Rfl;
         Robot_data(std::vector<std::string> robot_markers, RobotOptions robot_option);
         void print_data();
     };

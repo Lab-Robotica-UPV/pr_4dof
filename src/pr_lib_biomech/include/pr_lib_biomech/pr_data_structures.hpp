@@ -100,6 +100,7 @@ namespace PRDataStructures{
         Matrix<double, 8, Dynamic> q;
         VectorXd PatForce, PosKnee;
         Matrix<double, 6, Dynamic> TauMus;
+        Matrix<double, 4, Dynamic> muscle_dir;
         input_struct input;
 
         void print_data();
