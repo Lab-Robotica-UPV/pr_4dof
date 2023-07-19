@@ -112,23 +112,48 @@ def generate_launch_description():
                         {"ki_gain": controller_params['controller']['ki']}
                     ]
                 ),
+                # ComposableNode(
+                #     package='pr_biomech',
+                #     node_plugin='pr_biomech::StreamingGDLF',
+                #     node_name='streaming_GDLF',
+                #     remappings=[
+                #         ("force_state_sync", "force_state_sync"),
+                #         ("generalized_force_knee", "generalized_force_knee"),
+                #     ],
+                #     parameters=[
+                #         {"num_samples": data['general']['num_samples']}, #1000},#data['general']['num_samples']},
+                #         {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Angel2706_calibration6GDL.txt"},
+                #         {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Angel2706_GDLF6GDL.txt"},
+                #         {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Angel_output_Data"},
+                #         {"robot_option": 2},
+                #         {"force_sensor_option": 1},
+                #         {"human_option": True},
+                #         #{"musculo_Obj": "RecFem12_1"}
+                #     ]
+                # ),
                 ComposableNode(
                     package='pr_biomech',
                     node_plugin='pr_biomech::StreamingGDLF',
                     node_name='streaming_GDLF',
                     remappings=[
                         ("force_state_sync", "force_state_sync"),
-                        ("generalized_force_knee", "generalized_force_knee"),
+                        ("gen_force_knee", "gen_force_knee"),
+                        ("muscle_force", "muscle_force"),
+                        ("ref_muscle_force", "ref_muscle_force"),
+                        ("muscle_dir","muscle_dir"),
                     ],
                     parameters=[
                         {"num_samples": data['general']['num_samples']}, #1000},#data['general']['num_samples']},
-                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose1805_calibration6GDL.txt"},
-                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose1805_GDLF6GDL.txt"},
-                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Pau_output_Data"},
+                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Elena_20230713/Elena1307_calibration6GDL.txt"},
+                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Elena_20230713/Elena1307_GDLF6GDL.txt"},
+                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Elena_20230713/Elena1307_output_Data"},
                         {"robot_option": 2},
                         {"force_sensor_option": 1},
                         {"human_option": True},
-                        #{"musculo_Obj": "RecFem12_1"}
+                        {"n_mus": 11},
+                        {"length_tibia": data['general']['length_tibia']},
+                        {"length_foot": data['general']['length_foot']},
+                        {"ref_muscle_force": 30.0},
                     ]
                 ),
                 ComposableNode(
@@ -154,7 +179,7 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_pau_prueba_modelo"}
+                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "Elena_prueba_modelo2"}
                     ]
                 ),
                 ComposableNode(

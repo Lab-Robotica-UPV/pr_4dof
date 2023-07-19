@@ -16,9 +16,6 @@ robot_3ups_rpu:
 robot_5p:
   encoder_gearbox: [0.230769230769231, 0.230769230769231, 0.230769230769231, 0.230769230769231]
   ref_path:
-    #PAU APP TEST
-    # q: "/home/paralelo4dofnew/SharedFolder/TrayMME/Pauza2_TestPatas.txt"
-    # x: "/home/paralelo4dofnew/SharedFolder/TrayMME/Pauza2_TestCart.txt"
 
     #PAUMID
     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauMid/ref_qinde_TRRPauMid_CF1_5P_V1.txt"
@@ -64,11 +61,48 @@ robot_5p:
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayPatas_Mus12_Jose_long.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayCarte_Mus12_Jose_long.txt"
 
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayPatas_Mus12_Estatica_Jose.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayCarte_Mus12_Estatica_Jose.txt"
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayPatas_Mus12_Estatica_Jose.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayCarte_Mus12_Estatica_Jose.txt"
 
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230627/TrayPatasVal.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230627/TrayCartVal.txt"
+
+    #########################
+    # ENVELOPE TEST ------- PAU
+    
+    #MVC1
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references//bio/Envelope/TrayPatas_MVC_2.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Envelope/TrayCart_MVC_2.txt"
+
+
+    #########################
+    # FORCE TRACKING ------- PAU
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references//bio/Elena_20230713/TrayPatasValC.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Elena_20230713/TrayCartValC.txt"
+
+    #################
+    # JOSE 20230717
+    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayPatas_mus7_Jose_Estatica.txt"
+    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayCarte_mus7_Jose_Estatica.txt"
+
+
+    
+
+
+#PARA PRUEBA DE PAU CON ANGEL 20230627
+
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230629/TrayPatas_MVC_2.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230629/TrayCart_MVC_2.txt"
+
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayPatas_mus7_Jose_Estatica.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230621/TrayCarte_mus7_Jose_Estatica.txt"
+#PRUEBA PARA MOVIMIENTO DEL ROBOT Y REFERENCIA DE FUERZA
+    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230627/TrayPatasSegFuerzaRod_Angel2706_mus_15.txt"
+    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230627/TrayCartSegFuerzaRod_Angel2706_mus_15.txt"
+
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230706/TrayPatas_mus7_Jose_Estatica.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230706/TrayCarte_mus7_Jose_Estatica.txt"
+
 
 #Iterations for direct kinematics
 dir_kin:

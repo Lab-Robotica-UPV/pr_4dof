@@ -99,7 +99,7 @@ def generate_launch_description():
                     node_name='force_fixed_frame',
                     remappings=[
                         ("force_state", "force_state_sync"),
-                        ("x_coord", "x_mocap_sync"),
+                        ("x_coord", "x_coord"),
                         ("force_state_fixed", "force_state_fixed"),
                     ],
                     parameters=[
@@ -201,35 +201,52 @@ def generate_launch_description():
                     ]
                 ),
                        
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocap',
+                #     node_name='mocap',
+                #     remappings=[
+                #         ("x_coord_mocap", "x_coord_mocap")
+                #     ],
+                #     parameters=[
+                #         {"server_address": data['mocap_server']["server_address"]},
+                #         {"server_command_port": data['mocap_server']["server_command_port"]},
+                #         {"server_data_port": data['mocap_server']["server_data_port"]},
+                #         {"marker_names":  data['mocap_server']["marker_names"]},
+                #         {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                #     ]
+                # ),
+
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapSynchronizer',
+                #     node_name='mocap_synchronizer',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("x_mocap_sync", "x_coord"),
+                #         ("end_flag", "end_flag")
+                #     ],
+                #     parameters=[
+                #         {"tol": 0.01}
+                #     ]
+                # ),
+
                 ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocap',
-                    node_name='mocap',
+                    package='pr_modelling',
+                    node_plugin='pr_modelling::ForwardKinematics',
+                    node_name='for_kin',
                     remappings=[
-                        ("x_coord_mocap", "x_coord_mocap")
+                        ("joint_position", "joint_position"),
+                        ("x_coord", "x_coord"),
                     ],
                     parameters=[
-                        {"server_address": data['mocap_server']["server_address"]},
-                        {"server_command_port": data['mocap_server']["server_command_port"]},
-                        {"server_data_port": data['mocap_server']["server_data_port"]},
-                        {"marker_names":  data['mocap_server']["marker_names"]},
-                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"initial_position": data['general']['init_x']},
+                        {"tol": data['general']['dir_kin']['tol']},
+                        {"iter": data['general']['dir_kin']['iter']},
                     ]
                 ),
 
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocapSynchronizer',
-                    node_name='mocap_synchronizer',
-                    remappings=[
-                        ("joint_position", "joint_position"),
-                        ("x_mocap_sync", "x_mocap_sync"),
-                        ("end_flag", "end_flag")
-                    ],
-                    parameters=[
-                        {"tol": 0.01}
-                    ]
-                ),
                 ComposableNode(
                     package='pr_biomech',
                     node_plugin='pr_biomech::AlgorithmAssistance',
@@ -247,7 +264,7 @@ def generate_launch_description():
                         ("ass_alpha", "ass_alpha")
                     ],
                     parameters=[
-                        {"kp": 0.0},
+                        {"kp": 5.0},
                         {"ki": 0.0},
                         {"kd": 0.0},
                         {"c_filt": 0.9}, # between 0 and 1
@@ -269,18 +286,31 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"num_samples": data['general']['num_samples']}, #1000},#data['general']['num_samples']},
-                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose2106_calibration6GDL.txt"},
-                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose2106_GDLF6GDL.txt"},
-                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose2106_output_Data"},
+                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose20230717_calibration6GDL.txt"},
+                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose20230717_GDLF6GDL_Mus7.txt"},
+                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose20230717_output_Data_Mus7"},
                         {"robot_option": 2},
                         {"force_sensor_option": 1},
                         {"human_option": True},
-                        {"n_mus": 11},
+                        {"n_mus": 6},
                         {"length_tibia": data['general']['length_tibia']},
                         {"length_foot": data['general']['length_foot']},
-                        {"ref_muscle_force": 30.0},
+                        {"ref_muscle_force": 100.0},
                     ]
                 ),
+
+                ComposableNode(
+                     package='pr_mocap',
+                     node_plugin='pr_mocap::PRXMocapRecorder',
+                     node_name='ref_x_mocap_recorder',
+                     remappings=[
+                         ("end_flag", "end_flag"),
+                         ("joint_position", "joint_position")
+                     ],
+                     parameters=[
+                         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Jose_assforce_mus7"}
+                     ]
+                 ),
                 # ComposableNode(
                 #     package='pr_biomech',
                 #     node_plugin='pr_biomech::ModelPauSim',
@@ -319,7 +349,7 @@ def generate_launch_description():
                     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
                     node_name='pos_x_std',
                     remappings=[
-                        ("array_topic", "x_mocap_sync"),
+                        ("array_topic", "x_coord"),
                         ("quaternion_topic", "pos_x_std")
                     ],
                 ),

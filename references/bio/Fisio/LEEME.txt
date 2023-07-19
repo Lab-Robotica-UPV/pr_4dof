@@ -1,1 +1,0 @@
-NO BORRAR LOS ARCHIVOS TrayIniCart, TrayIniPatas y TrayIniFuerza

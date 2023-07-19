@@ -261,17 +261,17 @@ def generate_launch_description():
                 ),
 
                 ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocapRecorder',
-                    node_name='ref_x_mocap_recorder',
-                    remappings=[
-                        ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position")
-                    ],
-                    parameters=[
-                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_rango_movimiento"}
-                    ]
-                ),
+                     package='pr_mocap',
+                     node_plugin='pr_mocap::PRXMocapRecorder',
+                     node_name='ref_x_mocap_recorder',
+                     remappings=[
+                         ("end_flag", "end_flag"),
+                         ("joint_position", "joint_position")
+                     ],
+                     parameters=[
+                         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Elena_Flex"}
+                     ]
+                 ),
 
                 ComposableNode(
                     package='pr_topic_forwarding',

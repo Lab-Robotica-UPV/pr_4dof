@@ -94,7 +94,7 @@ namespace pr_biomech
 
             // Here goes the algorithm
             force_state_norm = force_state.norm();
-            if (force_state_norm>0 && muscle_force>0){
+            if (force_state_norm>0){// && muscle_force>0){
                 force_state_dir = force_state/force_state_norm;
                 force_angle = abs(acos(force_state_dir.dot(muscle_dir)));
 
@@ -125,8 +125,8 @@ namespace pr_biomech
                 ass_force_prop = kp*e;
                 ass_force_der = kd*(e-e_ant)/ts;
 
-                ass_force_filt = ud_ant*c_filt + ass_force_der*(1-c_filt);
-                ass_force_scalar = ass_force_prop + ass_force_filt;
+                ass_force_filt = ud_ant*c_filt + (ass_force_prop+ass_force_der)*(1-c_filt);
+                ass_force_scalar = ass_force_filt; // + ass_force_prop;
                 //ass_force_filt = ud_ant*c_filt + ass_force_scalar*(1-c_filt);
 
                 // Update (and weight?)

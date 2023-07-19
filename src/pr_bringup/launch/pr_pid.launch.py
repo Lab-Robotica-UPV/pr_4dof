@@ -144,18 +144,18 @@ def generate_launch_description():
                 #     ]
                 # ),
 
-                ComposableNode(
-                    package='pr_mocap',
-                    node_plugin='pr_mocap::PRXMocapRecorder',
-                    node_name='ref_x_mocap_recorder',
-                    remappings=[
-                        ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position")
-                    ],
-                    parameters=[
-                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_jose_MVC"}
-                    ]
-                ),
+                #  ComposableNode(
+                #      package='pr_mocap',
+                #      node_plugin='pr_mocap::PRXMocapRecorder',
+                #      node_name='ref_x_mocap_recorder',
+                #      remappings=[
+                #          ("end_flag", "end_flag"),
+                #          ("joint_position", "joint_position")
+                #      ],
+                #      parameters=[
+                #          {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Elena_GDLF"}
+                #      ]
+                #  ),
 
                 ComposableNode(
                     package='pr_sensors_actuators',
@@ -190,6 +190,24 @@ def generate_launch_description():
                         {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
                     ]
                 ),
+
+                  ComposableNode(
+                     package='pr_ref_gen',
+                     node_plugin='pr_ref_gen::RefPose',
+                     node_name='ref_force_gen',
+                     remappings=[
+                         ("ref_pose", "ref_force"),
+                         ("end_flag", "end_flag_force"),
+                         ("joint_position", "joint_position"),
+                         ("ref_pose_x", "useless_topic")
+                     ],
+                     parameters=[
+                         {"ref_path": data['force']['ref_force_path']},
+                         {"is_cart": False},
+                         {"robot_config_params": data['config_params']['geometry']}
+                     ]
+                 ),
+
 
                 ComposableNode(
                     package='pr_modelling',
@@ -252,15 +270,15 @@ def generate_launch_description():
                 #     ],
                 # ),  
 
-                # ComposableNode(
-                #     package='pr_topic_forwarding',
-                #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                #     node_name='ref_x_std',
-                #     remappings=[
-                #         ("array_topic", "ref_x"),
-                #         ("quaternion_topic", "ref_x_std")
-                #     ],
-                # ),  
+                ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='ref_x_std',
+                    remappings=[
+                        ("array_topic", "ref_x"),
+                        ("quaternion_topic", "ref_x_std")
+                    ],
+                ),  
 
                 ComposableNode(
                     package='pr_topic_forwarding',
@@ -269,6 +287,16 @@ def generate_launch_description():
                     remappings=[
                         ("array_topic", "x_coord"),
                         ("quaternion_topic", "pos_x_std")
+                    ],
+                ),  
+
+                 ComposableNode(
+                    package='pr_topic_forwarding',
+                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
+                    node_name='ref_force_std',
+                    remappings=[
+                        ("array_topic", "ref_force"),
+                        ("quaternion_topic", "ref_force_std")
                     ],
                 ),  
 
