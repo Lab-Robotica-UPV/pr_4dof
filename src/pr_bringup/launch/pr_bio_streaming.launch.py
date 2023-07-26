@@ -144,9 +144,9 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"num_samples": data['general']['num_samples']}, #1000},#data['general']['num_samples']},
-                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Elena_20230713/Elena1307_calibration6GDL.txt"},
-                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Elena_20230713/Elena1307_GDLF6GDL.txt"},
-                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Elena_20230713/Elena1307_output_Data"},
+                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Carles_20230720/Carles0720_calibration6GDL.txt"},
+                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Carles_20230720/Carles0720_GDLF6GDL.txt"},
+                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Carles_20230720/Carles0720_output_Data"},
                         {"robot_option": 2},
                         {"force_sensor_option": 1},
                         {"human_option": True},
@@ -179,7 +179,7 @@ def generate_launch_description():
                         ("joint_position", "joint_position")
                     ],
                     parameters=[
-                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "Elena_prueba_modelo2"}
+                        {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "Carles_prueba_modelo2"}
                     ]
                 ),
                 ComposableNode(

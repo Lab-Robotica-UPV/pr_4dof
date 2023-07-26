@@ -264,10 +264,10 @@ def generate_launch_description():
                         ("ass_alpha", "ass_alpha")
                     ],
                     parameters=[
-                        {"kp": 5.0},
+                        {"kp": 3.0},
                         {"ki": 0.0},
                         {"kd": 0.0},
-                        {"c_filt": 0.9}, # between 0 and 1
+                        {"c_filt": 0.95}, # between 0 and 1. filter for control actions
                         {"ts": data['general']['ts']},
                         {"length_tibia": data['general']['length_tibia']},
                         {"length_foot": data['general']['length_foot']},
@@ -286,13 +286,13 @@ def generate_launch_description():
                     ],
                     parameters=[
                         {"num_samples": data['general']['num_samples']}, #1000},#data['general']['num_samples']},
-                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose20230717_calibration6GDL.txt"},
-                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose20230717_GDLF6GDL_Mus7.txt"},
-                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Jose20230717_output_Data_Mus7"},
+                        {"cal_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Angel_20230726/Angel0726_calibration6GDL.txt"},
+                        {"gdlf_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Angel_20230726/Angel0726_GDLF6GDL_Mus1.txt"},
+                        {"output_data_file": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/patient_data/Angel_20230726/Angel0726_output_Data_Mus1"},
                         {"robot_option": 2},
                         {"force_sensor_option": 1},
                         {"human_option": True},
-                        {"n_mus": 6},
+                        {"n_mus": 0},
                         {"length_tibia": data['general']['length_tibia']},
                         {"length_foot": data['general']['length_foot']},
                         {"ref_muscle_force": 100.0},

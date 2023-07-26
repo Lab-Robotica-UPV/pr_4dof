@@ -77,13 +77,13 @@ robot_5p:
 
     #########################
     # FORCE TRACKING ------- PAU
-    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references//bio/Elena_20230713/TrayPatasValC.txt"
-    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Elena_20230713/TrayCartValC.txt"
+     q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230726/TrayPatas_mus1_Angel_Estatica.txt"
+     x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230726/TrayCarte_mus1_Angel_Estatica.txt"
 
     #################
     # JOSE 20230717
-    q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayPatas_mus7_Jose_Estatica.txt"
-    x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayCarte_mus7_Jose_Estatica.txt"
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayPatas_mus7_Jose_Estatica.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayCarte_mus7_Jose_Estatica.txt"
 
 
     
