@@ -91,7 +91,7 @@ robot_5p:
     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayPatas_mus7_Jose_Estatica.txt"
     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayCarte_mus7_Jose_Estatica.txt"
 
-    #################
+    ##################
     # TRAYECTORIAS PROPIOCEPCION
     q: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_qinde_TRPPC_CF1_I90_T50_L0.5.txt"
     x: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_cart_TRPPC_CF1_I90_T50_L0.5.txt"
