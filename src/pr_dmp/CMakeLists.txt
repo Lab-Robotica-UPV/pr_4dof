@@ -249,6 +249,30 @@ ament_target_dependencies(dmp_rev_gmr
 rclcpp_components_register_nodes(dmp_rev_gmr "pr_dmp::DmpRevGMR")
 set(node_plugins "${node_plugins}pr_dmp::DmpRevGMR;$<TARGET_FILE:dmp_rev_gmr>\n")
 
+### dmp_rev_force_lim node ###
+
+add_library(dmp_rev_flim SHARED
+  src/dmp_reversible_force_lim.cpp)
+
+target_link_libraries(dmp_rev_flim "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" gmr)
+target_link_libraries(dmp_rev_flim "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" Macros)
+target_link_libraries(dmp_rev_flim "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" Matrix)
+target_link_libraries(dmp_rev_flim "-L/home/paralelo4dofnew/ros2_eloquent_ws/libs_thirdparty/GMR/lib_ros/lib" Vector)
+
+
+target_compile_definitions(dmp_rev_flim
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(dmp_rev_flim
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "Eigen3"
+  "pr_lib")
+
+rclcpp_components_register_nodes(dmp_rev_flim "pr_dmp::DmpRevFLim")
+set(node_plugins "${node_plugins}pr_dmp::DmpRevFLim;$<TARGET_FILE:dmp_rev_flim>\n")
+
 # Installation
 
 install(TARGETS
@@ -261,6 +285,7 @@ install(TARGETS
   dmp_evader_force_cart
   dmp_rev
   dmp_rev_gmr
+  dmp_rev_flim
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin

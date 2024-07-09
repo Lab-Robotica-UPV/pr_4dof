@@ -1,4 +1,10 @@
+# LAUNCH FILE FOR GENERATING A LINEAR DISPLACEMENT ON THE CONFIGURATION SPACE
+# The initial pose is taken from the MOCAP SYSTEM
+# The displacements are controlled by user in metres and degrees
+
+
 import launch
+from launch_ros.actions import Node #Added for launch simple nodes
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from ament_index_python.packages import get_package_share_directory
@@ -80,22 +86,42 @@ def generate_launch_description():
                         {"max_v": data['general']['robot']['v_sat']}
                     ]
                 ),
+
                 ComposableNode(
                     package='pr_ref_gen',
-                    node_plugin='pr_ref_gen::RefPose',
-                    node_name='ref_pose_gen',
+                    node_plugin='pr_ref_gen::RefDesAuto',
+                    node_name='ref_des_auto',
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("ref_pose_x", "useless_topic"),
+                        ("ref_pose_qini", "ref_pose_qini"),
+                        ("ref_force", "ref_force"),
                         ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position"),
+                        ("joint_position", "joint_position_zeros"),
+                        ("x_coord_mocap", "x_coord_mocap"),
                         ("external_stop", "joy_stop")
                     ],
                     parameters=[
-                        {"ref_path": data['general']['ref_path']['q']},
-                        {"is_cart": False},
                         {"robot_config_params": data['config_params']['geometry']},
-                        {"Nptos_set": data['general']['Nptos_set']}  #Set the number of samples for execution. 0 to do same samples as reference.txt
+                        {"ts": data['general']['ts']},
+                        {"lmin_Ang_OTS": data['sing']['lmin_Ang_OTS']},
+                        {"lmin_FJac": data['sing']['lmin_FJac']},
+                        {"des_x_set": [0.0, 0.0, 0.0, 0.0]}, # [Xm (m) Zm (m) Theta (degrees) Psi (degrees)]
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"}
+                    ]
+                ),
+                ComposableNode(
+                    package='pr_aux',
+                    node_plugin='pr_aux::AddGain',
+                    node_name='add_q',
+                    remappings=[
+                        ("input1", "joint_position_zeros"),
+                        ("input2", "ref_pose_qini"),
+                        ("output", "joint_position")
+                    ],
+                    parameters=[
+                        {"signs": [1.0, 1.0]},
+                        {"gains": [1.0, 1.0, 1.0, 1.0]}
                     ]
                 ),
 
@@ -116,34 +142,34 @@ def generate_launch_description():
                     ]
                 ),
 
-                # ComposableNode(
-                #     package='pr_mocap',
-                #     node_plugin='pr_mocap::PRXMocap',
-                #     node_name='mocap',
-                #     remappings=[
-                #         ("x_coord_mocap", "x_coord_mocap")
-                #     ],
-                #     parameters=[
-                #         {"server_address": data['mocap_server']["server_address"]},
-                #         {"server_command_port": data['mocap_server']["server_command_port"]},
-                #         {"server_data_port": data['mocap_server']["server_data_port"]},
-                #         {"marker_names":  data['mocap_server']["marker_names"]},
-                #         {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
-                #     ]
-                # ),
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocap',
+                    node_name='mocap',
+                    remappings=[
+                        ("x_coord_mocap", "x_coord_mocap")
+                    ],
+                    parameters=[
+                        {"server_address": data['mocap_server']["server_address"]},
+                        {"server_command_port": data['mocap_server']["server_command_port"]},
+                        {"server_data_port": data['mocap_server']["server_data_port"]},
+                        {"marker_names":  data['mocap_server']["marker_names"]},
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                    ]
+                ),
 
-                # ComposableNode(
-                #     package='pr_mocap',
-                #     node_plugin='pr_mocap::PRXMocapSynchronizer',
-                #     node_name='mocap_synchronizer',
-                #     remappings=[
-                #         ("joint_position", "joint_position"),
-                #         ("x_mocap_sync", "x_mocap_sync")
-                #     ],
-                #     parameters=[
-                #         {"tol": 0.01}
-                #     ]
-                # ),
+                ComposableNode(
+                    package='pr_mocap',
+                    node_plugin='pr_mocap::PRXMocapSynchronizer',
+                    node_name='mocap_synchronizer',
+                    remappings=[
+                        ("joint_position", "joint_position_zeros"),
+                        ("x_mocap_sync", "x_mocap_sync")
+                    ],
+                    parameters=[
+                        {"tol": 0.01}
+                    ]
+                ),
 
                 #   ComposableNode(
                 #       package='pr_mocap',
@@ -154,7 +180,7 @@ def generate_launch_description():
                 #           ("joint_position", "joint_position")
                 #       ],
                 #       parameters=[
-                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Marina_MVC_2"}
+                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Carles_SegFuerza"}
                 #       ]
                 #   ),
 
@@ -191,24 +217,6 @@ def generate_launch_description():
                         {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
                     ]
                 ),
-
-                  ComposableNode(
-                     package='pr_ref_gen',
-                     node_plugin='pr_ref_gen::RefPose',
-                     node_name='ref_force_gen',
-                     remappings=[
-                         ("ref_pose", "ref_force"),
-                         ("end_flag", "end_flag_force"),
-                         ("joint_position", "joint_position"),
-                         ("ref_pose_x", "useless_topic")
-                     ],
-                     parameters=[
-                         {"ref_path": data['force']['ref_force_path']},
-                         {"is_cart": False},
-                         {"robot_config_params": data['config_params']['geometry']},
-                         {"Nptos_set": data['general']['Nptos_set']}  #Set the number of samples for execution. 0 to do same samples as reference.txt
-                     ]
-                 ),
 
 
                 ComposableNode(
@@ -252,15 +260,15 @@ def generate_launch_description():
                 #     ],
                 # ),
 
-                #ComposableNode(
-                #    package='pr_joy',
-                #    node_plugin='pr_joy::JoyStop',
-                #    node_name='joy_stop',
-                #    remappings=[
-                #        ("joy", "joy"),
-                #        ("joy_stop", "joy_stop")
-                #    ],
-                #),   
+                ComposableNode(
+                    package='pr_joy',
+                    node_plugin='pr_joy::JoyStop',
+                    node_name='joy_stop',
+                    remappings=[
+                        ("joy", "joy"),
+                        ("joy_stop", "joy_stop")
+                    ],
+                ),   
                 
                 # ComposableNode(
                 #     package='pr_topic_forwarding',
@@ -333,11 +341,11 @@ def generate_launch_description():
                     node_plugin='pr_sensors_actuators::Encoders',
                     node_name='position_sensors',
                     remappings=[
-                        ("joint_position", "joint_position")
+                        ("joint_position", "joint_position_zeros")
                     ],
                     parameters=[
                         {"ts_ms": data['general']['ts']*1000},
-                        {"initial_position": data['general']['init_q']},
+                        {"initial_position": [0.0, 0.0, 0.0, 0.0]},
                         {"gearbox_mult":  data['general']['encoder_gearbox']},
                     ]
                 ),            
@@ -345,4 +353,15 @@ def generate_launch_description():
             output='screen',
     )
 
-    return launch.LaunchDescription([pr_pid])
+    #RUN SIMPLE NODE joy_node FROM JOY
+    #For adding this part you must add executable dependences in the package's xlm file
+    joy_mapping=Node(
+        package="joy",
+        node_executable="joy_node",
+        output='screen',
+    )
+
+    return launch.LaunchDescription([pr_pid , joy_mapping])
+
+    #FOR LAUNCH JOYSTICK 
+    # ADD AFTER COMPOSITE NODE , joy_mapping

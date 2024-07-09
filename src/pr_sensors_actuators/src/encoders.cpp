@@ -155,6 +155,7 @@ namespace pr_sensors_actuators
 			//std::cout << position_msg.data[0] << " " << position_msg.data[1] << " " << position_msg.data[2] << " " << position_msg.data[3] << std::endl; 
 
 			if (iter*ts/1000 == init_delay_sec){
+				t_start = std::chrono::system_clock::now();
 				// Brake deactivation
 				ret = instantDoCtrl->Write(0,1,DOut);
 				RCLCPP_INFO(this->get_logger(), "Configuration completed, brake disabled");
@@ -183,6 +184,13 @@ namespace pr_sensors_actuators
 			DOut[0]=0;
 	    	ret = instantDoCtrl->Write(0,1,DOut);
 			//RCLCPP_INFO(this->get_logger(), "Brake disabled");
+			if (!stopw_flag){
+				t_end = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_s = t_end - t_start;
+				std::cout << "Elapsed time:" << elapsed_s.count() << "s" << std::endl;
+				stopw_flag = true;
+
+			}
 		}
 
 		

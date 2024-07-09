@@ -1,4 +1,6 @@
-# ADMITTANCE CONTROLLER: FOLLOW THE POSE AND FORCE REFERENCES
+# ADMITTANCE CONTROLLER: GENERATE AN STATIC POSE AND FORCE REFERENCE
+# ROBOT COULD CONTINUE THE FORCE CONTROL AT ANY FINAL POSE
+
 import launch
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.actions import Node #Added for launch simple nodes
@@ -146,36 +148,39 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package='pr_ref_gen',
-                    node_plugin='pr_ref_gen::RefPose',
-                    node_name='ref_pose_gen',
+                    node_plugin='pr_ref_gen::RefStaticAuto',
+                    node_name='ref_static_auto',
                     remappings=[
                         ("ref_pose", "ref_pose"),
                         ("ref_pose_x", "ref_pose_x"),
+                        ("ref_pose_qini", "ref_pose_qini"),
+                        ("ref_force", "ref_force"),
                         ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position"),
+                        ("joint_position", "joint_position_zeros"),
+                        ("x_coord_mocap", "x_coord_mocap"),
                         ("external_stop", "joy_stop")
                     ],
                     parameters=[
-                        {"ref_path": data['general']['ref_path']['x']},
-                        {"is_cart": True},
-                        {"robot_config_params": data['config_params']['geometry']}
+                        {"ref_cart_path": data['general']['ref_path']['x']},
+                        {"robot_config_params": data['config_params']['geometry']},
+                        {"ts": data['general']['ts']},
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                        {"Nptos_set": 18000}
+                        #{"Nptos_set": data['general']['Nptos_set']}  #Set the number of samples for execution. 0 to do same samples as reference.txt
                     ]
                 ),
                 ComposableNode(
-                    package='pr_ref_gen',
-                    node_plugin='pr_ref_gen::RefPose',
-                    node_name='ref_force_gen',
+                    package='pr_aux',
+                    node_plugin='pr_aux::AddGain',
+                    node_name='add_q',
                     remappings=[
-                        ("ref_pose", "ref_force"),
-                        ("end_flag", "end_flag"),
-                        ("joint_position", "joint_position"),
-                        ("ref_pose_x", "useless_topic"),
-                        ("external_stop", "joy_stop")
+                        ("input1", "joint_position_zeros"),
+                        ("input2", "ref_pose_qini"),
+                        ("output", "joint_position")
                     ],
                     parameters=[
-                        {"ref_path": data['force']['ref_force_path']},
-                        {"is_cart": False},
-                        {"robot_config_params": data['config_params']['geometry']}
+                        {"signs": [1.0, 1.0]},
+                        {"gains": [1.0, 1.0, 1.0, 1.0]}
                     ]
                 ),
                 ComposableNode(
@@ -252,7 +257,7 @@ def generate_launch_description():
                     node_plugin='pr_mocap::PRXMocapSynchronizer',
                     node_name='mocap_synchronizer',
                     remappings=[
-                        ("joint_position", "joint_position"),
+                        ("joint_position", "joint_position_zeros"),
                         ("x_mocap_sync", "x_mocap_sync"),
                         ("end_flag", "end_flag")
                     ],
@@ -270,7 +275,7 @@ def generate_launch_description():
                          ("joint_position", "joint_position")
                      ],
                      parameters=[
-                         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Borrar_Flex"}
+                         {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Borrar"}
                      ]
                  ),
 
@@ -329,11 +334,11 @@ def generate_launch_description():
                     node_plugin='pr_sensors_actuators::Encoders',
                     node_name='position_sensors',
                     remappings=[
-                        ("joint_position", "joint_position")
+                        ("joint_position", "joint_position_zeros")
                     ],
                     parameters=[
                         {"ts_ms": data['general']['ts']*1000},
-                        {"initial_position": data['general']['init_q']},
+                        {"initial_position": [0.0, 0.0, 0.0, 0.0]},
                         {"gearbox_mult":  data['general']['encoder_gearbox']},
                     ]
                 ),            
@@ -349,7 +354,7 @@ def generate_launch_description():
         output='screen',
     )
 
-    return launch.LaunchDescription([pr_force_pid])  
+    return launch.LaunchDescription([pr_force_pid , joy_mapping])  
     
     #FOR LAUNCH JOYSTICK 
-    # ADD AFTER COMPOSITE NODE ,joy_mapping
+    # ADD AFTER COMPOSITE NODE , joy_mapping

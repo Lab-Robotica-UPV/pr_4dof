@@ -106,12 +106,53 @@ ament_target_dependencies(ref_init_auto
 rclcpp_components_register_nodes(ref_init_auto "pr_ref_gen::RefInitAuto")
 set(node_plugins "${node_plugins}pr_ref_gen::RefInitAuto;$<TARGET_FILE:ref_init_auto>\n")
 
+### Ref Des Auto Generator node ###
+
+add_library(ref_des_auto SHARED
+src/ref_des_auto.cpp)
+
+target_compile_definitions(ref_des_auto
+PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(ref_des_auto
+"rclcpp"
+"rclcpp_components"
+"pr_msgs"
+"std_msgs"
+"pr_lib"
+"Eigen3")
+
+rclcpp_components_register_nodes(ref_des_auto "pr_ref_gen::RefDesAuto")
+set(node_plugins "${node_plugins}pr_ref_gen::RefDesAuto;$<TARGET_FILE:ref_des_auto>\n")
+
+### Ref Static Auto Generator node ###
+
+add_library(ref_static_auto SHARED
+  src/ref_static_auto.cpp)
+
+target_compile_definitions(ref_static_auto
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(ref_static_auto
+  "rclcpp"
+  "rclcpp_components"
+  "pr_msgs"
+  "std_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(ref_static_auto "pr_ref_gen::RefStaticAuto")
+set(node_plugins "${node_plugins}pr_ref_gen::RefStaticAuto;$<TARGET_FILE:ref_static_auto>\n")
+
+
 ### Installation ###
 
 install(TARGETS
   ref_pose
   ref_server
   ref_init_auto
+  ref_des_auto
+  ref_static_auto
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

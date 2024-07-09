@@ -55,6 +55,8 @@ namespace pr_sensors_actuators
             bool is_finished = false;
             std::vector<double> initial_position;
             int iter = 0;
+            std::chrono::system_clock::time_point t_start , t_end;
+            bool stopw_flag=false;
 
             double init_delay_sec = 6.0;
             std::vector<double> gearbox_mult;

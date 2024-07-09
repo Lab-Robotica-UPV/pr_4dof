@@ -1,4 +1,5 @@
 import launch
+from launch_ros.actions import Node #Added for launch simple nodes
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from ament_index_python.packages import get_package_share_directory
@@ -154,7 +155,7 @@ def generate_launch_description():
                 #           ("joint_position", "joint_position")
                 #       ],
                 #       parameters=[
-                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Marina_MVC_2"}
+                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Carles_SegFuerza"}
                 #       ]
                 #   ),
 
@@ -252,15 +253,15 @@ def generate_launch_description():
                 #     ],
                 # ),
 
-                #ComposableNode(
-                #    package='pr_joy',
-                #    node_plugin='pr_joy::JoyStop',
-                #    node_name='joy_stop',
-                #    remappings=[
-                #        ("joy", "joy"),
-                #        ("joy_stop", "joy_stop")
-                #    ],
-                #),   
+                ComposableNode(
+                    package='pr_joy',
+                    node_plugin='pr_joy::JoyStop',
+                    node_name='joy_stop',
+                    remappings=[
+                        ("joy", "joy"),
+                        ("joy_stop", "joy_stop")
+                    ],
+                ),   
                 
                 # ComposableNode(
                 #     package='pr_topic_forwarding',
@@ -345,4 +346,12 @@ def generate_launch_description():
             output='screen',
     )
 
-    return launch.LaunchDescription([pr_pid])
+    #RUN SIMPLE NODE joy_node FROM JOY
+    #For adding this part you must add executable dependences in the package's xlm file
+    joy_mapping=Node(
+        package="joy",
+        node_executable="joy_node",
+        output='screen',
+    )
+
+    return launch.LaunchDescription([pr_pid,joy_mapping])

@@ -32,8 +32,13 @@ namespace pr_ref_gen
             bool is_cart;
             Eigen::MatrixXd ref_matrix_x;
             Eigen::MatrixXd ref_matrix_q;
-            int n_ref;
+            int n_ref, aux_n;
             int idx=0;
+            // Samples to execute in the trajectory
+            // If Nptos_set=0 the number of sample is equal to the rows in the reference file
+            // Else the number of samples are defined by the user
+            int Nptos_set;
+
             bool external_stop = false;
     };
 }

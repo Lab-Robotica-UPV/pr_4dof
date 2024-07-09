@@ -1,14 +1,14 @@
+import os
 import launch
+from launch_ros.actions import Node #Added for launch simple nodes
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from ament_index_python.packages import get_package_share_directory
 
-import os
+from numpy import fromstring
 
-from numpy import fromstring, pi
 import yaml
 
-from datetime import datetime
 
 def generate_launch_description():
 
@@ -20,9 +20,8 @@ def generate_launch_description():
     from load_data import data
 
     controller_params = data['pdg_pid']
-    print(data['general']['init_q'])
-
-    pr_pid = ComposableNodeContainer(
+    
+    pr_dmp_rev_flim = ComposableNodeContainer(
             node_name='pr_container',
             node_namespace='',
             package='rclcpp_components',
@@ -81,83 +80,45 @@ def generate_launch_description():
                     ]
                 ),
                 ComposableNode(
-                    package='pr_ref_gen',
-                    node_plugin='pr_ref_gen::RefPose',
-                    node_name='ref_pose_gen',
+                    package='pr_dmp',
+                    node_plugin='pr_dmp::DmpRevFLim',
+                    node_name='dmp_rev_flim',
                     remappings=[
-                        ("ref_pose", "ref_pose"),
-                        ("ref_pose_x", "useless_topic"),
-                        ("end_flag", "end_flag"),
                         ("joint_position", "joint_position"),
+                        ("dmp_ref_gen_q", "ref_pose"),
+                        ("dmp_ref_gen_x", "ref_pose_x"),
+                        ("dmp_force", "force_state_fixed_4comp"),
+                        # ("dmp_force", "force_joints"),
+                        ("dmp_phase","dmp_phase"),
+                        ("dmp_phase_speed","dmp_phase_speed"),
                         ("external_stop", "joy_stop")
                     ],
                     parameters=[
-                        {"ref_path": data['general']['ref_path']['q']},
-                        {"is_cart": False},
+                        {"ts": data['general']['ts']},
+                        {"ref_path": data['general']['ref_path']['x']},
+                        {"gka_path": ""},
+                        {"n_basis_functions": 1000},
+                        {"isCart": True},
+                        {"calcCart": True},
+                        {"ref_x_init": data['general']['init_x']},
                         {"robot_config_params": data['config_params']['geometry']},
-                        {"Nptos_set": data['general']['Nptos_set']}  #Set the number of samples for execution. 0 to do same samples as reference.txt
+                        {"damping_coefficient": data['dmp']['damping']},
+                        {"spring_constant": data['dmp']['spring']},
+                        {"mass": data['dmp']['mass']},
+                        {"speed": 1.0},
+                        {"gain_slowdown": data['dmp']['gain_slowdown']},
+                        {"gmr_path": "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/gmr/Rafa_der/outdata/gmm.txt"},
                     ]
                 ),
-
                 ComposableNode(
-                    package='pr_controllers',
-                    node_plugin='pr_controllers::PIDController',
-                    node_name='controller',
+                    package='pr_joy',
+                    node_plugin='pr_joy::JoyStop',
+                    node_name='joy_stop',
                     remappings=[
-                        ("ref_pos", "ref_pose"),
-                        ("pos", "joint_position"),
+                        ("joy", "joy"),
+                        ("joy_stop", "joy_stop")
                     ],
-                    parameters=[
-                        {"kp_gain": controller_params['controller']['kp']},
-                        {"kv_gain": controller_params['controller']['kv']},
-                        {"ki_gain": controller_params['controller']['ki']},
-                        {"vp_conversion": controller_params['vp_conversion']},
-                        {"max_v": data['general']['robot']['v_sat']}
-                    ]
-                ),
-
-                # ComposableNode(
-                #     package='pr_mocap',
-                #     node_plugin='pr_mocap::PRXMocap',
-                #     node_name='mocap',
-                #     remappings=[
-                #         ("x_coord_mocap", "x_coord_mocap")
-                #     ],
-                #     parameters=[
-                #         {"server_address": data['mocap_server']["server_address"]},
-                #         {"server_command_port": data['mocap_server']["server_command_port"]},
-                #         {"server_data_port": data['mocap_server']["server_data_port"]},
-                #         {"marker_names":  data['mocap_server']["marker_names"]},
-                #         {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
-                #     ]
-                # ),
-
-                # ComposableNode(
-                #     package='pr_mocap',
-                #     node_plugin='pr_mocap::PRXMocapSynchronizer',
-                #     node_name='mocap_synchronizer',
-                #     remappings=[
-                #         ("joint_position", "joint_position"),
-                #         ("x_mocap_sync", "x_mocap_sync")
-                #     ],
-                #     parameters=[
-                #         {"tol": 0.01}
-                #     ]
-                # ),
-
-                #   ComposableNode(
-                #       package='pr_mocap',
-                #       node_plugin='pr_mocap::PRXMocapRecorder',
-                #       node_name='ref_x_mocap_recorder',
-                #       remappings=[
-                #           ("end_flag", "end_flag"),
-                #           ("joint_position", "joint_position")
-                #       ],
-                #       parameters=[
-                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Marina_MVC_2"}
-                #       ]
-                #   ),
-
+                ), 
                 ComposableNode(
                     package='pr_sensors_actuators',
                     node_plugin='pr_sensors_actuators::ForceSensor',
@@ -166,14 +127,13 @@ def generate_launch_description():
                         ("joint_position", "joint_position"),
                         ("force_state", "force_state"),
                         ("force_state_sync", "force_state_sync"),
-                        ("force_state_std", "force_state_std")
+                        ("force_state_accelstamped", "force_state_accelstamped")
                     ],
                     parameters=[
                         {"calibration": data['force']['calibration']},
                         {"noise_threshold": data['force']['noise_threshold']}
                     ]
                 ),
-
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::ForceFixedFrame',
@@ -191,26 +151,33 @@ def generate_launch_description():
                         {"fixed_frame_noise_threshold": data['force']['fixed_frame_noise_threshold']}
                     ]
                 ),
-
-                  ComposableNode(
-                     package='pr_ref_gen',
-                     node_plugin='pr_ref_gen::RefPose',
-                     node_name='ref_force_gen',
-                     remappings=[
-                         ("ref_pose", "ref_force"),
-                         ("end_flag", "end_flag_force"),
-                         ("joint_position", "joint_position"),
-                         ("ref_pose_x", "useless_topic")
-                     ],
-                     parameters=[
-                         {"ref_path": data['force']['ref_force_path']},
-                         {"is_cart": False},
-                         {"robot_config_params": data['config_params']['geometry']},
-                         {"Nptos_set": data['general']['Nptos_set']}  #Set the number of samples for execution. 0 to do same samples as reference.txt
-                     ]
-                 ),
-
-
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocap',
+                #     node_name='mocap',
+                #     remappings=[
+                #         ("x_coord_mocap", "x_coord_mocap")
+                #     ],
+                #     parameters=[
+                #         {"server_address": data['mocap_server']["server_address"]},
+                #         {"server_command_port": data['mocap_server']["server_command_port"]},
+                #         {"server_data_port": data['mocap_server']["server_data_port"]},
+                #         {"marker_names":  data['mocap_server']["marker_names"]},
+                #         {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                #     ]
+                # ),
+                # ComposableNode(
+                #     package='pr_mocap',
+                #     node_plugin='pr_mocap::PRXMocapSynchronizer',
+                #     node_name='mocap_synchronizer',
+                #     remappings=[
+                #         ("joint_position", "joint_position"),
+                #         ("x_mocap_sync", "x_mocap_sync")
+                #     ],
+                #     parameters=[
+                #         {"tol": 0.01}
+                #     ]
+                # ),
                 ComposableNode(
                     package='pr_modelling',
                     node_plugin='pr_modelling::ForwardKinematics',
@@ -241,6 +208,20 @@ def generate_launch_description():
                 #         {"robot_config_params": data['config_params']['geometry']},
                 #     ]
                 # ),
+                ComposableNode(
+                    package='pr_controllers',
+                    node_plugin='pr_controllers::PIDController',
+                    node_name='controller',
+                    remappings=[
+                        ("ref_pos", "ref_pose"),
+                        ("pos", "joint_position"),
+                    ],
+                    parameters=[
+                        {"kp_gain": controller_params['controller']['kp']},
+                        {"kv_gain": controller_params['controller']['kv']},
+                        {"ki_gain": controller_params['controller']['ki']}
+                    ]
+                ),
                 # ComposableNode(
                 #     package='pr_aux',
                 #     node_plugin='pr_aux::MatrixMult',
@@ -251,83 +232,6 @@ def generate_launch_description():
                 #         ("output_vector", "force_joints")
                 #     ],
                 # ),
-
-                #ComposableNode(
-                #    package='pr_joy',
-                #    node_plugin='pr_joy::JoyStop',
-                #    node_name='joy_stop',
-                #    remappings=[
-                #        ("joy", "joy"),
-                #        ("joy_stop", "joy_stop")
-                #    ],
-                #),   
-                
-                # ComposableNode(
-                #     package='pr_topic_forwarding',
-                #     node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                #     node_name='pos_q_std',
-                #     remappings=[
-                #         ("array_topic", "joint_position"),
-                #         ("quaternion_topic", "pos_q_std")
-                #     ],
-                # ),  
-
-                ComposableNode(
-                    package='pr_topic_forwarding',
-                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='ref_x_std',
-                    remappings=[
-                        ("array_topic", "ref_x"),
-                        ("quaternion_topic", "ref_x_std")
-                    ],
-                ),  
-
-                ComposableNode(
-                    package='pr_topic_forwarding',
-                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='pos_x_std',
-                    remappings=[
-                        ("array_topic", "x_coord"),
-                        ("quaternion_topic", "pos_x_std")
-                    ],
-                ),  
-
-                 ComposableNode(
-                    package='pr_topic_forwarding',
-                    node_plugin='pr_topic_forwarding::ArrayToQuaternion',
-                    node_name='ref_force_std',
-                    remappings=[
-                        ("array_topic", "ref_force"),
-                        ("quaternion_topic", "ref_force_std")
-                    ],
-                ),  
-
-                ComposableNode(
-                    package='pr_topic_forwarding',
-                    node_plugin='pr_topic_forwarding::ForceStateToWrench',
-                    node_name='force_std',
-                    remappings=[
-                        ("force_topic", "force_state_fixed"),
-                        ("wrench_topic", "force_std")
-                    ],
-                ),
-
-                ComposableNode(
-                    package='pr_modelling',
-                    node_plugin='pr_modelling::ForwardKinematics',
-                    node_name='for_kin',
-                    remappings=[
-                        ("joint_position", "ref_pose"),
-                        ("x_coord", "ref_x"),
-                    ],
-                    parameters=[
-                        {"robot_config_params": data['config_params']['geometry']},
-                        {"initial_position": data['general']['init_x']},
-                        {"tol": data['general']['dir_kin']['tol']},
-                        {"iter": data['general']['dir_kin']['iter']},
-                    ]
-                ),
-
                 ComposableNode(
                     package='pr_sensors_actuators',
                     node_plugin='pr_sensors_actuators::Encoders',
@@ -340,9 +244,22 @@ def generate_launch_description():
                         {"initial_position": data['general']['init_q']},
                         {"gearbox_mult":  data['general']['encoder_gearbox']},
                     ]
-                ),            
+                ),
             ],
             output='screen',
     )
 
-    return launch.LaunchDescription([pr_pid])
+    # ros2_bag = launch.actions.ExecuteProcess(
+    #     cmd=['ros2', 'bag', 'record', '-a'],
+    #     output = 'screen'
+    # )
+
+    #RUN SIMPLE NODE joy_node FROM JOY
+    #For adding this part you must add executable dependences in the package's xlm file
+    joy_mapping=Node(
+        package="joy",
+        node_executable="joy_node",
+        output='screen',
+    )
+
+    return launch.LaunchDescription([pr_dmp_rev_flim, joy_mapping])

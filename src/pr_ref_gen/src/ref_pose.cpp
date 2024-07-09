@@ -32,10 +32,17 @@ namespace pr_ref_gen
         this->declare_parameter<std::vector<double>>("robot_config_params", 
             {0.4, 0.4, 0.4, 0.15, 90*(M_PI/180), 45*(M_PI/180), 0.3, 0.3, 0.3, 50*(M_PI/180), 90*(M_PI/180)});
 
+        this->declare_parameter<int>("Nptos_set", 0);
+
         this->get_parameter("ref_path", ref_path);
         this->get_parameter("is_cart", is_cart);
         this->get_parameter("robot_config_params", robot_params);
 
+        //Selection final sample for the trajectory
+        // If Nptos_set=0 the number of sample is equal to the rows in the reference file
+        // Else the number of samples are defined by the user
+        this->get_parameter("Nptos_set", Nptos_set);
+        
         if(is_cart)
         {
 
@@ -45,7 +52,18 @@ namespace pr_ref_gen
                 return;
             }
             RCLCPP_INFO(this->get_logger(), "Pose references file opened");
-            n_ref = ref_matrix_x.rows();
+            
+            // Defining the number of samples for execution
+            aux_n= ref_matrix_x.rows();
+            if (Nptos_set <= 0 || Nptos_set > aux_n){
+                //Number the samples executing equal to rows in .txt file
+                n_ref = aux_n;
+            }
+            else{
+                //Number the samples executing selected by the user
+                n_ref = Nptos_set;
+            }
+            
 
             ref_matrix_q = Eigen::MatrixXd::Zero(n_ref, 4);
             
@@ -66,7 +84,17 @@ namespace pr_ref_gen
                 return;
             }
             RCLCPP_INFO(this->get_logger(), "Pose references file opened");
-            n_ref = ref_matrix_q.rows();
+
+            // Defining the number of samples for execution
+            aux_n= ref_matrix_q.rows();
+            if (Nptos_set <= 0 || Nptos_set > aux_n){
+                //Number the samples executing equal to rows in .txt file
+                n_ref = aux_n;
+            }
+            else{
+                //Number the samples executing selected by the user
+                n_ref = Nptos_set;
+            }
 
             //In this case, ref_matrix_x have zeros and should not be used
             ref_matrix_x = Eigen::MatrixXd::Zero(n_ref, 4);
@@ -140,12 +168,14 @@ namespace pr_ref_gen
 
         idx++;
         std::cout << idx << std::endl;
+
     }
 
     void RefPose::external_stop_callback(const std_msgs::msg::Bool::SharedPtr external_stop_msg)
     {
         if (!external_stop)
             external_stop = external_stop_msg->data;
+
     }
 
 }

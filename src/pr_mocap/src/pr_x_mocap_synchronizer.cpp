@@ -54,6 +54,8 @@ namespace pr_mocap
         iter_disconnected = 0;
         x_mocap.x_coord.data = x_mocap_msg->x_coord.data;
         x_mocap.latency = x_mocap_msg->latency;
+        //Test connection with Mocap node
+        //if (is_connected) std::cout << "MC2" << std::endl;
     }
 
     void PRXMocapSynchronizer::sampling_callback(const pr_msgs::msg::PRArrayH::SharedPtr x_sampling_msg)

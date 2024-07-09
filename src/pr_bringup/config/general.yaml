@@ -1,6 +1,9 @@
 # No se usa por el momento
 ts: 0.01
 
+# Number of samples set for executing
+Nptos_set: 0  # If it is <= 0 the number of sample is taken from the ref txt file
+
 robot:
   robot_name: 'robot_5p' #'robot_3ups_rpu' #'robot_5p'
   config: 1
@@ -25,8 +28,10 @@ robot_5p:
     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauFree/ref_qinde_TE0Pau_CF1_5P_V1.txt"
     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/PauFree/ref_cart_TE0Pau_CF1_5P_V1.txt"
 
-    # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRDEMO_CF1_5P_V1.txt"
-    # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRDEMO_CF1_5P_V1.txt"
+    #DEMOSTRATION ANGEL
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_qinde_TRRDEMO_CF1_5P_V1.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/ref_cart_TRRDEMO_CF1_5P_V1.txt"
+    
     # q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_qinde_TE0_CF1_5P_V1.txt"
     # x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/ref_5p/admittance/ref_cart_TE0_CF1_5P_V1.txt"
 
@@ -77,15 +82,32 @@ robot_5p:
 
     #########################
     # FORCE TRACKING ------- PAU
-     q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230726/TrayPatas_mus1_Angel_Estatica.txt"
-     x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230726/TrayCarte_mus1_Angel_Estatica.txt"
+    #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230726/TrayPatas_mus1_Angel_Estatica.txt"
+    #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Angel_20230726/TrayCarte_mus1_Angel_Estatica.txt"
+
 
     #################
     # JOSE 20230717
     #q: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayPatas_mus7_Jose_Estatica.txt"
     #x: "/home/paralelo4dofnew/ros2_eloquent_ws/pr_4dof/references/bio/Jose_20230717/TrayCarte_mus7_Jose_Estatica.txt"
 
+    #################
+    # TRAYECTORIAS PROPIOCEPCION
+    q: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_qinde_TRPPC_CF1_I90_T50_L0.5.txt"
+    x: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_cart_TRPPC_CF1_I90_T50_L0.5.txt"
 
+    #################
+    # TRAYECTORIAS FEM
+    #q: "/home/paralelo4dofnew/SharedFolder/FEE-Trayectorias/Marina/TrayPatasSegFuerza_mus_14.txt"
+    #x: "/home/paralelo4dofnew/SharedFolder/FEE-Trayectorias/Marina/TrayCartSegFuerza_mus_14.txt"
+
+    #Trayectorias Iniciales
+    # q: "/home/paralelo4dofnew/SharedFolder/FEE-Trayectorias/00-Trayectorias iniciales/02_Vastos_Patas_CF1.txt"
+    # x: "/home/paralelo4dofnew/SharedFolder/FEE-Trayectorias/00-Trayectorias iniciales/02_Vastos_Cartesianas_CF1.txt"
+
+    # POINT GENERATED FROM MATLAB TO START IN THE ACTUAL POSE
+    #q: "/home/paralelo4dofnew/SharedFolder/ref_qinde_TRRBio_CF1_V1.txt"
+    #x: "/home/paralelo4dofnew/SharedFolder/ref_cart_TRRBio_CF1_V1.txt"
     
 
 

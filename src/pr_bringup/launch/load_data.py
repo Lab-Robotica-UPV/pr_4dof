@@ -23,6 +23,7 @@ data = dict()
 general_params = load_params('general.yaml')
 data['general'] = {}
 data['general']['ts'] = general_params['ts']
+data['general']['Nptos_set'] = general_params['Nptos_set']
 data['general']['robot'] = general_params['robot']
 robot_name = data['general']['robot']['robot_name']
 configuration = data['general']['robot']['config']
