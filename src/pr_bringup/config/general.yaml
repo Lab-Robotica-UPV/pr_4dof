@@ -93,8 +93,32 @@ robot_5p:
 
     ##################
     # TRAYECTORIAS PROPIOCEPCION
-    q: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_qinde_TRPPC_CF1_I90_T50_L0.5.txt"
-    x: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_cart_TRPPC_CF1_I90_T50_L0.5.txt"
+    # q: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_qinde_TRPPC_CF1_I90_T53_L0.49.txt"
+    # x: "/home/paralelo4dofnew/SharedFolder/Propiocepcion Trayectorias/Variable femur/ref_cart_TRPPC_CF1_I90_T53_L0.49.txt"
+
+    ##################
+    # TRAYECTORIAS ADAPTIVE LAW WITH NEURAL NETWORK 
+    q: "/home/paralelo4dofnew/SharedFolder/Trayectorias/Lotfy/ref_qinde_TRR17_CF1_5P_IdV1.txt"
+    x: "/home/paralelo4dofnew/SharedFolder/Trayectorias/Lotfy/ref_cart_TRR17_CF1_5P_IdV1.txt"
+
+    #COMPENSACIONES
+    # PAu L0.47 T53 T30
+    # Angel L0.5 T53 T36   % NO ES 56
+    # Eugenio L0.44 T53 T33
+    # Marina L0.44 T56  !!!!!OJO CAMBIA PUNTO DE INICIO (Z+4cm) Y NOMBRE a TRPPC_mar
+    # Elena L0.48 T54
+    # Amparo L0.43 T50 T33    USO: TRPPC_mar
+    # Marta L0.44 T33         USO: TRPPC_mar
+    # Noemi L0.45 T50 T30     USO: TRPPC_mar
+    # Sara L0.43 T33 T53      USO: TRPPC_mar 
+    # Ferran L0.51 T33 T50   
+    # Mario L0.48 T30 T50
+    # Ana L0.49 T33 T53
+    # Maria L0.45 T36 T50     USO: TRPPC_mar
+    # Laura L0.49 T33 T53
+
+    #!!!!!!!!!!!! las trayectorias suavisadas tienen una "S" al final de la TRPPC "S" !!!!!!!!!!!!
+
 
     #################
     # TRAYECTORIAS FEM

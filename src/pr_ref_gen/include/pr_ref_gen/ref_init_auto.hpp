@@ -40,9 +40,10 @@ namespace pr_ref_gen
             // Iteration for cameras and encodr
             int idx=0;
             // Number of samples
-            static const int ndata_cam = 400;
+            int ndata_cam;
             // Matrix to store readings of position and orientation
-            Eigen::Matrix<double,ndata_cam,4> MX_init_estim;
+            //Eigen::Matrix<double,ndata_cam,4> MX_init_estim;
+            Eigen::MatrixXd MX_init_estim;
             // Individual sample from cameras, initial and final position
             Eigen::Vector4d x_cam, x_ini, x_fin;
             // Position arrays

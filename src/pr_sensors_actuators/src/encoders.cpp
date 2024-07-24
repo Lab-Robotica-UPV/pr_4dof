@@ -28,11 +28,18 @@ namespace pr_sensors_actuators
         this->declare_parameter<float>("ts_ms", 10.0);
         this->declare_parameter<std::vector<double>>("initial_position", {0.665559, 0.654974, 0.691026, 0.631511});
 		this->declare_parameter<std::vector<double>>("gearbox_mult", {1.0, 1.0, 1.0, 1.0});
+		//Initial delay parameter
+		this->declare_parameter<double>("init_delay_sec", 6.0);
 
         //Read parameters
         this->get_parameter("ts_ms", ts);
         this->get_parameter("initial_position", initial_position);
 		this->get_parameter("gearbox_mult", gearbox_mult);
+		//Initial delay parameter
+		this->get_parameter("init_delay_sec", init_delay_sec);
+
+		//Initial delay parameter
+
 
         //Position publisher
         publisher_ = this->create_publisher<pr_msgs::msg::PRArrayH>(

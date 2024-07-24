@@ -112,7 +112,8 @@ def generate_launch_description():
                         {"robot_config_params": data['config_params']['geometry']},
                         {"lmin_Ang_OTS": data['sing']['lmin_Ang_OTS']},
                         {"lmin_FJac": data['sing']['lmin_FJac']},
-                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"}
+                        {"robot_5p": data['general']['robot']['robot_name']=="robot_5p"},
+                        {"ndata_cam": 250} #Number of samplas from optitrack Default 400
                     ]
                 ),
 
@@ -176,6 +177,7 @@ def generate_launch_description():
                         {"ts_ms": data['general']['ts']*1000},
                         {"initial_position": [0.0, 0.0, 0.0, 0.0]},
                         {"gearbox_mult":  data['general']['encoder_gearbox']},
+                        {"init_delay_sec": 4.0}
                     ]
                 ),            
             ],

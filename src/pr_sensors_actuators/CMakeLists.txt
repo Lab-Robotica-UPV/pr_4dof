@@ -26,6 +26,8 @@ find_package(geometry_msgs REQUIRED)
 
 find_package(pr_msgs REQUIRED)
 
+find_package(pr_lib REQUIRED)
+
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -102,7 +104,9 @@ ament_target_dependencies(encoders_sim
   "rclcpp"
   "rclcpp_components"
   "std_msgs"
-  "pr_msgs")
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
 
 rclcpp_components_register_nodes(encoders_sim "pr_sensors_actuators::EncodersSim")
 set(node_plugins "${node_plugins}pr_sensors_actuators::EncodersSim;$<TARGET_FILE:encoders_sim>\n")

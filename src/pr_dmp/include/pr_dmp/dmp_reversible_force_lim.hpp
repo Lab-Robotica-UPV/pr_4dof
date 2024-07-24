@@ -117,6 +117,8 @@ namespace pr_dmp
             Eigen::VectorXd y_dmp, z_dmp;
             // Forces to apply (coming from the callbacks)
             Eigen::Vector4d force = Eigen::Vector4d::Zero();
+            // Forces to apply (calculating based on the boot's rotation)
+            Eigen::Vector4d force_rot = Eigen::Vector4d::Zero();
             // Current phase of the (exponential) phase system
             Eigen::VectorXd phase_current = Eigen::VectorXd::Zero(1);
             // Phase limit
@@ -145,8 +147,10 @@ namespace pr_dmp
             Eigen::Matrix<double, 4, 3> q_inv_kin;
 
             //LIMIT FOR START MOVING
-            // Force limit under start moving
-            double force_limit = 5.0;
+            // Vctor of Force limit under start moving
+            Eigen::Vector4d force_limit = {0.5, 0.5, 0.05, 0};
+            //Angle in which is rotated respect to the mobile reference frame
+            double ang_boot = -45.0*(M_PI/180);
 
             // For GMR
             GaussianMixture gmr;
@@ -163,7 +167,7 @@ namespace pr_dmp
             Vector inC;
             Vector outC;
             // Norm of the force
-            double norm_f;
+            double norm_f, norm_f_rot;
             // Error to evalaute
             double error = 0.0;
             // How many times to surpass the standard deviation for the error

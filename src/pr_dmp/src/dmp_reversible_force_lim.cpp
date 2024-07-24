@@ -197,6 +197,18 @@ namespace pr_dmp
         force[2] /= scaling_factor;
         force[3] /= scaling_factor;
         norm_f = force.norm();
+
+        //Force coming from sensor in the frame aligned with the boot
+        force_rot[0]=(cos(ang_boot)*force[0])-(sin(ang_boot)*force[1]);
+        force_rot[1]=(sin(ang_boot)*force[0])+(cos(ang_boot)*force[1]);
+        force_rot[2]=0*force[2];
+        force_rot[3]=0*force[3];
+        norm_f_rot = force_rot.norm();
+
+        //Printing the original sensor and the rotation
+        std::cout << "Sensor: " << force.transpose() << std::endl;
+        std::cout << "Sensor rot: " << force_rot.transpose() << std::endl;
+
         input_gmr(0,0) = -dmp->get_tau()/a_x*log(x_dmp);
         mean_gmr = gmr.doRegression(input_gmr,sigma_gmr,inC,outC);
                 // std::cout << mean_gmr(0,gmr.get_dim()-2) << std::endl;
@@ -211,10 +223,10 @@ namespace pr_dmp
                 speed=0.0;
                 flag_user_ctrl=true;
             }
-            if (force[0] > force_limit){
+            if ((force[0] > 0) && norm_f_rot > force_limit[0]){  //|| (force[1] < -force_limit[1]
                 speed = min(speed+0.025*pow(speed,2)+0.005, 1.0);
             }  
-            else if (force[0] < -force_limit){
+            else if ((force[0] < -0) && norm_f_rot > force_limit[0]){  //&& norm_f_rot > force_limit[0]  || (force[1] > force_limit[1])
                 speed = max(speed-0.025*pow(speed,2)-0.005, -1.0);   //speed = min(speed+0.005*pow(speed,2)+0.001, 1.0);
             }
             else{
@@ -232,8 +244,7 @@ namespace pr_dmp
         }
         
         std::cout << "Time: " << input_gmr(0,0) << std::endl;
-        std::cout << "error: " << error << std::endl;
-                /////////// HASTA AQUI /////////////
+        //std::cout << "error: " << error << std::endl;
 
                 
     }

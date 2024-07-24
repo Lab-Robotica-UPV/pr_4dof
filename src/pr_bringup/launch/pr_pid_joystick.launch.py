@@ -155,7 +155,7 @@ def generate_launch_description():
                 #           ("joint_position", "joint_position")
                 #       ],
                 #       parameters=[
-                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Carles_SegFuerza"}
+                #           {"filename": datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + "_Test_Pau"}
                 #       ]
                 #   ),
 

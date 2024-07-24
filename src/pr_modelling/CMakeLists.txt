@@ -164,6 +164,25 @@ ament_target_dependencies(q_grav
 rclcpp_components_register_nodes(q_grav "pr_modelling::QGrav")
 set(node_plugins "${node_plugins}pr_modelling::QGrav;$<TARGET_FILE:q_grav>\n")
 
+### Neural Network model estimator node ###
+
+add_library(adaptive_rbfg_nn SHARED
+  src/adaptive_rbfg_nn.cpp)
+
+target_compile_definitions(adaptive_rbfg_nn
+  PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_target_dependencies(adaptive_rbfg_nn
+  "rclcpp"
+  "rclcpp_components"
+  "message_filters"
+  "pr_msgs"
+  "pr_lib"
+  "Eigen3")
+
+rclcpp_components_register_nodes(adaptive_rbfg_nn "pr_modelling::AdaptiveRBFGNN")
+set(node_plugins "${node_plugins}pr_modelling::AdaptiveRBFGNN;$<TARGET_FILE:adaptive_rbfg_nn>\n")
+
 
 ### STATE PUBLISHER node ###
 
@@ -303,6 +322,7 @@ install(TARGETS
   dep_jac
   rast_t
   q_grav
+  adaptive_rbfg_nn
   state_publisher
   ang_ots
   for_jac
